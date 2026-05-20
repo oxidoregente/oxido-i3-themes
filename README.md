@@ -12,13 +12,11 @@ Un sistema completo de personalización visual para **i3wm** que unifica temas, 
 
 | Escritorio | Centro de Control | Selector de Temas |
 |---|---|---|
-| `[screenshot-desktop]` | `[screenshot-settings]` | `[screenshot-themes]` |
+| ![desktop](assets/screenshots/desktop.png) | ![settings](assets/screenshots/settings.png) | ![themes](assets/screenshots/themes.png) |
 
 | Animaciones | Menú de Energía | Notificaciones |
 |---|---|---|
-| `[screenshot-animations]` | `[screenshot-power]` | `[screenshot-notifications]` |
-
-> *Las capturas se generan durante la instalación o pueden agregarse manualmente en `assets/screenshots/`.*
+| ![animations](assets/screenshots/animations.png) | ![power](assets/screenshots/power.png) | ![notifications](assets/screenshots/notifications.png) |
 
 ---
 
