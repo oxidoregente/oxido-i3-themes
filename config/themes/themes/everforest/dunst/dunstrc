@@ -1,0 +1,154 @@
+[global]
+    font = JetBrainsMono Nerd Font Mono 14
+
+    corner_radius = 16
+    icon_corner_radius = 10
+
+    frame_width = 2
+    frame_color = "#7fbbb3"
+
+    gap_size = 6
+    separator_height = 2
+    separator_color = frame
+
+    padding = 16
+    horizontal_padding = 20
+    line_height = 4
+
+    offset = 20x20
+    origin = top-right
+
+    markup = full
+    format = "<b>%s</b>\n%b"
+
+    icon_position = left
+    icon_theme = Adwaita, hicolor
+    icon_path = /usr/share/icons/Adwaita/16x16/status/:/usr/share/icons/Adwaita/16x16/devices/:/usr/share/icons/Adwaita/16x16/apps/:/usr/share/icons/Adwaita/16x16/mimetypes/:/usr/share/icons/Adwaita/32x32/status/:/usr/share/icons/Adwaita/32x32/devices/:/usr/share/icons/Adwaita/48x48/status/:/usr/share/icons/Adwaita/48x48/devices/:/usr/share/icons/Adwaita/scalable/status/:/usr/share/icons/Adwaita/symbolic/status/
+    enable_recursive_icon_lookup = true
+    max_icon_size = 48
+    min_icon_size = 24
+
+    word_wrap = yes
+    ellipsize = middle
+    ignore_newline = false
+
+    notification_limit = 15
+    history_length = 50
+
+    sticky_history = yes
+    show_age_threshold = 60
+
+    progress_bar = true
+    progress_bar_height = 8
+    progress_bar_frame_width = 0
+    progress_bar_min_width = 150
+    progress_bar_max_width = 300
+    progress_bar_corner_radius = 4
+
+    highlight = "#7fbbb3"
+    background = "#2d353bee"
+    foreground = "#d3c6aa"
+
+    transparency = 10
+    sort = yes
+    indicate_hidden = yes
+    fullscreen = pushback
+
+    mouse_left_click = do_action, close_current
+    mouse_middle_click = close_current
+    mouse_right_click = close_all
+
+    stack_duplicates = true
+    hide_duplicate_count = false
+
+    idle_threshold = 120
+
+    close = ctrl+space
+    close_all = ctrl+shift+space
+    history = ctrl+period
+    context = ctrl+shift+period
+
+[urgency_low]
+    background = "#2d353b"
+    foreground = "#475258"
+    frame_color = "#475258"
+    highlight = "#475258"
+    timeout = 4
+    icon = dialog-information-symbolic
+
+[urgency_normal]
+    background = "#2d353b"
+    foreground = "#d3c6aa"
+    frame_color = "#7fbbb3"
+    highlight = "#7fbbb3"
+    timeout = 6
+    icon = dialog-information-symbolic
+
+[urgency_critical]
+    background = "#e67e80"
+    foreground = "#d3c6aa"
+    frame_color = "#dbbc7f"
+    highlight = "#dbbc7f"
+    timeout = 0
+    icon = dialog-warning-symbolic
+    script = paplay /usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga
+
+# Per-app rules
+[firefox]
+    appname = "Firefox"
+    urgency = critical
+    timeout = 10
+
+[chromium]
+    appname = "Chromium"
+    urgency = critical
+    timeout = 10
+
+[brave]
+    appname = "Brave"
+    urgency = critical
+    timeout = 10
+
+[chrome]
+    appname = "Google-chrome"
+    urgency = critical
+    timeout = 10
+
+[screenshot]
+    appname = "Screenshot"
+    timeout = 3
+    urgency = low
+
+[flameshot]
+    appname = "flameshot"
+    timeout = 3
+    urgency = low
+
+[volume]
+    appname = "pamixer"
+    format = "<b>%s</b>\n%b"
+    urgency = low
+    timeout = 2
+    max_icon_size = 0
+
+[brightness]
+    appname = "brightnessctl"
+    format = "<b>%s</b>\n%b"
+    urgency = low
+    timeout = 2
+    max_icon_size = 0
+
+[telegram]
+    appname = "Telegram"
+    urgency = critical
+    timeout = 8
+
+[telegram-desktop]
+    appname = "TelegramDesktop"
+    urgency = critical
+    timeout = 8
+
+[discord]
+    appname = "Discord"
+    urgency = critical
+    timeout = 8

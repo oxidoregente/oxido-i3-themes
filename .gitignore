@@ -1,0 +1,9 @@
+current/
+*.bak
+__pycache__/
+*.pyc
+*.pyo
+.cache/
+thumbnails/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,91 @@
+* {
+    background:     #1a1b26;
+    background-alt: #303858;
+    foreground:     #c0caf5;
+    selected:       #7aa2f7;
+    urgent:         #f7768e;
+    border-col:     #383050;
+    lightbg:        #303858;
+    lightfg:        #7aa2f7;
+    red:            #f7768e;
+    blue:           #7aa2f7;
+}
+
+window {
+    width:          480px;
+    border-radius:  16px;
+    border:         2px;
+    border-color:   #383050;
+    background-color: @background;
+    padding:        12px;
+    location:       center;
+    anchor:         center;
+    font:           "JetBrainsMono Nerd Font Mono 14";
+}
+
+mainbox {
+    children:   [ inputbar, listview ];
+    spacing:    8;
+}
+
+inputbar {
+    children:   [ textbox-prompt-colon, entry, case-indicator ];
+    background-color: @background-alt;
+    border-radius:    10px;
+    padding:          10px 14px;
+    spacing:          8;
+}
+
+textbox-prompt-colon {
+    text:   "  ";
+    expand: false;
+}
+
+entry {
+    placeholder:      "Buscar...";
+    placeholder-color: #383050;
+    text-color:       @foreground;
+}
+
+listview {
+    spacing:        6;
+    padding:        6px;
+    layout:         vertical;
+    cycle:          true;
+    dynamic:        true;
+    scrollbar:      false;
+    columns:        1;
+    lines:          6;
+}
+
+element {
+    padding:        10px 14px;
+    border-radius:  10px;
+    text-color:     @foreground;
+}
+
+element selected {
+    background-color: @selected;
+    text-color:       @background;
+}
+
+element urgent {
+    background-color: @urgent;
+    text-color:       @foreground;
+}
+
+element-icon {
+    size:       28px;
+    padding:    0 10px 0 0;
+}
+
+element-text {
+    vertical-align: 0.5;
+    horizontal-align: 0.0;
+}
+
+scrollbar {
+    width:        6px;
+    handle-width: 10px;
+    handle-color: @selected;
+}
