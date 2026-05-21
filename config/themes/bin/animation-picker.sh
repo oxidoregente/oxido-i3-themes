@@ -201,9 +201,10 @@ def find_trigger_in_section(lines, trigger, section_start, section_end):
     return None
 
 
-def update_file(filepath, trigger, preset, params, target=None):
+def update_file(filepath, trigger, preset, params, target=None, quiet=False):
     if not os.path.exists(filepath):
-        print(f"  → Saltando: {filepath} no existe")
+        if not quiet:
+            print(f"  → Saltando: {filepath} no existe")
         return False
 
     with open(filepath, 'r') as f:
@@ -214,22 +215,26 @@ def update_file(filepath, trigger, preset, params, target=None):
         app = target
         rule_start = find_rule_match(lines, app)
         if rule_start is None:
-            print(f"  ✗ No se encontró regla para '{app}' en {os.path.basename(filepath)}")
+            if not quiet:
+                print(f"  ✗ No se encontró regla para '{app}' en {os.path.basename(filepath)}")
             return False
 
         anim_start = find_animations_block(lines, rule_start)
         if anim_start is None:
-            print(f"  ✗ No hay animations block para '{app}' en {os.path.basename(filepath)}")
+            if not quiet:
+                print(f"  ✗ No hay animations block para '{app}' en {os.path.basename(filepath)}")
             return False
 
         tline = find_trigger_in_section(lines, trigger, anim_start, anim_start + 30)
         if tline is None:
-            print(f"  ✗ No se encontró trigger '{trigger}' en regla '{app}'")
+            if not quiet:
+                print(f"  ✗ No se encontró trigger '{trigger}' en regla '{app}'")
             return False
 
         cline = find_closing(lines, tline)
         if cline is None:
-            print(f"  ✗ No se pudo determinar el cierre del bloque para '{trigger}' en '{app}'")
+            if not quiet:
+                print(f"  ✗ No se pudo determinar el cierre del bloque para '{trigger}' en '{app}'")
             return False
 
         new_block = build_block(trigger, preset, params, indent=8)
@@ -255,6 +260,20 @@ def update_file(filepath, trigger, preset, params, target=None):
     return True
 
 
+def find_all_app_rules(lines):
+    """Encuentra todos los nombres de app con reglas de animación per-app."""
+    apps = []
+    for i, line in enumerate(lines):
+        if 'class_g' in line and 'match' in line:
+            for j in range(i, min(i + 15, len(lines))):
+                if 'animations = ({' in lines[j]:
+                    m = re.search(r"class_g\s*=\s*'([^']+)'", line)
+                    if m:
+                        apps.append(m.group(1))
+                    break
+    return apps
+
+
 def apply_preset_to_file(filepath, preset_name):
     if preset_name not in PRESETS:
         print(f"  ✗ Preset desconocido: {preset_name}")
@@ -262,12 +281,27 @@ def apply_preset_to_file(filepath, preset_name):
 
     preset = PRESETS[preset_name]
     success = True
+
+    # Aplica triggers globales primero
     for trig, p_params in preset.items():
         p = p_params['preset']
         pp = {k: v for k, v in p_params.items() if k != 'preset'}
         result = update_file(filepath, trig, p, pp)
         if not result:
             success = False
+
+    # Cascade: aplica el mismo preset a todas las reglas per-app
+    with open(filepath, 'r') as f:
+        lines = f.read().split('\n')
+
+    for app in find_all_app_rules(lines):
+        for trig, p_params in preset.items():
+            p = p_params['preset']
+            pp = {k: v for k, v in p_params.items() if k != 'preset'}
+            result = update_file(filepath, trig, p, pp, target=app, quiet=True)
+            if not result:
+                success = False
+
     return success
 
 

@@ -195,12 +195,16 @@ per_app_trigger() {
         local choice=$(cat << EOF | rofi -dmenu -p "  🎬  $app" -theme-str "$BASE_THEME" -i
 ▸  Abrir
 ▸  Cerrar
+▸  Show — al cambiar workspace
+▸  Hide — al salir workspace
 ← Volver
 EOF
         )
         case "$choice" in
             *"Abrir"*)  pick_animation "open" "$app" ;;
             *"Cerrar"*) pick_animation "close" "$app" ;;
+            *"Show"*)   pick_animation "show" "$app" ;;
+            *"Hide"*)   pick_animation "hide" "$app" ;;
             *"Volver"*) return ;;
             *) return ;;
         esac

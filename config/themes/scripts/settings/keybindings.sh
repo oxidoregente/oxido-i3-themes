@@ -3,7 +3,7 @@
 CONFIG=~/.config/i3/config
 
 # Parse all bindsym lines from i3 config (skip comments)
-entries=$(grep "^bindsym\|^bindcode" "$CONFIG" 2>/dev/null | grep -v "^#" | \
+entries=$(grep "^\s*bindsym\|^\s*bindcode" "$CONFIG" 2>/dev/null | grep -v "^\s*#" | \
     sed 's/bindsym //;s/bindcode //;s/exec --no-startup-id //;s/exec //' | \
     awk '{$1=$1};1' | sort)
 

@@ -1,6 +1,6 @@
 # 🎨 oxido-i3-themes
 
-> 23 temas visuales · Centro de Control en Rofi · Animaciones picom v13 · PowerSaver
+> 23 temas visuales · Centro de Control en Rofi · Animaciones picom v13 · PowerSaver · Apps predeterminadas
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 

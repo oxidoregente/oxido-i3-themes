@@ -30,7 +30,13 @@ case "$choice" in
             element { border-radius: 6px; padding: 6px 10px; background-color: #313244; text-color: #cdd6f4; font: "FiraCode Nerd Font 9"; }
             element selected { background-color: #89b4fa; text-color: #1e1e2e; }' -i)
         [ -z "$sel" ] && exit 0
-        ssid=$(echo "$sel" | awk '{print $1}')
+        ssid=$(echo "$sel" | awk '{
+            for(i=NF; i>=1; i--)
+                if($i ~ /^[0-9]+$/) { sig=i; break }
+            if(!sig) { print $1; exit }
+            for(j=1; j<sig-1; j++) printf "%s%s", (j>1?" ":""), $j
+            print ""
+        }')
         nmcli device wifi connect "$ssid" 2>/dev/null && \
             dunstify -u low "📶  WiFi" "Conectado a: $ssid" || \
             dunstify -u critical "📶  WiFi" "Error al conectar a: $ssid (¿requiere contraseña?)"
