@@ -69,7 +69,7 @@ theme_dirs = sorted([d for d in os.listdir(THEMES_DIR)
 class ThemeSelector(Gtk.Window):
     def __init__(self):
         super().__init__(title="🎨  Theme Selector")
-        self.set_default_size(920, 540)
+        self.set_default_size(960, 580)
         self.set_border_width(12)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.set_wmclass("theme-selector", "ThemeSelector")
@@ -82,7 +82,7 @@ class ThemeSelector(Gtk.Window):
         list row { padding: 6px 10px; background-color: #181825; color: #cdd6f4; }
         list row:selected { background-color: #89b4fa; color: #1e1e2e; }
         list row:hover { background-color: #313244; }
-        button { background-color: #313244; color: #cdd6f4; border-radius: 8px; padding: 8px 20px; border: none; font-size: 11pt; }
+        button { background-color: #313244; color: #cdd6f4; border-radius: 8px; padding: 8px 20px; border: 0; font-size: 11pt; }
         button:hover { background-color: #89b4fa; color: #1e1e2e; }
         label { color: #cdd6f4; }
         """
@@ -109,8 +109,8 @@ class ThemeSelector(Gtk.Window):
         sw.set_min_content_height(400)
 
         self.liststore = Gtk.ListStore(str, str)  # display_name, theme_name
-        self.liststore.set_sort_column_id(0, Gtk.SortType.ASCENDING)
 
+        self.liststore.append(["🎲 Tema aleatorio", "__random__"])
         for t in theme_dirs:
             display = t
             if t == CURRENT_THEME:
@@ -161,7 +161,7 @@ class ThemeSelector(Gtk.Window):
         btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
         btn_box.set_halign(Gtk.Align.END)
 
-        random_btn = Gtk.Button(label="🎲 Aleatorio")
+        random_btn = Gtk.Button(label="Aleatorio")
         random_btn.connect("clicked", self.on_random)
         btn_box.pack_end(random_btn, False, False, 0)
 
@@ -205,6 +205,13 @@ class ThemeSelector(Gtk.Window):
             return
         self.selected_theme = theme
 
+        if theme == "__random__":
+            self.preview_image.set_from_icon_name(
+                "media-playlist-shuffle", Gtk.IconSize.DIALOG)
+            self.lbl_theme_name.set_markup(
+                "<b>🎲 Tema aleatorio</b>\nSelecciona un tema al azar")
+            return
+
         thumb_path = os.path.join(CACHE_DIR, f"{theme}.png")
         if os.path.exists(thumb_path):
             try:
@@ -231,20 +238,27 @@ class ThemeSelector(Gtk.Window):
 
     def apply_theme(self):
         theme = self.selected_theme
+        if theme == "__random__":
+            import random
+            themes = [row[1] for row in self.liststore if row[1] != "__random__"]
+            theme = random.choice(themes)
         if theme and theme != CURRENT_THEME:
             os.system(f"~/.config/themes/bin/theme-switch.sh '{theme}' &")
         self.destroy()
 
     def on_random(self, button):
-        import random
-        n = len(self.liststore)
-        if n == 0:
+        themes = [row[1] for row in self.liststore if row[1] != "__random__"]
+        if not themes:
             return
-        idx = random.randrange(n)
-        path = Gtk.TreePath(idx)
-        self.treeview.set_cursor(path)
-        self.treeview.scroll_to_cell(path, None, True, 0.5, 0.5)
-        self.update_preview()
+        import random
+        theme = random.choice(themes)
+        for i, row in enumerate(self.liststore):
+            if row[1] == theme:
+                path = Gtk.TreePath(i)
+                self.treeview.set_cursor(path)
+                self.treeview.scroll_to_cell(path, None, True, 0.5, 0.5)
+                self.update_preview()
+                break
 
     def on_key_press(self, widget, event):
         if event.keyval == Gdk.KEY_Escape:
