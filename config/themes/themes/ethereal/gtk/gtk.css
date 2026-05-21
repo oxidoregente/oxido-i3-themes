@@ -1,0 +1,152 @@
+/* GTK3 theme overrides for ethereal
+   Generated to match ethereal's color palette */
+
+@define-color theme_bg_color #060B1E;
+@define-color theme_base_color #060B1E;
+@define-color theme_fg_color #ffcead;
+@define-color theme_text_color #ffcead;
+@define-color theme_selected_bg_color #7d82d9;
+@define-color theme_selected_fg_color #ffcead;
+@define-color theme_unfocused_bg_color #060B1E;
+@define-color theme_unfocused_fg_color #ffcead;
+@define-color theme_unfocused_base_color #060B1E;
+@define-color theme_unfocused_text_color #ffcead;
+@define-color theme_unfocused_selected_bg_color #313244;
+@define-color theme_unfocused_selected_fg_color #ffcead;
+@define-color borders #313244;
+@define-color unfocused_borders #313244;
+@define-color warning_color #d20f39;
+@define-color error_color #d20f39;
+@define-color success_color #7d82d9;
+
+/* Nemo / GTK3 specific overrides */
+NemoWindow {
+    background-color: @theme_bg_color;
+}
+
+NemoWindow .sidebar,
+.nemo-window .sidebar {
+    background-color: @theme_bg_color;
+    color: @theme_fg_color;
+}
+
+.nemo-window .sidebar .view {
+    background-color: @theme_bg_color;
+    color: @theme_fg_color;
+}
+
+.nemo-window .sidebar .view:selected,
+.nemo-window .sidebar .view:active {
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
+}
+
+NemoIconView {
+    background-color: @theme_bg_color;
+    color: @theme_fg_color;
+}
+
+NemoIconView:selected {
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
+}
+
+NemoIconView:active {
+    background-color: shade(@theme_selected_bg_color, 0.9);
+    color: @theme_selected_fg_color;
+}
+
+NemoIconView:hover {
+    background-color: shade(@theme_bg_color, 1.1);
+}
+
+NemoIconView .view:selected {
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
+}
+
+NemoIconView .view:active {
+    background-color: shade(@theme_selected_bg_color, 0.9);
+    color: @theme_selected_fg_color;
+}
+
+/* Toolbar */
+.toolbar {
+    background-color: #313244;
+    border-bottom: 1px solid shade(#313244, 0.8);
+    color: @theme_fg_color;
+}
+
+.toolbar button {
+    background-color: #313244;
+    color: @theme_fg_color;
+    border: 1px solid shade(#313244, 0.8);
+}
+
+.toolbar button:hover {
+    background-color: shade(#313244, 1.2);
+}
+
+.toolbar button:active,
+.toolbar button:checked {
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
+}
+
+/* Entry widgets */
+entry {
+    background-color: @theme_base_color;
+    color: @theme_fg_color;
+    border-color: #313244;
+}
+
+entry:focus {
+    border-color: @theme_selected_bg_color;
+}
+
+/* Tree/List views */
+treeview {
+    background-color: @theme_bg_color;
+    color: @theme_fg_color;
+}
+
+treeview:selected {
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
+}
+
+treeview:hover {
+    background-color: shade(@theme_bg_color, 1.1);
+}
+
+/* Progress bar */
+progressbar {
+    background-color: #313244;
+}
+
+progressbar trough {
+    background-color: #313244;
+}
+
+progressbar progress {
+    background-color: @theme_selected_bg_color;
+}
+
+/* Scrollbar */
+scrollbar {
+    background-color: #313244;
+}
+
+scrollbar slider {
+    background-color: shade(@theme_selected_bg_color, 0.7);
+}
+
+scrollbar slider:hover {
+    background-color: @theme_selected_bg_color;
+}
+
+/* Status bar */
+.statusbar {
+    background-color: #313244;
+    color: @theme_fg_color;
+}

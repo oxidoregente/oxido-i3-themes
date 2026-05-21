@@ -1,0 +1,117 @@
+/* GTK3 theme overrides for dracula-powersaver */
+
+@define-color theme_bg_color #1e1e2e;
+@define-color theme_base_color #1e1e2e;
+@define-color theme_fg_color #cdd6f4;
+@define-color theme_text_color #cdd6f4;
+@define-color theme_selected_bg_color #7a7ab0;
+@define-color theme_selected_fg_color #cdd6f4;
+@define-color borders #282a36;
+@define-color unfocused_borders #282a36;
+
+NemoWindow {
+    background-color: @theme_bg_color;
+}
+
+NemoWindow .sidebar,
+.nemo-window .sidebar {
+    background-color: @theme_bg_color;
+    color: @theme_fg_color;
+}
+
+.nemo-window .sidebar .view {
+    background-color: @theme_bg_color;
+    color: @theme_fg_color;
+}
+
+.nemo-window .sidebar .view:selected,
+.nemo-window .sidebar .view:active {
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
+}
+
+NemoIconView {
+    background-color: @theme_bg_color;
+    color: @theme_fg_color;
+}
+
+NemoIconView:selected {
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
+}
+
+NemoIconView:active {
+    background-color: shade(@theme_selected_bg_color, 0.9);
+    color: @theme_selected_fg_color;
+}
+
+NemoIconView:hover {
+    background-color: shade(@theme_bg_color, 1.1);
+}
+
+.toolbar {
+    background-color: #282a36;
+    border-bottom: 1px solid shade(#282a36, 0.8);
+    color: @theme_fg_color;
+}
+
+.toolbar button {
+    background-color: #282a36;
+    color: @theme_fg_color;
+    border: 1px solid shade(#282a36, 0.8);
+}
+
+.toolbar button:hover {
+    background-color: shade(#282a36, 1.2);
+}
+
+.toolbar button:active,
+.toolbar button:checked {
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
+}
+
+entry {
+    background-color: @theme_base_color;
+    color: @theme_fg_color;
+    border-color: #282a36;
+}
+
+entry:focus {
+    border-color: @theme_selected_bg_color;
+}
+
+treeview {
+    background-color: @theme_bg_color;
+    color: @theme_fg_color;
+}
+
+treeview:selected {
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
+}
+
+treeview:hover {
+    background-color: shade(@theme_bg_color, 1.1);
+}
+
+progressbar trough {
+    background-color: #282a36;
+}
+
+progressbar progress {
+    background-color: @theme_selected_bg_color;
+}
+
+scrollbar slider {
+    background-color: shade(@theme_selected_bg_color, 0.7);
+}
+
+scrollbar slider:hover {
+    background-color: @theme_selected_bg_color;
+}
+
+.statusbar {
+    background-color: #282a36;
+    color: @theme_fg_color;
+}
