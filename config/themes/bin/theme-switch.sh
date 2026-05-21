@@ -35,6 +35,7 @@ APPS=(
     "apply-rofi.sh"
     "apply-conky.sh"
     "apply-i3.sh"
+    "apply-gtk.sh"
 )
 for app in "${APPS[@]}"; do
     APPLYER="$THEMES_DIR/applyers/$app"
