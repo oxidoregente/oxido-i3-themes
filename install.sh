@@ -112,7 +112,42 @@ restart_services() {
     info "Servicios reiniciados"
 }
 
-# ─── 7. Mostrar resumen ───
+# ─── 7. Configurar GTK theme (Orchis-Dark para nemo) ───
+setup_gtk_theme() {
+    # Verificar si Orchis-Dark está instalado
+    local orchis_found=false
+    for dir in /usr/share/themes ~/.themes ~/.local/share/themes; do
+        if [ -d "$dir/Orchis-Dark" ] || [ -d "$dir/Orchis-dark" ]; then
+            orchis_found=true
+            break
+        fi
+    done
+
+    if [ "$orchis_found" = false ]; then
+        warn "Tema GTK 'Orchis-Dark' no encontrado. nemo (Archivos) usará el tema por defecto."
+        warn "Instalalo manualmente desde: https://github.com/vinceliuice/Orchis-theme"
+    else
+        gsettings set org.gnome.desktop.interface gtk-theme "Orchis-Dark" 2>/dev/null || true
+        gsettings set org.cinnamon.desktop.interface gtk-theme "Orchis-Dark" 2>/dev/null || true
+        gsettings set org.gnome.desktop.interface icon-theme "ePapirus-Dark" 2>/dev/null || true
+        gsettings set org.cinnamon.desktop.interface icon-theme "ePapirus-Dark" 2>/dev/null || true
+        info "Tema GTK: Orchis-Dark"
+        info "Iconos GTK: ePapirus-Dark"
+    fi
+
+    # Sobrescribir configuración de GTK3 del sistema si está forzando otro tema
+    if [ -f /etc/gtk-3.0/settings.ini ]; then
+        local sys_theme
+        sys_theme=$(grep "^gtk-theme-name" /etc/gtk-3.0/settings.ini 2>/dev/null | head -1 | sed 's/.*=\s*//;s/\s*//')
+        if [ -n "$sys_theme" ] && [ "$sys_theme" != "Orchis-Dark" ]; then
+            warn "/etc/gtk-3.0/settings.ini tiene: $sys_theme"
+            warn "Podría anular la configuración del tema GTK."
+            warn "Ejecutá: sudo sed -i 's/gtk-theme-name.*/gtk-theme-name=Orchis-Dark/' /etc/gtk-3.0/settings.ini"
+        fi
+    fi
+}
+
+# ─── 8. Mostrar resumen ───
 show_summary() {
     echo ""
     echo "╔══════════════════════════════════════════╗"
@@ -127,6 +162,7 @@ show_summary() {
     echo "  $mod+Shift+/  → Ver atajos"
     echo ""
     echo "💡  Presiona $mod+Shift+r para recargar i3"
+    echo "💡  nemo (Archivos) cambia de color con cada tema"
     echo "📁  Backup: $BACKUP_DIR"
     echo "📄  Licencia: MIT — libre para usar, modificar y compartir"
 }
@@ -154,5 +190,6 @@ install_packages
 backup_configs
 copy_configs
 apply_default_theme
+setup_gtk_theme
 restart_services
 show_summary

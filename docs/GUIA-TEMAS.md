@@ -852,6 +852,57 @@ bubble-sys    = #______  (burbuja de sistema)
 ### 10.12 OpenCode (Editor/Terminal AI)
 ### 10.13 Temas para Navegador (Brave/Chrome) y Editores
 
+### 10.14 GTK / Nemo (Archivos)
+
+El sistema aplica el tema GTK `Orchis-Dark` al cambiar de tema de i3, y sobreescribe los colores de acento de nemo (y otras apps GTK3) mediante `~/.config/gtk-3.0/gtk.css`.
+
+**Qué cambia en nemo al seleccionar un tema de i3:**
+- Color de la **sidebar** (panel izquierdo)
+- Color de **selección** de archivos y carpetas
+- Color de la **toolbar** (barra de herramientas)
+- Barras de **progreso** y **scroll**
+- Fondos de vista en **icono** y **detalle**
+
+**Archivos involucrados:**
+```
+tema/gtk/
+├── theme.cfg    → nombre del tema GTK base (Orchis-Dark) e iconos (ePapirus-Dark)
+└── gtk.css      → sobreescrituras de color para coincidir con la paleta del tema
+```
+
+**Flujo al cambiar de tema:**
+1. `theme-switch.sh` ejecuta `apply-gtk.sh`
+2. `apply-gtk.sh` lee `theme.cfg` y setea el tema e iconos via gsettings
+3. `apply-gtk.sh` copia `gtk.css` a `~/.config/gtk-3.0/gtk.css`
+4. Al abrir nemo, éste lee primero `gtk.css` del usuario, luego el tema base
+
+**Colores de acento por tema (ejemplos):**
+
+| Tema | Color de acento |
+|------|----------------|
+| Nord | `#81a1c1` (azul) |
+| Dracula | `#bd93f9` (púrpura) |
+| Gruvbox | `#d79921` (dorado) |
+| Everforest | `#7fbbb3` (verde agua) |
+| Tokyo Night | `#7aa2f7` (azul) |
+| Catppuccin Mocha | `#89b4fa` (azul) |
+| Rose Pine | `#56949f` (teal) |
+
+**Requisitos:**
+- Tema GTK `Orchis-Dark` instalado (incluido en Linux Mint, disponible en gnome-look.org o desde el gestor de paquetes)
+- nemo debe **reiniciarse** después de cambiar de tema para ver los cambios (`pkill nemo && nemo &`)
+
+**Nota sobre `/etc/gtk-3.0/settings.ini`:** Si el sistema tiene un tema forzado desde esta ruta, puede anular la configuración de usuario. Revisalo con:
+```bash
+grep gtk-theme-name /etc/gtk-3.0/settings.ini
+```
+Si muestra un tema diferente a `Orchis-Dark`, ejecutá:
+```bash
+sudo sed -i 's/gtk-theme-name.*/gtk-theme-name=Orchis-Dark/' /etc/gtk-3.0/settings.ini
+```
+
+---
+
 Algunos temas de Omarchy incluyen archivos adicionales:
 
 | Archivo | Propósito | Temas que lo tienen |

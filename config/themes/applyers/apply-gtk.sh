@@ -16,6 +16,10 @@ ICON_THEME="${icon_theme:-$DEFAULT_ICON_THEME}"
 gsettings set org.gnome.desktop.interface gtk-theme "$GTK_THEME" 2>/dev/null
 gsettings set org.gnome.desktop.interface icon-theme "$ICON_THEME" 2>/dev/null
 
+# Also set for Cinnamon if present
+gsettings set org.cinnamon.desktop.interface gtk-theme "$GTK_THEME" 2>/dev/null
+gsettings set org.cinnamon.desktop.interface icon-theme "$ICON_THEME" 2>/dev/null
+
 mkdir -p ~/.config/gtk-3.0
 
 cat > ~/.config/gtk-3.0/settings.ini << CFGEOF

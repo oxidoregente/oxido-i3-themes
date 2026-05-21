@@ -1,6 +1,6 @@
 # 🎨 oxido-i3-themes
 
-> 24 temas visuales · Centro de Control en Rofi · Animaciones picom v13 · PowerSaver
+> 23 temas visuales · Centro de Control en Rofi · Animaciones picom v13 · PowerSaver
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -22,7 +22,7 @@ Un sistema completo de personalización visual para **i3wm** que unifica temas, 
 
 ## 🚀 Características
 
-### 🎨 24 Temas Visuales
+### 🎨 23 Temas Visuales
 | | | | |
 |---|---|---|---|
 | Catppuccin Latte | Catppuccin Mocha | Dracula | Dracula PowerSaver |
@@ -30,9 +30,9 @@ Un sistema completo de personalización visual para **i3wm** que unifica temas, 
 | Hackerman | Kanagawa | Last Horizon | Lumon |
 | Matte Black | Miasma | Nord | Osaka Jade |
 | Retro 82 | Ristretto | Rose Pine | Solitude |
-| Tokyo Night | Vantablack | White | *(y más)* |
+| Tokyo Night | Vantablack | White | |
 
-Cada tema incluye colores coherentes para: i3 · picom · polybar · dunst · rofi · alacritty · btop · cava · conky · lockscreen
+Cada tema incluye colores coherentes para todos los componentes del escritorio: i3 · picom · polybar · dunst · rofi · alacritty · btop · cava · conky · lockscreen · **nemo (Archivos)**
 
 ### ⚙️ Centro de Control (`$mod+Shift+s`)
 Panel unificado con Rofi para gestionar todo el sistema:
@@ -67,6 +67,23 @@ Sistema de animaciones por ventana con 4 triggers configurables individualmente:
 ### 🔋 PowerSaver Mode (`$mod+Shift+p`)
 Toggle que desactiva picom (cambia a xrender), conky y polybar mínima para ahorrar batería.
 
+### 🖥️ Tema GTK / Nemo (Archivos)
+Al cambiar de tema, el Gestor de Archivos **nemo** (Archivos) y otras aplicaciones GTK actualizan sus colores de acento para coincidir con el tema activo:
+
+| Tema | Color de acento en nemo |
+|------|------------------------|
+| Nord | `#81a1c1` (azul) |
+| Dracula | `#bd93f9` (púrpura) |
+| Gruvbox | `#d79921` (dorado) |
+| Everforest | `#7fbbb3` (verde agua) |
+
+El sistema aplica:
+1. **Tema GTK base** — `Orchis-Dark` (moderno, oscuro, compatible con nemo)
+2. **gtk.css por tema** — Sobreescribe colores de sidebar, toolbar, selección, barras de progreso y scrollbars para que coincidan con la paleta del tema activo
+3. **Iconos** — `ePapirus-Dark` consistente con todos los temas
+
+> 💡 **Nota:** nemo debe estar cerrado al cambiar de tema para que los cambios se apliquen. Si ya está abierto, cerrarlo y abrirlo de nuevo (`pkill nemo && nemo &`).
+
 ---
 
 ## 📦 Instalación
@@ -74,6 +91,7 @@ Toggle que desactiva picom (cambia a xrender), conky y polybar mínima para ahor
 ### Requisitos
 - Linux con **i3wm** (o i3-gaps)
 - Python 3 + GTK3 (para el selector de temas)
+- Tema GTK **Orchis-Dark** (viene incluido en Linux Mint; en otras distros se instala desde el gestor de paquetes)
 - Conexión a internet
 
 ### Un solo comando
@@ -133,7 +151,7 @@ oxido-i3-themes/
 │   │   ├── bin/         → Scripts principales (theme-switch, lock, etc.)
 │   │   ├── scripts/     → Centro de Control (settings) + utilidades
 │   │   ├── applyers/    → Aplicadores de tema por componente
-│   │   ├── themes/      → 24 temas con paletas, wallpapers y configs
+│   │   ├── themes/      → 23 temas con paletas, wallpapers, configs y gtk.css
 │   │   └── templates/   → Plantillas para generar nuevos temas
 │   ├── i3/              → ~/.config/i3/ (config + scripts)
 │   ├── picom/           → ~/.config/picom/picom.conf
