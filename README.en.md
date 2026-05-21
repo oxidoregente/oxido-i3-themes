@@ -211,6 +211,14 @@ Specific photographer credits are available in each image's metadata.
 - **Rofi** — Launcher and Control Center menus
 - **Python GTK3** — Theme selector with live preview
 
+### opencode
+
+This project was not built by hand. Much of the code, debugging, refactoring, and documentation was generated, reviewed, and corrected by **[opencode](https://opencode.ai)**, an AI-powered software engineering tool that operates directly on the filesystem and terminal.
+
+The idea, direction, conceptual design, and overall supervision belong to **oxidoregente** — the human author behind this repository — who conceived and guided every feature, from the Rofi Control Center to the animation system and PowerSaver mode. opencode acted as a tireless pair programmer, implementing and debugging at the file level, enabling a development pace that would have been impossible manually.
+
+> Inspirations and attributions to the community — including Omarchy, r/unixporn, Arch Linux Forums, yshui/picom, and the i3 project — are detailed in the sections above and remain fully credited.
+
 ---
 
 ## 📄 License

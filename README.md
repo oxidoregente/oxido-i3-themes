@@ -195,6 +195,14 @@ Créditos específicos de fotógrafos disponibles en los metadatos de cada image
 - **Rofi** — Lanzador y menús del Centro de Control
 - **Python GTK3** — Selector de temas con vista previa
 
+### opencode
+
+Este proyecto no se hizo a mano. Gran parte del código, debugging, refactorización y documentación fue generada, revisada y corregida por **[opencode](https://opencode.ai)**, una herramienta de IA para ingeniería de software que opera directamente sobre el sistema de archivos y el terminal.
+
+La idea, dirección, diseño conceptual y supervisión general del proyecto son de **oxidoregente** — el autor humano detrás del repositorio — quien concibió y guió cada funcionalidad, desde el Centro de Control en Rofi hasta el sistema de animaciones y PowerSaver. opencode actuó como un par de programación incansable, implementando y depurando a nivel de archivo, permitiendo un ritmo de desarrollo que habría sido imposible manualmente.
+
+> Inspiraciones y atribuciones a la comunidad — incluyendo Omarchy, r/unixporn, Arch Linux Forums, yshui/picom y el proyecto i3 — se detallan en las secciones anteriores y se mantienen con todo el crédito que merecen.
+
 ---
 
 ## 📄 Licencia
