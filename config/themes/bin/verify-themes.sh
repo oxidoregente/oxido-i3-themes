@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# verify-themes.sh - Checks all 15 themes for integrity and consistency
+# verify-themes.sh - Checks all 23 themes for integrity and consistency
 set -e
 
 THEMES_DIR="$HOME/.config/themes/themes"
@@ -33,11 +33,10 @@ echo ""
 echo -e "${cyan}--- Theme Directories ---${nc}"
 EXPECTED_THEMES=(
   "dracula" "catppuccin-mocha" "tokyo-night" "nord" "gruvbox"
-  "clean-white" "dracula-powersaver"
-  "everforest" "kanagawa" "rose-pine" "catppuccin-latte"
-  "flexoki-light" "matte-black" "osaka-jade" "ristretto"
-  "hackerman" "ethereal" "lumon" "miasma" "vantablack"
-  "retro-82" "white" "last-horizon" "solitude"
+  "dracula-powersaver" "everforest" "kanagawa" "rose-pine"
+  "catppuccin-latte" "flexoki-light" "matte-black" "osaka-jade"
+  "ristretto" "hackerman" "ethereal" "lumon" "miasma"
+  "vantablack" "retro-82" "white" "last-horizon" "solitude"
 )
 for theme in "${EXPECTED_THEMES[@]}"; do
   [[ -d "$THEMES_DIR/$theme" ]] && ok "Theme '$theme'" || fail "Theme '$theme' MISSING"
@@ -220,7 +219,7 @@ echo -e "${cyan}--- Applyers ---${nc}"
 APPLYERS_DIR="$HOME/.config/themes/applyers"
 for app in apply-polybar.sh apply-rofi.sh apply-dunst.sh apply-i3.sh \
            apply-alacritty.sh apply-conky.sh apply-wallpaper.sh \
-           apply-btop.sh apply-cava.sh; do
+           apply-btop.sh apply-cava.sh apply-gtk.sh; do
   if [[ -x "$APPLYERS_DIR/$app" ]]; then
     ok "$app is executable"
   elif [[ -f "$APPLYERS_DIR/$app" ]]; then

@@ -97,7 +97,7 @@ El sistema aplica:
 ### Un solo comando
 
 ```bash
-git clone https://github.com/TU_USUARIO/oxido-i3-themes.git
+git clone https://github.com/oxidoregente/oxido-i3-themes.git
 cd oxido-i3-themes
 chmod +x install.sh
 ./install.sh
