@@ -37,8 +37,8 @@ for theme in "$THEMES_DIR"/*/; do
         convert "$src" -resize "${PREVIEW_SIZE}^" -gravity center -extent "$PREVIEW_SIZE" -quality 92 "$thumb" 2>/dev/null
     fi
     if [ ! -f "$thumb" ]; then
-        bg=$(grep "^bg_color=" "$theme/polybar/colors.ini" 2>/dev/null | cut -d= -f2 | tr -d ' "')
-        fg=$(grep "^fg_color=" "$theme/polybar/colors.ini" 2>/dev/null | cut -d= -f2 | tr -d ' "')
+        bg=$(grep "^background=" "$theme/polybar/colors.ini" 2>/dev/null | head -1 | sed 's/.*#//' | sed 's/^/#/')
+        fg=$(grep "^foreground=" "$theme/polybar/colors.ini" 2>/dev/null | head -1 | sed 's/.*#//' | sed 's/^/#/')
         [ -z "$bg" ] && bg="#1e1e2e"
         [ -z "$fg" ] && fg="#cdd6f4"
         convert -size "$PREVIEW_SIZE" "xc:$bg" -fill "$fg" -gravity center -pointsize 28 -annotate 0 "$name" "$thumb" 2>/dev/null
@@ -132,12 +132,6 @@ class ThemeSelector(Gtk.Window):
         sw.add(self.treeview)
         left_box.pack_start(sw, True, True, 0)
 
-        # Select current theme in list
-        for i, row in enumerate(self.liststore):
-            if row[1] == CURRENT_THEME:
-                self.treeview.set_cursor(Gtk.TreePath(i))
-                break
-
         hbox.pack_start(left_box, False, False, 0)
 
         # ─── Right: preview ───
@@ -167,6 +161,10 @@ class ThemeSelector(Gtk.Window):
         btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
         btn_box.set_halign(Gtk.Align.END)
 
+        random_btn = Gtk.Button(label="🎲 Aleatorio")
+        random_btn.connect("clicked", self.on_random)
+        btn_box.pack_end(random_btn, False, False, 0)
+
         cancel_btn = Gtk.Button(label="Cancelar")
         cancel_btn.connect("clicked", lambda w: self.destroy())
         btn_box.pack_end(cancel_btn, False, False, 0)
@@ -181,6 +179,12 @@ class ThemeSelector(Gtk.Window):
 
         self.add(hbox)
         self.selected_theme = CURRENT_THEME
+
+        # Select current theme in list (after preview_image exists)
+        for i, row in enumerate(self.liststore):
+            if row[1] == CURRENT_THEME:
+                self.treeview.set_cursor(Gtk.TreePath(i))
+                break
 
         # Show initial preview
         self.update_preview()
@@ -230,6 +234,17 @@ class ThemeSelector(Gtk.Window):
         if theme and theme != CURRENT_THEME:
             os.system(f"~/.config/themes/bin/theme-switch.sh '{theme}' &")
         self.destroy()
+
+    def on_random(self, button):
+        import random
+        n = len(self.liststore)
+        if n == 0:
+            return
+        idx = random.randrange(n)
+        path = Gtk.TreePath(idx)
+        self.treeview.set_cursor(path)
+        self.treeview.scroll_to_cell(path, None, True, 0.5, 0.5)
+        self.update_preview()
 
     def on_key_press(self, widget, event):
         if event.keyval == Gdk.KEY_Escape:
