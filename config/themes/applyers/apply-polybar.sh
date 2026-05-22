@@ -6,9 +6,9 @@ CONFIG_DST="$HOME/.config/polybar/config.ini"
 # Sync layouts from repo if runtime directory missing layouts
 LAYOUTS_DIR="$HOME/.config/polybar/layouts"
 REPO_LAYOUTS="/home/oxido/Documentos/oxido-i3-themes/config/polybar/layouts"
-if [ -d "$REPO_LAYOUTS" ] && [ ! -f "$LAYOUTS_DIR/bubble.ini" ]; then
+if [ -d "$REPO_LAYOUTS" ]; then
     mkdir -p "$LAYOUTS_DIR"
-    cp "$REPO_LAYOUTS"/*.ini "$LAYOUTS_DIR/"
+    cp --update "$REPO_LAYOUTS"/*.ini "$LAYOUTS_DIR/"
 fi
 
 if [ -f "$LAYOUT_FILE" ] && [ -f "$LAYOUTS_DIR/$(cat "$LAYOUT_FILE").ini" ]; then

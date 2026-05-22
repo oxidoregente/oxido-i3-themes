@@ -2,7 +2,7 @@
 # 📐  Polybar Layout Selector — cambia el diseño independientemente del tema
 DIR=~/.config/themes/scripts/settings
 BASE_THEME=$(cat "$DIR/.rasi-base" 2>/dev/null || echo '* { font: "FiraCode Nerd Font 10"; }
-window { width: 400; border-radius: 16px; background-color: #1e1e2e; }
+window { width: 420; border-radius: 16px; background-color: #1e1e2e; }
 mainbox { children: [listview]; spacing: 4px; padding: 8px; }
 listview { spacing: 4px; dynamic: true; }
 element { border-radius: 10px; padding: 10px 14px; background-color: #313244; text-color: #cdd6f4; }
@@ -23,16 +23,33 @@ fi
 CURRENT=""
 [ -f "$CURRENT_FILE" ] && CURRENT=$(cat "$CURRENT_FILE")
 
+apply_layout() {
+    local name="$1"
+    local label="$2"
+    echo "$name" > "$CURRENT_FILE"
+    CURRENT="$name"
+    dunstify -u low "📐  Layout Polybar" "$label"
+    THEME_LINK="$HOME/.config/themes/current/theme"
+    if [ -L "$THEME_LINK" ]; then
+        TDIR=$(readlink -f "$THEME_LINK")
+        bash "$HOME/.config/themes/applyers/apply-polybar.sh" "$TDIR"
+    fi
+}
+
 while true; do
-    current_label=""
-    [ -n "$CURRENT" ] && current_label=" (actual: $CURRENT)"
-    
     choice=$(cat <<EOF | rofi -dmenu -p "  📐  Diseño Polybar" -theme-str "$BASE_THEME" -i
 ◉  bubble$([ "$CURRENT" = "bubble" ] && echo "  ✓")
 ○  minimal$([ "$CURRENT" = "minimal" ] && echo "  ✓")
 ○  blocks$([ "$CURRENT" = "blocks" ] && echo "  ✓")
 ○  floating$([ "$CURRENT" = "floating" ] && echo "  ✓")
 ○  powerline$([ "$CURRENT" = "powerline" ] && echo "  ✓")
+○  default$([ "$CURRENT" = "default" ] && echo "  ✓")
+○  sharp$([ "$CURRENT" = "sharp" ] && echo "  ✓")
+○  colorblocks$([ "$CURRENT" = "colorblocks" ] && echo "  ✓")
+○  material$([ "$CURRENT" = "material" ] && echo "  ✓")
+○  rounded$([ "$CURRENT" = "rounded" ] && echo "  ✓")
+○  panel$([ "$CURRENT" = "panel" ] && echo "  ✓")
+○  dual$([ "$CURRENT" = "dual" ] && echo "  ✓")
 ───
 ⬅️  Volver
 EOF
@@ -41,59 +58,19 @@ EOF
     choice=$(echo "$choice" | sed 's/  ✓//')
     
     case "$choice" in
-        *"bubble"*)
-            echo "bubble" > "$CURRENT_FILE"
-            CURRENT="bubble"
-            dunstify -u low "📐  Layout Polybar" "Burbujas (clásico)"
-            # Re-aplicar polybar con tema actual + nuevo layout
-            THEME_LINK="$HOME/.config/themes/current/theme"
-            if [ -L "$THEME_LINK" ]; then
-                TDIR=$(readlink -f "$THEME_LINK")
-                bash "$HOME/.config/themes/applyers/apply-polybar.sh" "$TDIR"
-            fi
-            ;;
-        *"minimal"*)
-            echo "minimal" > "$CURRENT_FILE"
-            CURRENT="minimal"
-            dunstify -u low "📐  Layout Polybar" "Minimal"
-            THEME_LINK="$HOME/.config/themes/current/theme"
-            if [ -L "$THEME_LINK" ]; then
-                TDIR=$(readlink -f "$THEME_LINK")
-                bash "$HOME/.config/themes/applyers/apply-polybar.sh" "$TDIR"
-            fi
-            ;;
-        *"blocks"*)
-            echo "blocks" > "$CURRENT_FILE"
-            CURRENT="blocks"
-            dunstify -u low "📐  Layout Polybar" "Bloques"
-            THEME_LINK="$HOME/.config/themes/current/theme"
-            if [ -L "$THEME_LINK" ]; then
-                TDIR=$(readlink -f "$THEME_LINK")
-                bash "$HOME/.config/themes/applyers/apply-polybar.sh" "$TDIR"
-            fi
-            ;;
-        *"floating"*)
-            echo "floating" > "$CURRENT_FILE"
-            CURRENT="floating"
-            dunstify -u low "📐  Layout Polybar" "Flotante"
-            THEME_LINK="$HOME/.config/themes/current/theme"
-            if [ -L "$THEME_LINK" ]; then
-                TDIR=$(readlink -f "$THEME_LINK")
-                bash "$HOME/.config/themes/applyers/apply-polybar.sh" "$TDIR"
-            fi
-            ;;
-        *"powerline"*)
-            echo "powerline" > "$CURRENT_FILE"
-            CURRENT="powerline"
-            dunstify -u low "📐  Layout Polybar" "Powerline"
-            THEME_LINK="$HOME/.config/themes/current/theme"
-            if [ -L "$THEME_LINK" ]; then
-                TDIR=$(readlink -f "$THEME_LINK")
-                bash "$HOME/.config/themes/applyers/apply-polybar.sh" "$TDIR"
-            fi
-            ;;
-        *"Volver"*)
-            exec ~/.config/themes/bin/rofi-settings.sh ;;
+        *"bubble"*) apply_layout "bubble" "Burbujas (clásico)" ;;
+        *"minimal"*) apply_layout "minimal" "Minimal" ;;
+        *"blocks"*) apply_layout "blocks" "Bloques" ;;
+        *"floating"*) apply_layout "floating" "Flotante" ;;
+        *"powerline"*) apply_layout "powerline" "Powerline" ;;
+        *"default"*) apply_layout "default" "Plano (por defecto)" ;;
+        *"sharp"*) apply_layout "sharp" "Pestañas sharp" ;;
+        *"colorblocks"*) apply_layout "colorblocks" "Bloques de color" ;;
+        *"material"*) apply_layout "material" "Material You" ;;
+        *"rounded"*) apply_layout "rounded" "Ultra-redondeado" ;;
+        *"panel"*) apply_layout "panel" "Panel (Win11/GNOME)" ;;
+        *"dual"*) apply_layout "dual" "Dividido (Dual)" ;;
+        *"Volver"*) exec ~/.config/themes/bin/rofi-settings.sh ;;
         *) exit 0 ;;
     esac
 done
