@@ -13,6 +13,7 @@ element-icon { size: 1.4em; }
 element-text { horizontal-align: 0.5; }')
 
 choice=$(cat <<EOF | rofi -dmenu -p "  ⚙️  Centro de Control" -theme-str "$BASE_THEME" -i
+📱  Aplicaciones
 🔊  Sonido
 ☀️  Pantalla
 🔔  Notificaciones
@@ -25,6 +26,7 @@ EOF
 )
 
 case "$choice" in
+    *"Aplicaciones") exec "$DIR/default-apps.sh" ;;
     *"Sonido")     exec "$DIR/sound.sh" ;;
     *"Pantalla")   exec "$DIR/display.sh" ;;
     *"Notificaciones") exec "$DIR/notify.sh" ;;

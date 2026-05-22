@@ -52,7 +52,10 @@ floating_modifier $mod
 tiling_drag modifier titlebar
 
 # start a terminal
-bindsym $mod+Return exec alacritty
+bindsym $mod+Return exec ~/.config/themes/scripts/launch-terminal.sh
+
+# start the browser
+bindsym $mod+Shift+f exec ~/.config/themes/scripts/launch-browser.sh
 
 # Theme Switcher (Selector visual Rofi)
 bindsym $mod+Shift+t exec ~/.config/themes/bin/rofi-theme-selector.sh
