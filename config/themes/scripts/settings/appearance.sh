@@ -21,9 +21,15 @@ conky_status() {
     if [ -f "$CONKY_FILE" ]; then echo "  Activado"; else echo "  Desactivado"; fi
 }
 
+current_layout() {
+    local f="$HOME/.config/themes/current-layout"
+    if [ -f "$f" ]; then echo "$(cat "$f")"; else echo "bubble"; fi
+}
+
 while true; do
     choice=$(cat <<EOF | rofi -dmenu -p "  🎨  Apariencia" -theme-str "$BASE_THEME" -i
 🎨  Tema actual: ${CURRENT_THEME:-ninguno}  ▶
+📐  Diseño Polybar: $(current_layout)  ▸
 󰄧  Conky: $(conky_status)
 ▦  Gaps interiores: ${GAPS_INNER}px  ▸
 ▤  Gaps exteriores: ${GAPS_OUTER}px  ▸
@@ -33,6 +39,8 @@ EOF
     case "$choice" in
         *"Tema actual"*)
             exec ~/.config/themes/bin/rofi-theme-selector.sh ;;
+        *"Diseño Polybar"*)
+            exec "$DIR/polybar-layout.sh" ;;
         *"Conky"*)
             ~/.config/themes/bin/toggle-conky.sh ;;
         *"Gaps interiores"*)
