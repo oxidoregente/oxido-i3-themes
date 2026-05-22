@@ -172,9 +172,9 @@ bindsym $mod+Shift+9 move container to workspace number $ws9
 bindsym $mod+Shift+0 move container to workspace number $ws10
 
 # reload the configuration file
-bindsym $mod+Shift+c reload
+bindsym $mod+Shift+r reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
-bindsym $mod+Shift+r restart
+bindsym $mod+Shift+o restart
 # exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
 
@@ -277,6 +277,9 @@ default_floating_border pixel 0
 # Servicios gráficos (picom, polybar, conky) - manejados por script unificado
 exec_always --no-startup-id ~/.config/themes/scripts/start-services.sh
 
+# EWW daemon para widgets flotantes (powermenu, control-center)
+exec_always --no-startup-id eww daemon
+
 # Polybar (se inicia desde el script, pero mantener por compatibilidad)
 exec_always --no-startup-id ~/.config/polybar/launch.sh
 
@@ -295,26 +298,22 @@ exec_always --no-startup-id gsettings set org.gnome.desktop.interface gtk-theme 
 # Atajo manual (Mod + L)
 # bindsym $mod+l exec betterlockscreen -l blur
 
-# Definir el modo de sistema
-set $mode_system (l)ock, (e)xit, (s)uspend, (r)eboot, (S)hutdown
-mode "$mode_system" {
-    bindsym l exec --no-startup-id ~/.config/themes/bin/lock.sh, mode "default"
-    bindsym e exec --no-startup-id i3-msg exit, mode "default"
-    bindsym s exec --no-startup-id ~/.config/themes/bin/lock.sh && systemctl suspend, mode "default"
-    bindsym r exec --no-startup-id systemctl reboot, mode "default"
-    bindsym Shift+s exec --no-startup-id systemctl poweroff, mode "default"
+# Power Menu EWW (toggle flotante)
+bindsym $mod+Shift+Escape exec --no-startup-id ~/.config/eww/scripts/toggle-powermenu.sh
+bindsym XF86PowerOff exec --no-startup-id ~/.config/eww/scripts/toggle-powermenu.sh
 
-    # Volver atrás con Escape o Enter
-    bindsym Return mode "default"
-    bindsym Escape mode "default"
+# Control Center EWW (toggle flotante)
+bindsym $mod+Shift+c exec --no-startup-id ~/.config/eww/scripts/toggle-control-center.sh
+
+# Modo EWW: atrapa Escape para cerrar (como Rofi)
+set $mode_eww EWW activo (Escape cerrar)
+mode "$mode_eww" {
+    bindsym Escape exec --no-startup-id ~/.config/eww/scripts/close-eww.sh
+    bindsym $mod+Escape exec --no-startup-id ~/.config/eww/scripts/close-eww.sh
 }
 
-# Lanzar el modo de sistema con Mod + Escape
-bindsym $mod+Escape mode "$mode_system"
-
-# Power Menu Rofi con opciones completas (display off, lid behavior, etc.)
-bindsym $mod+Shift+Escape exec --no-startup-id ~/.config/themes/scripts/power-menu.sh
-bindsym XF86PowerOff exec --no-startup-id ~/.config/themes/scripts/power-menu.sh
+# Cerrar ventanas EWW con Escape
+bindsym $mod+Escape exec --no-startup-id ~/.config/eww/scripts/close-eww.sh
 
 # --- NOTIFICACIONES ---
 

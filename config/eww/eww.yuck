@@ -1,0 +1,85 @@
+;; EWW Widgets for oxido-i3-themes
+;; Powermenu + Control Center
+
+(defpoll volume :interval "0.5s" "pamixer --get-volume")
+(defpoll brightness :interval "0.5s" "brightnessctl -m | cut -d, -f4 | tr -d '%'")
+
+;; ─── Powermenu ──────────────────────────────────────────────────
+
+(defwindow powermenu
+  :monitor 0
+  :geometry (geometry :x "0%"
+                      :y "0%"
+                      :width "320px"
+                      :height "340px"
+                      :anchor "center")
+  :stacking "fg"
+  :windowtype "normal"
+  :focusable true
+  (box :class "powermenu-container"
+    :orientation "vertical"
+    :space-evenly true
+    :spacing 12
+    (label :text "⏻" :class "powermenu-title")
+    (button :onclick "systemctl poweroff"
+      (box :class "powermenu-btn powermenu-btn-shutdown" :space-evenly false :spacing 8
+        "⏻  Apagar"))
+    (button :onclick "systemctl reboot"
+      (box :class "powermenu-btn powermenu-btn-reboot" :space-evenly false :spacing 8
+        "  Reiniciar"))
+    (button :onclick "eww close powermenu && ~/.config/themes/bin/lock.sh"
+      (box :class "powermenu-btn powermenu-btn-lock" :space-evenly false :spacing 8
+        "  Bloquear"))
+    (button :onclick "systemctl suspend"
+      (box :class "powermenu-btn powermenu-btn-suspend" :space-evenly false :spacing 8
+        "  Suspender"))
+    (button :onclick "i3-msg exit"
+      (box :class "powermenu-btn powermenu-btn-logout" :space-evenly false :spacing 8
+        "  Cerrar sesión"))))
+
+;; ─── Control Center ──────────────────────────────────────────────
+
+(defwidget volume-slider []
+  (box :class "ctrl-row" :space-evenly false :spacing 10
+    (label :text "" :class "ctrl-icon")
+    (scale :orient "horizontal"
+           :min 0 :max 100 :step 5
+           :onchange "pamixer --set-volume {}"
+           :value volume)))
+
+(defwidget brightness-slider []
+  (box :class "ctrl-row" :space-evenly false :spacing 10
+    (label :text "" :class "ctrl-icon")
+    (scale :orient "horizontal"
+           :min 0 :max 100 :step 5
+           :onchange "brightnessctl set {}%"
+           :value brightness)))
+
+(defwindow control-center
+  :monitor 0
+  :geometry (geometry :x "0%"
+                      :y "0%"
+                      :width "420px"
+                      :height "360px"
+                      :anchor "center")
+  :stacking "fg"
+  :windowtype "normal"
+  :focusable true
+  (box :class "ctrl-container"
+    :orientation "vertical"
+    :spacing 12
+    (label :text "  Centro de Control" :class "ctrl-title")
+    (box :class "ctrl-row" :space-evenly false :spacing 10
+      (label :text "" :class "ctrl-icon")
+      (button :onclick "nm-connection-editor"
+        (label :text "WiFi" :class "ctrl-label")))
+    (box :class "ctrl-row" :space-evenly false :spacing 10
+      (label :text "怜" :class "ctrl-icon")
+      (button :onclick "bluetoothctl power toggle"
+        (label :text "Bluetooth" :class "ctrl-label")))
+    (volume-slider)
+    (brightness-slider)
+    (box :class "ctrl-row" :space-evenly false :spacing 10
+      (label :text "" :class "ctrl-icon")
+      (button :onclick "eww close control-center; eww close powermenu || eww open powermenu"
+        (label :text "Menú de Apagado" :class "ctrl-label")))))
