@@ -50,6 +50,9 @@ while true; do
 ○  rounded$([ "$CURRENT" = "rounded" ] && echo "  ✓")
 ○  panel$([ "$CURRENT" = "panel" ] && echo "  ✓")
 ○  dual$([ "$CURRENT" = "dual" ] && echo "  ✓")
+○  hack$([ "$CURRENT" = "hack" ] && echo "  ✓")
+○  docky$([ "$CURRENT" = "docky" ] && echo "  ✓")
+○  cynthia$([ "$CURRENT" = "cynthia" ] && echo "  ✓")
 ───
 ⬅️  Volver
 EOF
@@ -70,6 +73,9 @@ EOF
         *"rounded"*) apply_layout "rounded" "Ultra-redondeado" ;;
         *"panel"*) apply_layout "panel" "Panel (Win11/GNOME)" ;;
         *"dual"*) apply_layout "dual" "Dividido (Dual)" ;;
+        *"hack"*) apply_layout "hack" "Hack (terminal aesthetic)" ;;
+        *"docky"*) apply_layout "docky" "Docky (macOS-style dock)" ;;
+        *"cynthia"*) apply_layout "cynthia" "Cynthia (two-tone modern)" ;;
         *"Volver"*) exec ~/.config/themes/bin/rofi-settings.sh ;;
         *) exit 0 ;;
     esac

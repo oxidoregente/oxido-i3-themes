@@ -372,7 +372,7 @@ The bar uses a **composable layout system**: each theme provides only colors (`c
 colors.ini (theme)  +  layout.ini (design)  →  config.ini (runtime)
 ```
 
-#### 12 Available Layouts
+#### 15 Available Layouts
 
 | # | Layout | Style | Height | Radius | Modules |
 |---|--------|-------|--------|--------|---------|
@@ -388,6 +388,9 @@ colors.ini (theme)  +  layout.ini (design)  →  config.ini (runtime)
 | 10 | **rounded** | Barra flotante 90%, radius 18, ultraminimal | 26 | 18 | ws + date + audio+bat+tray |
 | 11 | **panel** | Estilo Win11/GNOME con separadores `\|` | 28 | 0 | ws + date + dnd\|cpu\|mem\|audio\|bat\|tray\|power |
 | 12 | **dual** | Dos zonas divididas por barra primaria | 30 | 0 | ws (primary)+date + cpu+mem+audio+bat+tray(separados) |
+| 13 | **hack** | Terminal aesthetic, ❰/❱ brackets, monospace feel | 24 | 0 | ws ❰...❱ + date + cpu+mem+audio+bat+tray |
+| 14 | **docky** | macOS-style floating dock, radius 16, 96% ancho | 32 | 16 | launcher + ws + date + audio+bat+tray |
+| 15 | **cynthia** | Two-tone con powerline /, workspaces con fondo primario | 28 | 0 | ws + date + dnd+cpu+audio+bat+tray |
 
 Switch via: Centro de Control → Apariencia → Diseño Polybar, or directly:
 ```bash

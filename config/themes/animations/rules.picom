@@ -1,4 +1,8 @@
 rules: ({
+    # Polybar must stay fully opaque
+    match = "class_g = 'Polybar' || class_g = 'polybar'";
+    opacity = 1.0;
+}, {
     match = "focused = false";
     opacity = 0.90;
 }, {
