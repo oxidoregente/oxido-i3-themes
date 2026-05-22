@@ -374,29 +374,43 @@ colors.ini (theme)  +  layout.ini (design)  →  config.ini (runtime)
 
 #### 15 Available Layouts
 
-| # | Layout | Style | Height | Radius | Modules |
-|---|--------|-------|--------|--------|---------|
-| 1 | **bubble** | 3 burbujas segmentadas (original) | 34 | 0 | ws + date + dnd+cpu+temp+mem+cava+audio+bat+tray+power |
-| 2 | **minimal** | Slim bar, solo esencial | 24 | 0 | ws + date + cpu+mem+audio+bat+tray |
-| 3 | **blocks** | Módulos como bloques con fondo | 30 | 0 | ws + date + dnd+cpu+mem+audio+bat+tray+power |
-| 4 | **floating** | Centrada 88%, bordes redondeados | 28 | 10 | ws + date + dnd+cpu+audio+bat+tray |
-| 5 | **powerline** | Separadores /, workspaces con bordes | 30 | 0 | ws (tabulado) + date + cpu+mem+audio+bat+tray |
-| 6 | **default** | Plana, separador `\|`, simple | 28 | 0 | ws + date + cpu+mem+audio+bat+tray |
-| 7 | **sharp** | Workspaces como pestañas / | 30 | 0 | ws (tabulado) + date + dnd+cpu+audio+bat+tray |
-| 8 | **colorblocks** | Cada módulo con fondo de color distinto | 30 | 0 | ws (primary) + date (bg-alt) + cpu (green)+mem(yellow)+audio(secondary)+bat+power(bg-alt) |
-| 9 | **material** | Material You, radius 12, espaciado generoso | 34 | 12 | ws + date + dnd+cpu+audio+bat+tray |
-| 10 | **rounded** | Barra flotante 90%, radius 18, ultraminimal | 26 | 18 | ws + date + audio+bat+tray |
-| 11 | **panel** | Estilo Win11/GNOME con separadores `\|` | 28 | 0 | ws + date + dnd\|cpu\|mem\|audio\|bat\|tray\|power |
-| 12 | **dual** | Dos zonas divididas por barra primaria | 30 | 0 | ws (primary)+date + cpu+mem+audio+bat+tray(separados) |
-| 13 | **hack** | Terminal aesthetic, ❰/❱ brackets, monospace feel | 24 | 0 | ws ❰...❱ + date + cpu+mem+audio+bat+tray |
-| 14 | **docky** | macOS-style floating dock, radius 16, 96% ancho | 32 | 16 | launcher + ws + date + audio+bat+tray |
-| 15 | **cynthia** | Two-tone con powerline /, workspaces con fondo primario | 28 | 0 | ws + date + dnd+cpu+audio+bat+tray |
+| # | Layout | Identidad | Font | Height | Radius | Modules |
+|---|--------|-----------|------|--------|--------|---------|
+| 1 | **bubble** | 3 burbujas segmentadas, full features (original) | JetBrainsMono NF | 34 | 0 | ws + dnd+cpu+temp+mem+cava+audio+bat+tray+power |
+| 2 | **minimal** | Super slim (22px), solo texto plano, sin iconos ni decoración | IosevkaTerm NF | 22 | 0 | ws + date + mem+audio+bat+tray |
+| 3 | **blocks** | Bloques shade con format-background en todos los módulos | IosevkaTerm NF | 28 | 0 | ws + date + dnd+cpu+mem+audio+bat+tray+power |
+| 4 | **colorblocks** | Cada módulo con fondo de color distinto (green, yellow, pink...) + powerline separators | JetBrainsMono NF | 28 | 0 | ws(c) + cpu(g)+mem(y)+date(sec)+audio(pk)+bat(c)+power(alert) |
+| 5 | **floating** | Flotante 90% + border frame 3px primary (técnica Material) | JetBrainsMono NF | 30 | 12 | ws + date + dnd+cpu+audio+bat+tray |
+| 6 | **default** | Acento primario con line-size, separador `\|`, limpio | JetBrainsMono NF | 28 | 0 | ws + date + cpu+mem+audio+bat+tray |
+| 7 | **powerline** | Glyphs / rodeando workspaces + format-prefix | IosevkaTerm NF | 30 | 0 | ws + date + cpu+mem+audio+bat+tray |
+| 8 | **sharp** | Pestañas / sobre primary, workspaces sólidos | IosevkaTerm NF | 30 | 0 | ws + date + dnd+cpu+audio+bat+tray |
+| 9 | **material** | Material Design con border frame + line accent, label-radius | JetBrainsMono NF | 36 | 14 | ws + date + dnd+cpu+audio+bat+tray |
+| 10 | **rounded** | Barra flotante background-alt + radius 18, Maple Mono NF, compacto | Maple Mono NF | 24 | 18 | ws + date + audio+bat+tray |
+| 11 | **panel** | Estilo Win11/GNOME con separadores `\|` entre módulos | JetBrainsMono NF | 28 | 0 | ws + date + dnd\|cpu\|mem\|audio\|bat\|tray\|power |
+| 12 | **dual** | Dos zonas divididas por barra primaria (dual-divider) | IosevkaTerm NF | 30 | 0 | ws(p)+date + cpu+mem+audio+bat+tray(separados) |
+| 13 | **hack** | Terminal aesthetic: ❰❱ brackets, color-coded (green, yellow), Terminus font | JetBrainsMono NF + Terminus | 24 | 0 | ws ❰...❱ + date + cpu+mem+audio+bat+tray |
+| 14 | **docky** | macOS-style floating dock, background-alt, launcher icon, centered ws | JetBrainsMono NF | 32 | 16 | launcher + ws + date + audio+bat+tray |
+| 15 | **cynthia** | Two-tone con powerline /, ws con fondo primary, Maple Mono NF | Maple Mono NF | 28 | 0 | ws + date + dnd+cpu+audio+bat+tray |
+
+Cada layout incluye `format-prefix` con iconos ( CPU,  memoria,  audio,  batería,  fecha,  DND) para identificar visualmente cada módulo.
 
 Switch via: Centro de Control → Apariencia → Diseño Polybar, or directly:
 ```bash
 echo "bubble" > ~/.config/themes/current-layout
 ~/.config/themes/applyers/apply-polybar.sh ~/.config/themes/current/theme
 ```
+
+#### Position (Top / Bottom)
+
+The polybar can be positioned at the **top** or **bottom** of the screen. Default is `top`.
+
+Set via Centro de Control → Apariencia → Diseño Polybar → `📍 Posición`, or directly:
+```bash
+echo "bottom" > ~/.config/themes/polybar-position
+~/.config/themes/applyers/apply-polybar.sh ~/.config/themes/current/theme
+```
+
+When switching to bottom, the bar's accent decoration swaps automatically (e.g., `border-bottom-size` for top → `border-top-size` for bottom). All 15 layouts support both positions.
 
 #### Color Variables
 

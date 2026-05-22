@@ -23,6 +23,9 @@ fi
 CURRENT=""
 [ -f "$CURRENT_FILE" ] && CURRENT=$(cat "$CURRENT_FILE")
 
+POSITION_FILE="$HOME/.config/themes/polybar-position"
+[ -f "$POSITION_FILE" ] && POSITION=$(cat "$POSITION_FILE") || POSITION="top"
+
 apply_layout() {
     local name="$1"
     local label="$2"
@@ -54,6 +57,7 @@ while true; do
 ○  docky$([ "$CURRENT" = "docky" ] && echo "  ✓")
 ○  cynthia$([ "$CURRENT" = "cynthia" ] && echo "  ✓")
 ───
+📍  Posición: $POSITION$([ "$POSITION" = "top" ] && echo "  " || echo "  ")
 ⬅️  Volver
 EOF
     )
@@ -76,6 +80,7 @@ EOF
         *"hack"*) apply_layout "hack" "Hack (terminal aesthetic)" ;;
         *"docky"*) apply_layout "docky" "Docky (macOS-style dock)" ;;
         *"cynthia"*) apply_layout "cynthia" "Cynthia (two-tone modern)" ;;
+        *"Posición"*) bash "$DIR/toggle-position.sh"; exec "$0" ;;
         *"Volver"*) exec ~/.config/themes/bin/rofi-settings.sh ;;
         *) exit 0 ;;
     esac
