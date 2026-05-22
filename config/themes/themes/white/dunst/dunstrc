@@ -47,7 +47,7 @@
 
     highlight = "#6e6e6e"
     background = "#1a1a24ee"
-    foreground = "#c0c0c0"
+    foreground = "#cdd6e8"
 
     transparency = 10
     sort = yes
@@ -70,9 +70,9 @@
 
 [urgency_low]
     background = "#1a1a24"
-    foreground = "#5c5c5c"
-    frame_color = "#5c5c5c"
-    highlight = "#5c5c5c"
+    foreground = "#8a8a9a"
+    frame_color = "#8a8a9a"
+    highlight = "#8a8a9a"
     timeout = 4
     icon = dialog-information-symbolic
 

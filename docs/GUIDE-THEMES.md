@@ -1,0 +1,565 @@
+# 🎨 Theme System for i3wm + Polybar
+
+Complete guide to installation, configuration, and customization of the oxido-i3-themes system.
+
+---
+
+## Index
+
+1. [Introduction](#1-introduction)
+2. [Directory Structure](#2-directory-structure)
+3. [Available Themes](#3-available-themes)
+4. [Keyboard Shortcuts](#4-keyboard-shortcuts)
+5. [Changing Themes](#5-changing-themes)
+6. [PowerSaver Mode](#6-powersaver-mode)
+7. [Conky](#7-conky)
+8. [Control Center (Settings)](#8-control-center-settings)
+9. [Default Applications](#9-default-applications)
+10. [Adding a New Theme](#10-adding-a-new-theme)
+11. [Component Customization](#11-component-customization)
+12. [Animation System](#12-animation-system)
+13. [Fonts](#13-fonts)
+14. [Troubleshooting](#14-troubleshooting)
+15. [Backups](#15-backups)
+16. [Change History](#16-change-history)
+
+---
+
+## 1. Introduction
+
+This system enables switching between multiple complete visual themes in i3wm. Each theme includes colors for:
+
+- **i3** (windows, borders, background)
+- **Polybar** (segmented bubble-style status bar)
+- **Picom** (shadows, blur, compositor, animations)
+- **Dunst** (notifications)
+- **Rofi** (launcher and theme selector)
+- **Conky** (system information overlay)
+- **Alacritty** (terminal emulator)
+- **Btop** (system monitor)
+- **Cava** (audio visualizer)
+- **Wallpaper** (per-theme background)
+
+There are currently **23 themes**: 7 originals + 16 inspired by the Omarchy repository, plus a PowerSaver variant.
+
+The visual design uses a **segmented bubble** style in Polybar:
+
+```
+┌──────────┐  ┌──────────┐  ┌──────────────────────────────┐
+│ 1  2  3  │  │  Mon 24  │  │ 🔊  ██  🔋 98%         │
+│  ws-pad  │  │mid-pad   │  │        sys-pad                │
+└──────────┘  └──────────┘  └──────────────────────────────┘
+```
+
+Each segment (workspaces, date, system info) has its own color bubble.
+
+---
+
+## 2. Directory Structure
+
+```
+~/.config/themes/                         # Runtime configuration
+├── themes/                               # Theme definitions
+│   ├── dracula/
+│   │   ├── alacritty/theme.toml          # Terminal colors
+│   │   ├── backgrounds/                  # Wallpapers
+│   │   ├── btop/btop.theme               # System monitor theme
+│   │   ├── cava/config                   # Audio visualizer
+│   │   ├── conky/conky.conf              # Desktop overlay
+│   │   ├── dunst/dunstrc                 # Notifications
+│   │   ├── gtk/gtk.css                   # GTK overrides for Nemo
+│   │   ├── i3/colors.conf                # i3 window colors
+│   │   ├── picom/picom.conf              # Compositor config
+│   │   ├── polybar/
+│   │   │   ├── config.ini                # Full bar definition
+│   │   │   └── colors.ini                # Color palette only
+│   │   ├── rofi/theme.rasi               # Launcher theme
+│   │   ├── preview.png                   # Theme preview image
+│   │   └── unlock.png                    # Lock screen preview
+│   ├── tokyo-night/                      # (same structure)
+│   └── ...                               # Total: 23 themes
+├── bin/
+│   ├── rofi-settings.sh                  # Main settings center
+│   ├── rofi-theme-selector.sh            # Visual theme picker
+│   ├── theme-switch.sh                   # Core theme switching
+│   ├── animation-picker.sh               # Animation control
+│   └── verify-themes.sh                  # Integrity checker
+├── applyers/
+│   ├── apply-i3.sh                       # Apply i3 colors
+│   ├── apply-polybar.sh                  # Apply polybar config
+│   ├── apply-picom.sh                    # Apply compositor
+│   ├── apply-dunst.sh                    # Apply notifications
+│   ├── apply-conky.sh                    # Apply desktop overlay
+│   ├── apply-alacritty.sh                # Apply terminal colors
+│   └── ...                               # (13 applyers total)
+├── scripts/
+│   ├── launch-terminal.sh                # Default terminal wrapper
+│   ├── launch-browser.sh                 # Default browser wrapper
+│   ├── launch-fm.sh                      # Default file manager
+│   ├── settings/                         # Rofi settings menus
+│   │   ├── default-apps.sh               # App profile selector
+│   │   ├── sound.sh                      # Audio controls
+│   │   ├── animation.sh                  # Animation menu
+│   │   ├── appearance.sh                 # Theme/conky/gaps
+│   │   └── ...                           # (21 menus total)
+│   ├── power-menu.sh                     # Power options
+│   ├── toggle-powersaver.sh              # PowerSaver mode
+│   ├── toggle-dnd.sh                     # Do Not Disturb
+│   └── ...
+├── animations/
+│   ├── global.picom                      # Global animation triggers
+│   └── rules.picom                       # Per-app animation rules
+└── defaults.conf                         # Default applications
+```
+
+### Development Repository
+
+The source of truth lives at `~/Documentos/oxido-i3-themes/` with the same structure under `config/`. Changes are made in the repo and deployed to `~/.config/themes/` via applyer scripts or `install.sh`.
+
+---
+
+## 3. Available Themes
+
+| Theme | Type | Description |
+|-------|------|-------------|
+| catppuccin-mocha | Dark | Catppuccin Mocha — warm, muted purples and blues |
+| catppuccin-latte | Dark | Catppuccin-inspired dark variant |
+| dracula | Dark | Classic Dracula — purple accent, dark background |
+| dracula-powersaver | Dark min | Minimal Dracula, no animations, no conky |
+| ethereal | Dark | Deep blue, aurora-inspired |
+| everforest | Dark | Earthy green tones |
+| flexoki-light | Dark | High-contrast dark, named "light" historically |
+| gruvbox | Dark | Retro warm — orange/green accents |
+| hackerman | Dark | Neon cyan on very dark blue |
+| kanagawa | Dark | Wave-inspired, deep ocean colors |
+| last-horizon | Dark | Desaturated dark, cosmic theme |
+| lumon | Dark | Corporate dark blue, Severance-inspired |
+| matte-black | Dark | Pure matte black with muted accents |
+| miasma | Dark | Dark and moody, low saturation |
+| nord | Dark | Arctic blue theme |
+| osaka-jade | Dark | Deep green/jade tones |
+| retro-82 | Dark | Cyan/amber retro-futuristic |
+| ristretto | Dark | Warm brown, coffee-inspired |
+| rose-pine | Dark | Rosé Pine — soft pine cone palette |
+| solitude | Dark | Muted monochrome, ultra-calm |
+| tokyo-night | Dark | Vibrant night city — blues, purples |
+| vantablack | Dark | True black background, grayscale accents |
+| white | Dark | Desaturated dark (name is historical) |
+
+---
+
+## 4. Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `$mod+Return` | Open terminal (default: alacritty) |
+| `$mod+Shift+f` | Open browser (default: firefox) |
+| `$mod+Shift+t` | Theme selector (Rofi visual) |
+| `$mod+Shift+s` | Control Center (all settings) |
+| `$mod+d` | Application launcher (Rofi) |
+| `$mod+Shift+d` | Toggle Do Not Disturb |
+| `$mod+Shift+period` | Show time notification |
+| `$mod+Shift+comma` | Open calendar (gnome-calendar) |
+| `$mod+Shift+b` | Show battery notification |
+| `$mod+Shift+w` | Show weather notification |
+| `$mod+Shift+Escape` | Power menu |
+| `$mod+Shift+Slash` | Show keybindings help |
+| `$mod+Escape` | System mode (lock, exit, suspend) |
+
+### Navigation
+
+| Key | Action |
+|-----|--------|
+| `$mod+h/j/k/l` | Focus left/down/up/right |
+| `$mod+Shift+h/j/k/l` | Move window left/down/up/right |
+| `$mod+f` | Toggle fullscreen |
+| `$mod+v` | Toggle split orientation |
+| `$mod+Shift+Space` | Toggle floating/tiling |
+| `$mod+Space` | Toggle focus between tiling/floating |
+
+---
+
+## 5. Changing Themes
+
+### Via Rofi (Recommended)
+
+Press `$mod+Shift+t` to open the visual theme selector. It displays:
+- A grid of theme preview thumbnails
+- The current theme is highlighted
+- Clicking a theme applies it immediately (i3, polybar, terminal, notifications, wallpaper, conky all update live)
+
+The selector uses a Python GTK3 window with a CSS grid layout.
+
+### Via Control Center
+
+`$mod+Shift+s` → Appearance → Theme Selector → choose from list
+
+### Via Command Line
+
+```bash
+# Switch to a specific theme
+~/.config/themes/bin/theme-switch.sh dracula
+
+# Switch to PowerSaver mode
+~/.config/themes/scripts/toggle-powersaver.sh
+```
+
+### What Happens When You Switch
+
+The `theme-switch.sh` script:
+1. Updates `~/.config/themes/current/theme` symlink
+2. Calls each applyer sequentially (i3, polybar, picom, dunst, conky, alacritty, wallpapers, rofi, btop, cava, gtk, lock screen)
+3. Refreshes all running instances via IPC/SIGUSR1
+
+---
+
+## 6. PowerSaver Mode
+
+PowerSaver (`dracula-powersaver`) is a minimal theme variant designed for battery conservation:
+
+- **No animations** — picom animations disabled
+- **No compositor blur** — uses `xrender` backend instead of `glx`
+- **No conky** — desktop overlay disabled
+- **Minimal polybar** — fewer modules updating
+- **Darker colors** — reduces pixel brightness on OLED screens
+
+Activate via: `$mod+Shift+s` → Power → PowerSaver mode
+
+---
+
+## 7. Conky
+
+Conky displays a semi-transparent overlay on your desktop with:
+- System info (hostname, kernel, uptime)
+- CPU usage per core + temperature
+- Memory usage (RAM + swap)
+- Disk usage (root + NVMe)
+- Network IP addresses
+- Top processes by CPU/memory
+
+Toggle via: Control Center → Appearance → Toggle Conky
+
+Conky uses `~/.config/conky/conky.conf` which is theme-specific.
+
+---
+
+## 8. Control Center (Settings)
+
+Press `$mod+Shift+s` to open the Rofi-based Control Center:
+
+```
+⚙️ Control Center
+├── 📱 Default Apps      → Choose terminal, browser, file manager
+├── 🔊 Sound             → Volume, mute, output device
+├── ☀️ Display           → Brightness, wallpaper, DPMS
+├── 🔔 Notifications     → DND, history, clear
+├── 🎬 Animations        → Per-app animation settings, presets
+├── 🎨 Appearance        → Theme, conky, gaps
+├── ⚡ Power             → PowerSaver, autolock, lid behavior
+└── 🔧 System            → Service status, system info
+└── 📋 Utilities         → Screenshot, WiFi, Bluetooth, clipboard
+```
+
+Each submenu is a standalone Rofi script that can also be bound to a key directly.
+
+---
+
+## 9. Default Applications
+
+The system now supports configurable default applications via `~/.config/themes/defaults.conf`:
+
+```bash
+TERMINAL="alacritty"
+BROWSER="firefox"
+FILE_MANAGER="nemo"
+TERMINAL_FILE_MANAGER="ranger"
+```
+
+### Setting Defaults
+
+1. Open Control Center → 📱 Default Apps
+2. Choose a role (Terminal, Browser, File Manager, CLI File Manager)
+3. Select from a list of common apps or choose "Other..." to enter a custom command
+4. Changes take effect immediately
+
+### Wrapper Scripts
+
+These scripts are used by keybindings and other system components:
+
+| Script | Purpose | Default | Keybinding |
+|--------|---------|---------|------------|
+| `launch-terminal.sh` | Opens `$TERMINAL` | alacritty | `$mod+Return` |
+| `launch-browser.sh` | Opens `$BROWSER` | firefox | `$mod+Shift+f` |
+| `launch-fm.sh` | Opens `$FILE_MANAGER` | nemo | — |
+
+Each wrapper sources `defaults.conf` with a safe fallback if the file is missing.
+
+### Profiles
+
+You can save and load application profiles:
+
+1. Set your apps via the Default Apps menu
+2. Select **Save profile**, enter a name
+3. Later, select **Load profile** to instantly restore all four apps
+
+Profiles are stored as individual `.conf` files in `~/.config/themes/profiles/`.
+
+---
+
+## 10. Adding a New Theme
+
+To create a new theme, copy an existing theme directory and customize its files:
+
+```bash
+cp -r config/themes/themes/dracula config/themes/themes/my-theme
+```
+
+Each theme needs these 11 directories:
+
+```
+my-theme/
+├── alacritty/theme.toml    # Terminal 16-color palette
+├── backgrounds/             # Wallpaper images
+├── btop/btop.theme          # System monitor colors
+├── cava/config              # Audio visualizer colors
+├── conky/conky.conf         # Desktop overlay colors
+├── dunst/dunstrc            # Notification colors
+├── gtk/gtk.css              # GTK file manager colors
+├── i3/colors.conf           # i3 window colors
+├── picom/picom.conf         # Compositor settings (+ @include)
+├── polybar/
+│   ├── config.ini           # Bar layout + colors
+│   └── colors.ini           # Color palette only (for scripts)
+├── rofi/theme.rasi          # Launcher theme
+├── preview.png              # 480×360 theme preview
+└── unlock.png               # Lock screen preview
+```
+
+**Note**: Since Fase 2, `picom/picom.conf` only contains theme-specific settings (backend, blur, radius). The `animations` and `rules` blocks are centralized in `config/themes/animations/global.picom` and `rules.picom` and included via `@include` at the root level.
+
+Run `verify-themes.sh` to validate your new theme:
+
+```bash
+~/.config/themes/bin/verify-themes.sh
+```
+
+---
+
+## 11. Component Customization
+
+### Colors
+
+Each theme's `i3/colors.conf` defines:
+
+```
+$bg         # Window background / unfocused border
+$bg-alt     # Inactive title bar background
+$fg         # Text color
+$primary    # Active window border / focused accent
+$secondary  # Secondary accent
+$alert      # Urgent window border
+$disabled   # Inactive window elements
+$green      # Success indicators
+$pink       # Special accents
+$yellow     # Warning indicators
+```
+
+### Polybar
+
+The bar layout (modules, order, position) is shared across all themes. Only the 13 color variables in each theme's `polybar/colors.ini` differ:
+
+| Variable | Usage |
+|----------|-------|
+| `background` | Bar background |
+| `foreground` | Default text |
+| `bubble-ws` | Left segment (workspaces) |
+| `bubble-center` | Center segment (date) |
+| `bubble-sys` | Right segment (system info) |
+| `primary` | Active workspace, date accent |
+| `secondary` | Volume bars |
+| `alert` | Urgent workspace, temperature warning |
+| `disabled` | Empty workspace, volume empty |
+| `green` | Battery full |
+| `pink` | Labels |
+| `yellow` | Charging indicator |
+
+### Picom
+
+Since Fase 2, the compositor configuration is split:
+
+- **Per-theme** (in `picom/picom.conf`): backend, blur method, corner radius, shadows, fading
+- **Shared** (in `animations/`): animation triggers and per-app rules via `@include`
+
+To customize animations globally:
+```bash
+~/.config/themes/bin/animation-picker.sh preset gnome
+# or for a specific trigger:
+~/.config/themes/bin/animation-picker.sh close disappear duration=0.3
+# or per-application:
+~/.config/themes/bin/animation-picker.sh open slide-in direction=up --target Firefox
+```
+
+---
+
+## 12. Animation System
+
+Picom v13+ supports per-window animations. The system manages five trigger types:
+
+| Trigger | When It Fires |
+|---------|--------------|
+| `open` | Window opens |
+| `close` | Window closes |
+| `show` | Window becomes visible (e.g., tab switch) |
+| `hide` | Window becomes hidden |
+| `geometry` | Window resize/move |
+
+### Available Presets
+
+| Preset | Effect | Parameters |
+|--------|--------|------------|
+| `appear` | Zoom in from center | `scale` (0.0-1.0) |
+| `disappear` | Zoom out to center | `scale` (1.0+) |
+| `fly-in` | Fly in from edge | `direction` (up/down/left/right) |
+| `fly-out` | Fly out to edge | `direction` |
+| `slide-in` | Slide in from edge | `direction` |
+| `slide-out` | Slide out to edge | `direction` |
+| `geometry-change` | Smooth resize | — |
+
+### Quick Presets
+
+| Preset Name | Style |
+|-------------|-------|
+| `clasico` | Subtle appear/disappear |
+| `gnome` | GNOME-style fly animations |
+| `macos` | macOS-style scale + fly |
+| `win11` | Windows 11-style reposition |
+| `snap` | Ultra-fast (<100ms) |
+
+### Per-Application Rules
+
+The following apps have dedicated animation rules:
+
+| App | Purpose |
+|-----|---------|
+| **Alacritty** | Terminal — fast appear/close |
+| **Firefox** | Browser — slide from bottom |
+| **Rofi** | Launcher — snappy appear |
+| **Dunst** | Notifications — slide from right |
+
+These are configured in `config/themes/animations/rules.picom`.
+
+---
+
+## 13. Fonts
+
+The system requires Nerd Fonts for icon support:
+
+| Font | Usage | Size |
+|------|-------|------|
+| JetBrainsMono Nerd Font | Terminal (Alacritty), system default | 11 |
+| JetBrainsMono Nerd Font | Polybar icons and text | 12 |
+| JetBrainsMono Nerd Font | Rofi menus | 10 |
+| FiraCode Nerd Font | Conky | 9 |
+| Iosevka Nerd Font | Cava labels, alternative terminal | 10 |
+
+Install via:
+```bash
+# Arch Linux
+sudo pacman -S nerd-fonts-jetbrains-mono ttf-nerd-fonts-symbols
+# Or manual install from https://www.nerdfonts.com/
+```
+
+---
+
+## 14. Troubleshooting
+
+### Picom won't start
+
+```bash
+# Check for syntax errors
+picom --config ~/.config/picom/picom.conf
+
+# The config uses @include for animations and rules.
+# Ensure the included files exist at the absolute paths
+# specified in the config. The applyer transforms relative
+# paths to absolute during deployment.
+```
+
+### Polybar won't load
+
+```bash
+# Test the config
+polybar --config=~/.config/polybar/config.ini top
+
+# Check launch script output
+~/.config/polybar/launch.sh
+
+# Common issues: missing fonts, invalid color values,
+# script dependencies not installed
+```
+
+### Theme switch doesn't update everything
+
+```bash
+# Run applyers manually
+~/.config/themes/bin/theme-switch.sh <theme-name>
+
+# Or check each component:
+~/.config/themes/applyers/apply-i3.sh <theme-dir>
+~/.config/themes/applyers/apply-polybar.sh <theme-dir>
+```
+
+### Calendar doesn't float
+
+The `for_window` rule for gnome-calendar is in `config/i3/config`:
+```
+for_window [class="Gnome-calendar"] floating enable, resize set 900 700, move position center
+for_window [class="org.gnome.Calendar"] floating enable, resize set 900 700, move position center
+```
+
+If your calendar app has a different WM_CLASS, add a matching rule.
+
+### Rofi menus look wrong
+
+The settings menus use a shared base theme from `~/.config/themes/scripts/settings/.rasi-base`. If missing, an inline fallback is used. To regenerate:
+
+```bash
+# The base theme is auto-generated; delete and reopen a menu
+rm ~/.config/themes/scripts/settings/.rasi-base
+```
+
+### "module cava not found"
+
+Install cava: `sudo pacman -S cava` or `brew install cava`
+
+---
+
+## 15. Backups
+
+The system includes automatic backup before major changes:
+
+```bash
+# Manual backup
+tar -czf ~/Backups/themes-backup-$(date +%Y%m%d-%H%M%S).tar.gz ~/.config/themes/
+
+# Backups are also created by install.sh before applying updates
+```
+
+Backup location: `~/Backups/oxido-i3-themes-backup-*.tar.gz`
+
+### Restore from backup
+
+```bash
+tar -xzf ~/Backups/oxido-i3-themes-backup-20250521-*.tar.gz -C ~/
+```
+
+---
+
+## 16. Change History
+
+| Date | Version | Changes |
+|------|---------|---------|
+| 2026-05 | Fase 3 | Default applications system, calendar floating, profile support |
+| 2026-05 | Fase 2 | Animation centralization, @include structure, -83% picom.conf size |
+| 2026-05 | Fase 1 | Bug fixes: triggers, presets, SSIDs, picom timeout, keybinding search |
+| 2026-05 | Fase 0 | Initial theme system with 23 themes, Rofi selector, PowerSaver mode |
