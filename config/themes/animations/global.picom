@@ -1,0 +1,26 @@
+animations = ({
+    triggers = ["open"];
+    preset = "appear";
+    scale = 0.92;
+    duration = 0.22;
+}, {
+    triggers = ["close"];
+    preset = "fly-out";
+    direction = "down";
+    duration = 0.25;
+}, {
+    triggers = ["show"];
+    preset = "fly-in";
+    direction = "up";
+    duration = 0.2;
+}, {
+    triggers = ["hide"];
+    preset = "fly-out";
+    direction = "down";
+    duration = 0.15;
+}, {
+    triggers = ["geometry"];
+    preset = "geometry-change";
+    duration = 0.25;
+});
+

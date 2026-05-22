@@ -77,7 +77,14 @@ else
     echo "=== Animation Picker → $TRIGGER: $PRESET (destino: ${TARGET:-global}) ==="
 fi
 
+# Compute source paths for centralized includes
+PICKER_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$PICKER_DIR/../../.." && pwd)"
+GLOBAL_SRC="$REPO_ROOT/config/themes/animations/global.picom"
+RULES_SRC="$REPO_ROOT/config/themes/animations/rules.picom"
+
 export MODE TRIGGER PRESET TARGET PARAMS PRESET_NAME PICOM_DST CURRENT_LINK
+export GLOBAL_SRC RULES_SRC
 
 output=$(python3 << 'PYEOF'
 import os, re
@@ -306,29 +313,29 @@ def apply_preset_to_file(filepath, preset_name):
 
 
 # --- Collect files to update ---
-files_to_update = []
+global_src = os.environ.get('GLOBAL_SRC', '')
+rules_src = os.environ.get('RULES_SRC', '')
 
-# Active config
-if os.path.exists(PICOM_DST):
-    files_to_update.append(PICOM_DST)
-
-# Current theme's config
-if os.path.islink(CURRENT_LINK) or os.path.exists(CURRENT_LINK):
-    rp = os.path.realpath(CURRENT_LINK) if os.path.islink(CURRENT_LINK) else CURRENT_LINK
-    if os.path.exists(rp):
-        theme_picom = os.path.join(rp, "picom", "picom.conf")
-        if os.path.exists(theme_picom):
-            files_to_update.append(theme_picom)
-
-# --- Apply ---
+# Si se apunta a una app específica → solo rules.picom
+# Si es global → solo global.picom
+# Si es preset → ambos (global + cascade a per-app)
 if MODE == "preset":
+    files_to_update = []
+    if os.path.exists(global_src):
+        files_to_update.append(global_src)
+    if os.path.exists(rules_src):
+        files_to_update.append(rules_src)
     for f in files_to_update:
         apply_preset_to_file(f, PRESET_NAME)
 else:
     params = parse_params(PARAMS_STR)
-    for f in files_to_update:
-        target_arg = TARGET if TARGET else None
-        update_file(f, TRIGGER, PRESET, params, target=target_arg)
+    target = TARGET or None
+    if target:
+        if os.path.exists(rules_src):
+            update_file(rules_src, TRIGGER, PRESET, params, target=target)
+    else:
+        if os.path.exists(global_src):
+            update_file(global_src, TRIGGER, PRESET, params, target=None)
 
 print("DONE")
 PYEOF

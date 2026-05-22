@@ -1,0 +1,94 @@
+rules: ({
+    match = "focused = false";
+    opacity = 0.90;
+}, {
+    match = "window_type = 'dock' || window_type = 'desktop'";
+    corner-radius = 0;
+}, {
+    match = "class_g = 'Polybar' || class_g = 'polybar'";
+    shadow = false;
+    corner-radius = 0;
+}, {
+    match = "name = 'Notification' || class_g ?= 'Notify-osd'";
+    shadow = false;
+}, {
+    match = "_GTK_FRAME_EXTENTS";
+    shadow = false;
+}, {
+    # Alacritty: fast open/close
+    match = "class_g = 'Alacritty'";
+    animations = ({
+        triggers = ["open"];
+        preset = "appear";
+        scale = 0.90;
+        duration = 0.15;
+    }, {
+        triggers = ["close"];
+        preset = "fly-out";
+        direction = "down";
+        duration = 0.15;
+    });
+}, {
+    # Firefox: slide from bottom
+    match = "class_g = 'Firefox' || class_g = 'firefox'";
+    animations = ({
+        triggers = ["open"];
+        preset = "fly-in";
+        direction = "up";
+        duration = 0.25;
+    }, {
+        triggers = ["close"];
+        preset = "fly-out";
+        direction = "down";
+        duration = 0.2;
+    });
+}, {
+    # Rofi: snappy
+    match = "class_g = 'rofi'";
+    animations = ({
+        triggers = ["open"];
+        preset = "appear";
+        scale = 0.95;
+        duration = 0.12;
+    }, {
+        triggers = ["show"];
+        preset = "appear";
+        scale = 0.95;
+        duration = 0.12;
+    }, {
+        triggers = ["close"];
+        preset = "disappear";
+        scale = 1.05;
+        duration = 0.08;
+    }, {
+        triggers = ["hide"];
+        preset = "disappear";
+        scale = 1.05;
+        duration = 0.08;
+    });
+}, {
+    # Dunst: slide from right
+    match = "class_g = 'Dunst'";
+    animations = ({
+        triggers = ["open"];
+        preset = "slide-in";
+        direction = "right";
+        duration = 0.2;
+    }, {
+        triggers = ["show"];
+        preset = "slide-in";
+        direction = "right";
+        duration = 0.2;
+    }, {
+        triggers = ["close"];
+        preset = "slide-out";
+        direction = "right";
+        duration = 0.15;
+    }, {
+        triggers = ["hide"];
+        preset = "slide-out";
+        direction = "right";
+        duration = 0.15;
+    });
+});
+
