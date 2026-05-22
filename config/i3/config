@@ -320,6 +320,7 @@ bindsym $mod+Shift+d exec --no-startup-id ~/.config/themes/scripts/toggle-dnd.sh
 
 # Notificaciones rápidas del sistema
 bindsym $mod+Shift+period exec --no-startup-id ~/.config/themes/scripts/notify-time.sh
+bindsym $mod+Shift+comma exec --no-startup-id gnome-calendar
 bindsym $mod+Shift+b exec --no-startup-id ~/.config/themes/scripts/notify-battery.sh
 bindsym $mod+Shift+w exec --no-startup-id ~/.config/themes/scripts/notify-weather.sh
 
@@ -338,6 +339,8 @@ for_window [class="Gnome-calculator"] floating enable, resize set 400 500, move 
 for_window [class="Blueman-manager"] floating enable, resize set 800 500, move position center
 for_window [class="org.blueman.Manager"] floating enable, resize set 800 500, move position center
 for_window [class="Pavucontrol"] floating enable, resize set 600 400, move position center
+for_window [class="Gnome-calendar"] floating enable, resize set 900 700, move position center
+for_window [class="org.gnome.Calendar"] floating enable, resize set 900 700, move position center
 for_window [class="Polkit-gnome-authentication-agent-1"] floating enable
 for_window [class="com-abdownloadmanager-desktop-AppKt"] floating enable, resize set 800 600, move position center
 for_window [window_type="dialog"] floating enable
