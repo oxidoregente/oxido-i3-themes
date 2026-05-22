@@ -183,10 +183,29 @@ Los fondos de pantalla provienen de:
 
 Créditos específicos de fotógrafos disponibles en los metadatos de cada imagen.
 
-### Comunidad e Investigación
+### 🌐 Comunidad e Inspiración (Polybar)
+
+Estos proyectos de la comunidad inspiraron directamente el sistema de layouts y colorimetría:
+
+| Proyecto | ★ | Aporte a oxido-i3-themes |
+|----------|---|--------------------------|
+| [adi1090x/polybar-themes](https://github.com/adi1090x/polybar-themes) | 6.2k | 12 familias de layouts, dark/light variants por archivo separado, pywal, `random.sh`, preview de módulos, rofi integrado |
+| [gh0stzk/dotfiles](https://github.com/gh0stzk/dotfiles) | 4.6k | Theme switching instantáneo sin reinicio, auto-detección multi-monitor, RiceEditor, <500MB RAM |
+| [polybar/polybar-scripts](https://github.com/polybar/polybar-scripts) | 2.6k | 50+ scripts: weather (MPRIS), battery (udev), bluetooth, IMAP, crypto, hackspeed |
+| [Murzchnvok/polybar-collection](https://github.com/Murzchnvok/polybar-collection) | 923 | `include-directory` para módulos, variables env (`POLYBAR_COLLECTION`), separadores decorativos con glyphs, detección automática de hardware |
+| [Yucklys/polybar-nord-theme](https://github.com/Yucklys/polybar-nord-theme) | 247 | `inherit` chain para bar definitions, dual-bar con config compartida |
+| [kiddae/polybar-themes](https://github.com/kiddae/polybar-themes) | 433 | xrdb-based colors (`${xrdb:color0}`), themes que se adaptan al sistema |
+| [r/unixporn](https://reddit.com/r/unixporn) | — | Tendencias: dark (80% de posts), slim bars 24-32px, Nerd Fonts, ARGB `#00` transparency, pywal, spotify/mpris module |
+
+**Lo que adoptamos:**
+- De **adi1090x**: separación colors.ini ↔ layouts.ini, layouts intercambiables (12 diseños)
+- De **gh0stzk**: theme switching instantáneo, selector Rofi unificado
+- De **Murzchnvok**: separadores powerline glyphs, estructura modular de includes
+- De **polybar-scripts**: patrones de battery status, dnd indicator, cava, power menu
+
+### Comunidad e Investigación (General)
 - **r/unixporn** — Inspiración para combinaciones de colores y layouts
 - **Arch Linux Forums** — Soluciones técnicas para configuración de i3
-- **Reddit Communities** — Tutoriales y debugging de picom, polybar y rofi
 - **yshui/picom** — Documentación y ejemplos del sistema de animaciones v13
 - **Proyecto i3** — Window manager base de todo el sistema
 

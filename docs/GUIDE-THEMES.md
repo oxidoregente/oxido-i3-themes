@@ -364,24 +364,70 @@ $pink       # Special accents
 $yellow     # Warning indicators
 ```
 
-### Polybar
+### Polybar — Layout System
 
-The bar layout (modules, order, position) is shared across all themes. Only the 13 color variables in each theme's `polybar/colors.ini` differ:
+The bar uses a **composable layout system**: each theme provides only colors (`colors.ini`), and the bar structure comes from a **layout file** (`.ini`). The applyer concatenates them at apply time.
 
-| Variable | Usage |
-|----------|-------|
-| `background` | Bar background |
-| `foreground` | Default text |
-| `bubble-ws` | Left segment (workspaces) |
-| `bubble-center` | Center segment (date) |
-| `bubble-sys` | Right segment (system info) |
-| `primary` | Active workspace, date accent |
-| `secondary` | Volume bars |
-| `alert` | Urgent workspace, temperature warning |
-| `disabled` | Empty workspace, volume empty |
-| `green` | Battery full |
-| `pink` | Labels |
-| `yellow` | Charging indicator |
+```
+colors.ini (theme)  +  layout.ini (design)  →  config.ini (runtime)
+```
+
+#### 12 Available Layouts
+
+| # | Layout | Style | Height | Radius | Modules |
+|---|--------|-------|--------|--------|---------|
+| 1 | **bubble** | 3 burbujas segmentadas (original) | 34 | 0 | ws + date + dnd+cpu+temp+mem+cava+audio+bat+tray+power |
+| 2 | **minimal** | Slim bar, solo esencial | 24 | 0 | ws + date + cpu+mem+audio+bat+tray |
+| 3 | **blocks** | Módulos como bloques con fondo | 30 | 0 | ws + date + dnd+cpu+mem+audio+bat+tray+power |
+| 4 | **floating** | Centrada 88%, bordes redondeados | 28 | 10 | ws + date + dnd+cpu+audio+bat+tray |
+| 5 | **powerline** | Separadores /, workspaces con bordes | 30 | 0 | ws (tabulado) + date + cpu+mem+audio+bat+tray |
+| 6 | **default** | Plana, separador `\|`, simple | 28 | 0 | ws + date + cpu+mem+audio+bat+tray |
+| 7 | **sharp** | Workspaces como pestañas / | 30 | 0 | ws (tabulado) + date + dnd+cpu+audio+bat+tray |
+| 8 | **colorblocks** | Cada módulo con fondo de color distinto | 30 | 0 | ws (primary) + date (bg-alt) + cpu (green)+mem(yellow)+audio(secondary)+bat+power(bg-alt) |
+| 9 | **material** | Material You, radius 12, espaciado generoso | 34 | 12 | ws + date + dnd+cpu+audio+bat+tray |
+| 10 | **rounded** | Barra flotante 90%, radius 18, ultraminimal | 26 | 18 | ws + date + audio+bat+tray |
+| 11 | **panel** | Estilo Win11/GNOME con separadores `\|` | 28 | 0 | ws + date + dnd\|cpu\|mem\|audio\|bat\|tray\|power |
+| 12 | **dual** | Dos zonas divididas por barra primaria | 30 | 0 | ws (primary)+date + cpu+mem+audio+bat+tray(separados) |
+
+Switch via: Centro de Control → Apariencia → Diseño Polybar, or directly:
+```bash
+echo "bubble" > ~/.config/themes/current-layout
+~/.config/themes/applyers/apply-polybar.sh ~/.config/themes/current/theme
+```
+
+#### Color Variables
+
+Each theme's `polybar/colors.ini` defines 14 variables:
+
+| Variable | Purpose | Contrast rule |
+|----------|---------|--------------|
+| `background` | Bar background | — |
+| `background-alt` | Module backgrounds (blocks, minimal, powerline, rounded) | Must differ from `background` by ≥15 per RGB channel (~1.5 CR) |
+| `bubble-ws` | Left bubble segment (workspaces) | Must differ from `background` by ≥20 per channel |
+| `bubble-center` | Center bubble segment (date) | Must contrast with `primary` (CR ≥ 3.0) |
+| `bubble-sys` | Right bubble segment (system info) | Must differ from `background` by ≥20 per channel |
+| `foreground` | Default text | CR ≥ 7.0 against all backgrounds it sits on |
+| `primary` | Active workspace, date accent, icon highlights | CR ≥ 3.0 against `bubble-center` and `bubble-ws` |
+| `secondary` | Volume bars, secondary accents | — |
+| `alert` | Urgent workspace, temperature warning, low battery | — |
+| `disabled` | Empty workspaces, volume empty segments | — |
+| `green` | Battery full, success indicators | — |
+| `pink` | Special accents | — |
+| `yellow` | Charging indicator, warnings | — |
+
+#### Colorimetry Guidelines
+
+The **bubble-*** colors create subtle section divisions. They must be visibly distinct from `background`:
+
+- **Minimum RGB difference**: ≥20 per channel (or ≥40 weighted)
+- **Hue consistency**: stay in the same color family as background
+- **Primary contrast**: ensure primary text/icons are readable on bubble backgrounds (CR ≥ 3.0)
+
+If bubble sections appear invisible (common in very dark themes), increase the bubble-* lightness by 15-25 per RGB channel relative to background.
+
+The `background-alt` serves as module backgrounds in non-bubble layouts (blocks, minimal, powerline, default, etc.). It requires:
+- **Minimum RGB difference from background**: ≥15 per channel
+- **Target CR**: ≥ 1.5 (below this, module backgrounds blend into the bar)
 
 ### Picom
 
@@ -559,6 +605,9 @@ tar -xzf ~/Backups/oxido-i3-themes-backup-20250521-*.tar.gz -C ~/
 
 | Date | Version | Changes |
 |------|---------|---------|
+| 2026-05 | Fase 4C | Colorimetry fix: 9 themes with invisible bubble colors, 7 themes with low bg-alt contrast, primary visibility ensured |
+| 2026-05 | Fase 4B | 7 new polybar layouts (12 total): default, sharp, colorblocks, material, rounded, panel, dual |
+| 2026-05 | Fase 4A | Polybar layout fixes: wm-restack, bubble-center → bg-alt, powerline separators, floating radius, applyer sync |
 | 2026-05 | Fase 3 | Default applications system, calendar floating, profile support |
 | 2026-05 | Fase 2 | Animation centralization, @include structure, -83% picom.conf size |
 | 2026-05 | Fase 1 | Bug fixes: triggers, presets, SSIDs, picom timeout, keybinding search |
