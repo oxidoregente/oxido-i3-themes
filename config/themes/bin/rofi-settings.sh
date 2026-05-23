@@ -7,8 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 [ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
 [ -f "$SCRIPT_DIR/rofi-builder.sh" ] && source "$SCRIPT_DIR/rofi-builder.sh"
 
-DIR="$THEMES_ROOT/config/themes/scripts/settings"
-[ ! -d "$DIR" ] && DIR="$THEMES_ROOT/scripts/settings"
+DIR="${THEMES_ROOT:-$HOME/.config/themes}/scripts/settings"
 
 choice=$(cat <<EOF | rofi -dmenu -p "$L_CENTER" -i -theme-str "$ROFI_THEME_MAIN"
 $L_APPS

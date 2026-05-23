@@ -106,7 +106,7 @@
     appname = "oxido_system"
     timeout = 3
     # Permitir iconos aunque sean notis de sistema
-    max_icon_size = 32
+    # max_icon_size (global-only, ignorado aquí)
 
 # Navegadores
 [firefox]

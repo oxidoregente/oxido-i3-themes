@@ -17,6 +17,12 @@ SCALE_ENV="$THEMES_ROOT/rofi/scale.env"
 # Cargar idioma
 source "$THEMES_ROOT/scripts/lang-builder.sh"
 
+# Normalizar locale para rofi (después de lang-builder, que sobreescribe LANG)
+if ! echo "$(locale -a 2>/dev/null)" | grep -qx "$LANG" >/dev/null 2>&1; then
+    MATCH=$(locale -a 2>/dev/null | grep -im1 "^${LANG%%.*}\." 2>/dev/null)
+    [ -n "$MATCH" ] && export LANG="$MATCH" || export LANG=C.utf8
+fi
+
 THEME_LINK="$THEMES_ROOT/current/theme"
 [ ! -L "$THEME_LINK" ] && THEME_LINK="$THEMES_ROOT/themes/nord"
 TDIR=$(readlink -f "$THEME_LINK")

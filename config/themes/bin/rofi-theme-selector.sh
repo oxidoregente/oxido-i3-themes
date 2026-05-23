@@ -74,6 +74,7 @@ theme_dirs = sorted([d for d in os.listdir(THEMES_DIR) if os.path.isdir(os.path.
 class ThemeSelector(Gtk.Window):
     def __init__(self):
         super().__init__(title="🎨 " + L_CUR_THEME)
+        self.set_wmclass("ThemeSelector", "ThemeSelector")
         self.set_default_size(1024, 640)
         self.set_border_width(15)
         self.set_position(Gtk.WindowPosition.CENTER)

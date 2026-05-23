@@ -52,7 +52,7 @@ floating_modifier $mod
 tiling_drag modifier titlebar
 
 # start a terminal
-bindsym $mod+Return exec ~/.config/themes/scripts/launch-terminal.sh
+bindsym $mod+Return exec --no-startup-id ~/.config/themes/scripts/launch-terminal.sh
 
 # start the browser
 bindsym $mod+Shift+f exec ~/.config/themes/scripts/launch-browser.sh
@@ -61,7 +61,7 @@ bindsym $mod+Shift+f exec ~/.config/themes/scripts/launch-browser.sh
 bindsym $mod+Shift+t exec ~/.config/themes/bin/rofi-theme-selector.sh
 
 # Centro de Control (configuración visual)
-bindsym $mod+Shift+s exec ~/.config/themes/bin/rofi-settings.sh
+bindsym $mod+Shift+s exec --no-startup-id ~/.config/themes/bin/rofi-settings.sh
 
 # Visor de atajos de teclado
 bindsym $mod+Shift+slash exec ~/.config/themes/scripts/settings/keybindings.sh
@@ -352,8 +352,9 @@ exec --no-startup-id xautolock -time 8 -locker "~/.config/themes/bin/lock.sh" -d
 # --- GESTIÓN DE BLOQUEO POR TAPA Y SUSPENSIÓN ---
 # xss-lock ya está ejecutándose desde la sección de inicio (línea 35)
 
-# ABDownloadManager
-exec_always --no-startup-id /usr/bin/xembedsniproxy
+# ABDownloadManager (desactivado: polybar internal/tray maneja SNI)
+# exec_always --no-startup-id /usr/bin/xembedsniproxy
 
 # Atajo para abrir Pavucontrol
-bindsym $mod+Control+m exec pavucontrol 
+bindsym $mod+Control+m exec --no-startup-id pavucontrol 
+bindsym $mod+Shift+m exec --no-startup-id ~/.config/themes/bin/polybar-modules.sh

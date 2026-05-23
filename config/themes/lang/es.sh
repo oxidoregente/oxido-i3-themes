@@ -79,6 +79,14 @@ L_NOT_DND_OFF="Activadas — Modo normal"
 L_NOT_TIME="Hora"
 L_NOT_BAT="Batería"
 
+# --- Powermenu ---
+L_POWER_OFF="󰐥  Apagar"
+L_REBOOT="󰜉  Reiniciar"
+L_SUSPEND="󰤄  Suspender"
+L_LOCK="󰌾  Bloquear"
+L_LOGOUT="󰍃  Salir"
+L_UPTIME="Tiempo activo"
+
 # --- Otros ---
 L_SELECT="Seleccionar"
 L_CANCEL="Cancelar"

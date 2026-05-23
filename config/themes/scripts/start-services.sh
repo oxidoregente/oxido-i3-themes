@@ -5,8 +5,9 @@ CONKY_FLAG="$HOME/.config/themes/conky-enabled"
 
 if [ ! -f "$POWERSAVER_FLAG" ]; then
     # Modo normal: iniciar picom si no está corriendo
+    PICOM_BIN="$HOME/.local/bin/picom"
     if ! pgrep -x picom >/dev/null 2>&1; then
-        picom --config "$HOME/.config/picom/picom.conf" -b 2>/dev/null &
+        "$PICOM_BIN" --config "$HOME/.config/picom/picom.conf" -b 2>/dev/null &
         disown
     fi
 

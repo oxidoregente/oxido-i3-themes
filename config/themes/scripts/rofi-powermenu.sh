@@ -7,18 +7,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 [ -f "$SCRIPT_DIR/rofi-builder.sh" ] && source "$SCRIPT_DIR/rofi-builder.sh"
 [ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
 
-# Traducciones dinámicas
-shutdown="󰐥 $L_POWER"
-[ "$LANG" = "es" ] && shutdown="󰐥 Apagar" || shutdown="󰐥 Shutdown"
-reboot="󰜉 $([ "$LANG" = "es" ] && echo "Reiniciar" || echo "Reboot")"
-suspend="󰤄 $([ "$LANG" = "es" ] && echo "Suspender" || echo "Suspend")"
-lock="󰌾 $([ "$LANG" = "es" ] && echo "Bloquear" || echo "Lock")"
-logout="󰍃 $([ "$LANG" = "es" ] && echo "Salir" || echo "Logout")"
+shutdown="$L_POWER_OFF"
+reboot="$L_REBOOT"
+suspend="$L_SUSPEND"
+lock="$L_LOCK"
+logout="$L_LOGOUT"
 
 options="$shutdown\n$reboot\n$suspend\n$lock\n$logout"
 
-# Info del sistema
-uptime_msg=$([ "$LANG" = "es" ] && echo "Tiempo activo" || echo "Uptime")
+uptime_msg="$L_UPTIME"
 uptime=$(uptime -p | sed 's/up //')
 
 chosen=$(echo -e "$options" | rofi -dmenu \
