@@ -32,7 +32,6 @@ i3lock-color \
     --ignore-empty-password \
     --indicator \
     --clock \
-    --font="JetBrainsMono Nerd Font Mono" \
     --radius 100 \
     --ring-width 5 \
     --line-color="${BG}00" \
@@ -52,9 +51,9 @@ i3lock-color \
     --modif-color="${FG}ff" \
     --layout-color="${FG}ff" \
     --greeter-color="${DISABLED}ff" \
-    --greeter-font="JetBrainsMonoNerdFontMono" \
-    --time-font="JetBrainsMonoNerdFontMono" \
-    --date-font="JetBrainsMonoNerdFontMono" \
+    --greeter-font="JetBrainsMono Nerd Font Mono" \
+    --time-font="JetBrainsMono Nerd Font Mono" \
+    --date-font="JetBrainsMono Nerd Font Mono" \
     --time-str="%H:%M" \
     --date-str="%A, %d %B" \
     --verif-text="✓" \
