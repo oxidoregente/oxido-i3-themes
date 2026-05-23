@@ -96,8 +96,9 @@ Press `$mod+Shift+/` to view all i3 keyboard shortcuts in a searchable Rofi menu
 ---
 
 ### 🌍 Multi-language Support (i18n)
-The system now supports dynamic language switching (Spanish/English) for all Rofi menus and notifications.
+Dynamic language switching (Spanish/English) for all Rofi menus and notifications.
 - **Setup**: `Control Center` → `🌍 Language`.
+- **Persistence**: Selected language persists across sessions (writes to `~/.config/themes/lang/`).
 
 ### 📏 Visual Scaling for Rofi
 Easily scale all Rofi menus from a single place.
@@ -107,6 +108,19 @@ Easily scale all Rofi menus from a single place.
 ### 🔋 Improved Battery Management
 - **Fix**: Fixed critical bug that crashed Polybar when clicking the battery icon.
 - **Power Profiles**: Integrated selector for energy profiles (Power Save, Balanced, Performance).
+
+### 📦 Polybar Module Manager (`$mod+Shift+m`)
+Visual panel to rearrange Polybar modules without editing files:
+- **Direct swap**: Select a module, choose "Swap with...", and pick which module to exchange positions with.
+- **Hide/Show**: Move modules to the Hidden section and back.
+- **Reorder**: Visual reordering within each section.
+- **Restore**: One-click reset to the original layout arrangement.
+- **Multi-language**: Fully translated (Spanish/English).
+
+### 🕐 Date in Spanish
+The Polybar clock displays days and months in Spanish using `LC_TIME=es_VE.utf8`:
+- **Time**: `%I:%M %p` format (e.g., 02:30 PM)
+- **Extended date**: Click to show `%A, %d %B %Y` in Spanish (e.g., sábado, 23 mayo 2026)
 
 ---
 
@@ -164,11 +178,14 @@ sudo sed -i 's/^gtk-theme-name=.*/gtk-theme-name=Orchis-Dark/' /etc/gtk-3.0/sett
 |---|---|
 | `$mod+Shift+s` | Control Center |
 | `$mod+Shift+t` | Theme Selector (split panel with preview) |
+| `$mod+Shift+m` | Polybar Module Manager |
+| `$mod+Shift+l` | Polybar Layout Manager |
 | `$mod+Shift+p` | PowerSaver Mode |
 | `$mod+Shift+n` | Toggle Conky |
 | `$mod+Shift+/` | View all shortcuts |
 | `$mod+d` | Application launcher (rofi drun) |
 | `$mod+Shift+Space` | Toggle floating window |
+| `Print` / `PrtSc` | Screenshot (selectable area) |
 
 ---
 

@@ -25,6 +25,10 @@ LAYOUT_PATH="$LAYOUTS_DIR/$LAYOUT_NAME.ini"
 [ ! -f "$LAYOUT_PATH" ] && { echo "Layout no encontrado"; exit 1; }
 
 FIJOS="ws-start ws-end center-start center-end sys-start sys-end"
+
+_mods_of() {
+    case "$1" in L) echo "$MODS_LEFT" ;; C) echo "$MODS_CENTER" ;; R) echo "$MODS_RIGHT" ;; esac
+}
 DECO_LEFT="ws-start ws-end"
 DECO_CENTER="center-start center-end"
 DECO_RIGHT="sys-start sys-end"
@@ -58,21 +62,21 @@ THEME="window { width: 480px; border-radius: 24px; border-color: $SEL; backgroun
 mainbox { children: [ inputbar, listview ]; padding: 20px; }
 inputbar { margin: 0 0 12px 0; padding: 8px 12px; background-color: $BGA; border-radius: 12px; children: [ prompt ]; }
 prompt { text-color: $SEL; font: \"JetBrainsMono Nerd Font Mono Bold 13\"; }
-listview { columns: 1; lines: 16; spacing: 4px; dynamic: true; }
+listview { columns: 1; lines: 8; spacing: 4px; dynamic: true; }
 element { padding: 10px 14px; border-radius: 10px; text-color: $FG; }
 element selected { background-color: $SEL; text-color: $BG; }
 element-text { vertical-align: 0.5; font: \"JetBrainsMono Nerd Font Mono 11\"; }"
 
 THEME_SUB="window { width: 420px; border-radius: 24px; border-color: $SEL; background-color: $BG; }
 mainbox { children: [ listview ]; padding: 16px; }
-listview { columns: 1; lines: 8; spacing: 6px; dynamic: false; }
+listview { columns: 1; lines: 8; spacing: 6px; dynamic: true; }
 element { padding: 12px 14px; border-radius: 12px; text-color: $FG; background-color: $BGA; }
 element selected { background-color: $SEL; text-color: $BG; }
 element-text { vertical-align: 0.5; font: \"JetBrainsMono Nerd Font Mono 11\"; }"
 
 count_sec() {
-    local sec="$1" mods_var="MODS_$sec" count=0
-    for m in ${!mods_var}; do echo "$FIJOS" | grep -qw "$m" || ((count++)); done
+    local sec="$1" count=0
+    for m in $(_mods_of "$sec"); do echo "$FIJOS" | grep -qw "$m" || ((count++)); done
     echo "$count"
 }
 
@@ -111,8 +115,8 @@ mostrar_ocultos() {
     items+="\n${L_MOD_BACK:-◀  Volver}"
     
     chosen=$(echo -e "$items" | rofi -dmenu -p "$(SEC_L H)" -i -theme-str "$THEME_SUB")
-    [ -z "$chosen" ] || echo "$chosen" | grep -q "Volver" && return
-    echo "$chosen" | grep -q "No hay" && return
+    [ -z "$chosen" ] || echo "$chosen" | grep -qE "Volver|Back" && return
+    echo "$chosen" | grep -qE "No hay|No hidden" && return
     
     MODS_RIGHT="$MODS_RIGHT $chosen"
     MODS_RIGHT=$(echo "$MODS_RIGHT" | tr -s ' ' | sed 's/^ *//;s/ *$//')
@@ -123,11 +127,10 @@ mostrar_ocultos() {
 
 seccion_menu() {
     local sec="$1" label=$(SEC_LABEL $sec)
-    local mods_var="MODS_$sec"
     
     while true; do
         items=""
-        for m in ${!mods_var}; do
+        for m in $(_mods_of "$sec"); do
             echo "$FIJOS" | grep -qw "$m" && continue
             items+="$m\n"
         done
@@ -135,13 +138,13 @@ seccion_menu() {
         
         chosen=$(echo -e "$items" | rofi -dmenu -p "$(SEC_L $sec)" -i -theme-str "$THEME_SUB")
         [ -z "$chosen" ] && return
-        echo "$chosen" | grep -q "Volver" && return
+        echo "$chosen" | grep -qE "Volver|Back" && return
         
-        if echo "$chosen" | grep -q "Reordenar"; then
+        if echo "$chosen" | grep -qE "Reordenar|Reorder"; then
             reordenar_seccion "$sec"
             continue
         fi
-        if echo "$chosen" | grep -q "Ocultar todos"; then
+        if echo "$chosen" | grep -qE "Ocultar todos|Hide all"; then
             ocultar_todos "$sec"
             return
         fi
@@ -152,11 +155,10 @@ seccion_menu() {
 
 reordenar_seccion() {
     local sec="$1" label=$(SEC_LABEL $sec)
-    local mods_var="MODS_$sec"
     
     while true; do
         items=""
-        for m in ${!mods_var}; do
+        for m in $(_mods_of "$sec"); do
             echo "$FIJOS" | grep -qw "$m" && continue
             items+="⬆ $m\n⬇ $m\n"
         done
@@ -164,13 +166,13 @@ reordenar_seccion() {
         
         chosen=$(echo -e "$items" | rofi -dmenu -p "↻ $label" -i -theme-str "$THEME_SUB")
         [ -z "$chosen" ] && break
-        echo "$chosen" | grep -q "Hecho" && break
+        echo "$chosen" | grep -qE "Hecho|Done" && break
         
         direccion=$(echo "$chosen" | grep -o '^[⬆⬇]')
         mod=$(echo "$chosen" | sed 's/^[⬆⬇] //')
         
         local -a mod_list=()
-        for m in ${!mods_var}; do mod_list+=("$m"); done
+        for m in $(_mods_of "$sec"); do mod_list+=("$m"); done
         
         local pos=-1
         for i in "${!mod_list[@]}"; do
@@ -204,8 +206,7 @@ reordenar_seccion() {
 
 ocultar_todos() {
     local sec="$1"
-    local mods_var="MODS_$sec"
-    for m in ${!mods_var}; do
+    for m in $(_mods_of "$sec"); do
         echo "$FIJOS" | grep -qw "$m" && continue
         unset MOD_SECTION["$m"]
     done
@@ -243,24 +244,22 @@ change_section() {
     apply_and_restart
 }
 
-move_mod() {
-    local mod="$1" direction="$2"
-    local sec="${MOD_SECTION[$mod]}"
-    local mods_var="MODS_$sec"
-    local -a mod_list=(${!mods_var})
+swap_positions() {
+    local mod1="$1" mod2="$2"
+    local sec="${MOD_SECTION[$mod1]}"
     
-    local pos=-1
+    local -a mod_list=()
+    for m in $(_mods_of "$sec"); do mod_list+=("$m"); done
+    
+    local pos1=-1 pos2=-1
     for i in "${!mod_list[@]}"; do
-        [ "${mod_list[$i]}" = "$mod" ] && { pos=$i; break; }
+        [ "${mod_list[$i]}" = "$mod1" ] && pos1=$i
+        [ "${mod_list[$i]}" = "$mod2" ] && pos2=$i
     done
-    [ "$pos" -eq -1 ] && return
+    [ "$pos1" -eq -1 ] || [ "$pos2" -eq -1 ] && return
     
-    local new_pos=$((pos + direction))
-    [ "$new_pos" -lt 0 ] || [ "$new_pos" -ge "${#mod_list[@]}" ] && return
-    
-    local tmp="${mod_list[$pos]}"
-    mod_list[$pos]="${mod_list[$new_pos]}"
-    mod_list[$new_pos]="$tmp"
+    mod_list[$pos1]="$mod2"
+    mod_list[$pos2]="$mod1"
     
     local new_mods="${mod_list[*]}"
     if [ "$sec" = "L" ]; then MODS_LEFT="$new_mods"
@@ -273,6 +272,26 @@ move_mod() {
     apply_and_restart
 }
 
+swap_with_seleccion() {
+    local mod="$1" sec="${MOD_SECTION[$mod]}"
+    local items=""
+    
+    for m in $(_mods_of "$sec"); do
+        echo "$FIJOS" | grep -qw "$m" && continue
+        [ "$m" = "$mod" ] && continue
+        items+="$m\n"
+    done
+    [ -z "$items" ] && return
+    
+    items+="\n${L_MOD_BACK:-◀  Volver}"
+    
+    chosen=$(echo -e "$items" | rofi -dmenu -p "${L_MOD_SWAP:-↔  Intercambiar con...}" -i -theme-str "$THEME_SUB")
+    [ -z "$chosen" ] && return
+    echo "$chosen" | grep -qE "Volver|Back" && return
+    
+    swap_positions "$mod" "$chosen"
+}
+
 mod_menu() {
     local mod="$1" sec="${MOD_SECTION[$mod]}"
     
@@ -281,13 +300,13 @@ mod_menu() {
     [ "$sec" != "C" ] && other_secs+="${L_MOD_MOVE_CENTER:-↔  Mover a CENTRO}\n"
     [ "$sec" != "R" ] && other_secs+="${L_MOD_MOVE_RIGHT:-▶  Mover a DERECHA}\n"
     
-    opts="${other_secs}${L_MOD_SWAP_UP:-⬆  Intercambiar con anterior}\n${L_MOD_SWAP_DOWN:-⬇  Intercambiar con siguiente}\n${L_MOD_HIDE:-✕  Ocultar módulo}\n${L_MOD_BACK:-◀  Volver}"
+    opts="${other_secs}${L_MOD_SWAP:-↔  Intercambiar con...}\n${L_MOD_HIDE:-✕  Ocultar módulo}\n${L_MOD_BACK:-◀  Volver}"
     
     chosen=$(echo -e "$opts" | rofi -dmenu -p "$mod — $(SEC_LABEL $sec)" -i -theme-str "$THEME_SUB")
     [ -z "$chosen" ] && return
-    echo "$chosen" | grep -q "Volver" && return
+    echo "$chosen" | grep -qE "Volver|Back" && return
     
-    if echo "$chosen" | grep -q "Ocultar"; then
+    if echo "$chosen" | grep -qE "Ocultar|Hide"; then
         local old_sec="${MOD_SECTION[$mod]}"
         if [ "$old_sec" = "L" ]; then
             MODS_LEFT=$(echo "$MODS_LEFT" | sed "s/\b$mod\b//" | tr -s ' ')
@@ -304,13 +323,15 @@ mod_menu() {
         return
     fi
     
-    if echo "$chosen" | grep -q "Intercambiar con anterior"; then move_mod "$mod" -1; return; fi
-    if echo "$chosen" | grep -q "Intercambiar con siguiente"; then move_mod "$mod" 1; return; fi
+    if echo "$chosen" | grep -qE "Intercambiar con|Swap with"; then
+        swap_with_seleccion "$mod"
+        return
+    fi
     
     new_sec=""
-    echo "$chosen" | grep -q "IZQUIERDA" && new_sec="L"
-    echo "$chosen" | grep -q "CENTRO"    && new_sec="C"
-    echo "$chosen" | grep -q "DERECHA"   && new_sec="R"
+    echo "$chosen" | grep -qE "IZQUIERDA|LEFT" && new_sec="L"
+    echo "$chosen" | grep -qE "CENTRO|CENTER"    && new_sec="C"
+    echo "$chosen" | grep -qE "DERECHA|RIGHT"   && new_sec="R"
     [ -z "$new_sec" ] && return
     change_section "$mod" "$new_sec"
 }
@@ -347,7 +368,7 @@ while true; do
     
     pick=$(echo -e "$items" | rofi -dmenu -p "${L_MOD_TITLE:-📦  GESTOR DE MÓDULOS}" -i -theme-str "$THEME")
     [ -z "$pick" ] && exit 0
-    echo "$pick" | grep -q "Cerrar" && exit 0
+    echo "$pick" | grep -qE "Cerrar|Close" && exit 0
     
     if echo "$pick" | grep -qv "("; then
         for label in "$s_left" "$s_center" "$s_right" "$s_hidden"; do
@@ -355,7 +376,7 @@ while true; do
         done
     fi
     
-    if echo "$pick" | grep -q "Restaurar"; then
+    if echo "$pick" | grep -qE "Restaurar|Restore"; then
         restaurar_default
         continue
     fi

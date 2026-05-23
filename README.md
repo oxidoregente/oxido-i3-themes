@@ -87,8 +87,9 @@ El sistema aplica:
 ---
 
 ### 🌍 Soporte Multi-idioma (i18n)
-El sistema ahora soporta cambio de idioma dinámico (Español/Inglés) para todos los menús de Rofi y notificaciones.
+Cambio de idioma dinámico (Español/Inglés) para todos los menús de Rofi y notificaciones.
 - **Configuración**: `Centro de Control` → `🌍 Idioma`.
+- **Persistencia**: El idioma seleccionado persiste entre sesiones (escribe a `~/.config/themes/lang/`).
 
 ### 📏 Escalado Visual de Rofi
 Puedes agrandar o achicar todos los menús de Rofi de forma centralizada.
@@ -98,6 +99,19 @@ Puedes agrandar o achicar todos los menús de Rofi de forma centralizada.
 ### 🔋 Gestión de Batería Mejorada
 - **Fix**: Corregido bug que crasheaba la Polybar al hacer click en la batería.
 - **Nuevos Modos**: Selector de perfiles de energía (Ahorro, Equilibrado, Rendimiento) integrado.
+
+### 📦 Gestor de Módulos de Polybar (`$mod+Shift+m`)
+Panel visual para reorganizar los módulos de la Polybar sin editar archivos:
+- **Intercambio directo**: Seleccionás un módulo, elegís "Intercambiar con..." y seleccionás con cuál trocar posiciones.
+- **Ocultar/Mostrar**: Mové módulos a la sección de Ocultos y viceversa.
+- **Reordenar**: Reordenamiento visual dentro de cada sección.
+- **Restaurar**: Volvé a la disposición original del layout con un clic.
+- **Multi-idioma**: Totalmente traducido (Español/Inglés).
+
+### 🕐 Reloj en Español
+La fecha en la Polybar muestra los días y meses en español usando `LC_TIME=es_VE.utf8`:
+- **Hora**: Formato `%I:%M %p` (ej: 02:30 PM)
+- **Fecha extendida**: Al hacer clic, muestra `%A, %d %B %Y` en español (ej: sábado, 23 mayo 2026)
 
 ---
 
@@ -149,11 +163,14 @@ $mod+Shift+r
 |---|---|
 | `$mod+Shift+s` | Centro de Control |
 | `$mod+Shift+t` | Selector de Temas (split panel con preview) |
+| `$mod+Shift+m` | Gestor de Módulos de Polybar |
+| `$mod+Shift+l` | Gestor de Layouts de Polybar |
 | `$mod+Shift+p` | PowerSaver Mode |
 | `$mod+Shift+n` | Toggle Conky |
 | `$mod+Shift+/` | Ver todos los atajos |
 | `$mod+d` | Lanzador de aplicaciones (rofi drun) |
 | `$mod+Shift+Space` | Ventana flotante |
+| `Print` / `PrtSc` | Captura de pantalla (área seleccionable) |
 
 ---
 

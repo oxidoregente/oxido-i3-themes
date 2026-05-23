@@ -132,7 +132,7 @@ class ThemeSelector(Gtk.Window):
 
         btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
         btn_box.set_halign(Gtk.Align.END)
-        for label, callback in [(L_CANCEL, self.destroy), (L_RANDOM, self.on_random), (L_SELECT, self.on_apply)]:
+        for label, callback in [(L_CANCEL, lambda w: self.destroy()), (L_RANDOM, self.on_random), (L_SELECT, self.on_apply)]:
             btn = Gtk.Button(label=label)
             btn.connect("clicked", callback if callable(callback) else lambda w: callback())
             btn_box.pack_start(btn, False, False, 0)

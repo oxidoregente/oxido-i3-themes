@@ -414,3 +414,146 @@ Los archivos de tema tienen `@include` con rutas relativas a su ubicación
 (`../../../animations/...`). Al copiarse a `~/.config/picom/picom.conf`,
 la ruta relativa cambia. `sed` transforma la ruta durante la copia para
 que apunte a `../themes/animations/...` desde la ubicación de destino.
+
+---
+
+## 13. Variable Shadowing en polybar-modules.sh: `MODS_L` vs `MODS_LEFT`
+
+### Problema
+El Gestor de Módulos (`$mod+Shift+m`) mostraba **0 módulos en cada sección**
+y las listas aparecían vacías, aunque el archivo de layout tuviera los módulos
+correctamente definidos.
+
+### Causa
+Las variables que almacenan los módulos se llaman `MODS_LEFT`, `MODS_CENTER`
+y `MODS_RIGHT`, pero todas las funciones internas (`count_sec`, `seccion_menu`,
+`reordenar_seccion`, `ocultar_todos`, `move_mod`) usaban la notación indirecta
+`mods_var="MODS_$sec"` donde `$sec` es el código corto `L`/`C`/`R` — produciendo
+`MODS_L`, `MODS_C`, `MODS_R` que **no existen**.
+
+Al expandir `${!mods_var}` se obtenía una cadena vacía, resultando en conteo 0
+y listas de opciones vacías.
+
+### Solución
+Se introdujo la función `_mods_of()` que mapea el código corto a la variable
+real mediante un `case`:
+
+```bash
+_mods_of() {
+    case "$1" in L) echo "$MODS_LEFT" ;; C) echo "$MODS_CENTER" ;; R) echo "$MODS_RIGHT" ;; esac
+}
+```
+
+Y se reemplazaron todas las referencias `mods_var="MODS_$sec"` + `${!mods_var}`
+por `$(_mods_of "$sec")`.
+
+### Archivos afectados
+- `config/themes/bin/polybar-modules.sh` (5 funciones corregidas)
+
+---
+
+## 14. Reloj Polybar en Inglés con Locale Español
+
+### Problema
+La fecha en la Polybar mostraba los días y meses en inglés a pesar de que
+el sistema tenía `LANG=es_VE.UTF-8` y `LC_TIME=es_VE.utf8`.
+
+### Causa
+El módulo `internal/date` de Polybar no respeta consistentemente el locale
+del entorno, posiblemente porque Polybar reinicia el locale interno a `"C"`
+durante su inicialización o usa `std::put_time` con el locale por defecto
+del proceso.
+
+### Solución
+Se reemplazó `internal/date` por `custom/script` que ejecuta explícitamente
+el comando `date` con `LC_TIME=es_VE.utf8`:
+
+```ini
+[module/date]
+type = custom/script
+exec = date "+%I:%M %p"
+exec-alt = LC_TIME=es_VE.utf8 date "+%A, %d %B %Y"
+interval = 1
+click-left = polybar-msg action "#date.hook.0"
+```
+
+El `click-left` usa la nueva sintaxis de acciones IPC de Polybar 3.7 para
+toggle entre hora y fecha extendida. La sintaxis antigua `polybar-msg hook`
+está deprecada y no funciona correctamente como `click-left`.
+
+### Archivos afectados
+- `config/polybar/layouts/bubble.ini` (y por herencia `config.ini`)
+
+---
+
+## 15. Idioma no Persistía entre Sesiones
+
+### Problema
+Al seleccionar un idioma en `Centro de Control → 🌍 Idioma`, el cambio se
+reflejaba inmediatamente pero se perdía al cerrar y reabrir el menú.
+
+### Causa
+El script `language.sh` escribía el archivo `active_lang.env` en la ruta del
+repositorio (`$REPO_DIR/config/themes/lang/`), pero los menús se abren desde
+`~/.config/themes/bin/` que lee el archivo desde `~/.config/themes/lang/`
+— rutas completamente distintas. El cambio nunca persistía al runtime.
+
+### Solución
+Se modificó `language.sh` para:
+1. Escribir `active_lang.env` a `~/.config/themes/lang/` (ruta de runtime)
+2. Ejecutar el menú principal desde la misma ruta de runtime (`~/.config/themes/bin/`)
+3. (Opcional) También escribir al repo para mantener sincronización en desarrollo
+
+### Archivos afectados
+- `config/themes/scripts/settings/language.sh`
+
+---
+
+## 16. Intercambio de Módulos: UX Mejorado
+
+### Problema
+Para mover un módulo al final de su sección, el usuario debía presionar
+"Intercambiar con siguiente" múltiples veces, lo cual era tedioso.
+
+### Solución
+Se reemplazaron las dos opciones `⬆  Intercambiar con anterior` y
+`⬇  Intercambiar con siguiente` por una única opción `↔  Intercambiar con...`.
+Al seleccionarla, aparece un submenú con todos los otros módulos de la misma
+sección. El usuario elige con cuál intercambiar y las posiciones se
+invierten al instante.
+
+### Cambios en el código
+- Nueva función `swap_with_seleccion()`: muestra el submenú de módulos
+- Nueva función `swap_positions()`: intercambia dos módulos en la lista
+- Se eliminó la función `move_mod()` (obsoleta)
+- Se añadió la variable `L_MOD_SWAP` a los archivos de idioma
+
+### Archivos afectados
+- `config/themes/bin/polybar-modules.sh`
+- `config/themes/lang/es.sh`
+- `config/themes/lang/en.sh`
+
+---
+
+## 17. Theme Selector: Botón Cancelar no Funcionaba
+
+### Problema
+El botón "Cancelar" en el Selector de Temas (rofi-theme-selector.sh) no
+cerraba la ventana GTK.
+
+### Causa
+En Python GTK3, al conectar `self.destroy` directamente como callback:
+```python
+btn.connect("clicked", self.destroy)
+```
+GTK pasa el widget (el botón) como primer argumento, efectivamente llamando
+a `Gtk.Window.destroy(self, button)` que falla por argumento extra.
+
+### Solución
+Envolver `self.destroy` en un lambda que ignore el argumento:
+```python
+btn.connect("clicked", lambda w: self.destroy())
+```
+
+### Archivos afectados
+- `config/themes/bin/rofi-theme-selector.sh`
