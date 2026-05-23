@@ -47,29 +47,29 @@ rules: ({
         duration = 0.22;
     });
 }, {
-    # Rofi: snappy
+    # Rofi: snappy (sin workspace — lo maneja global)
     match = "class_g = 'rofi'";
     animations = ({
-        triggers = ["open", "show", "workspace-in"];
+        triggers = ["open", "show"];
         preset = "appear";
         scale = 0.92;
         duration = 0.15;
     }, {
-        triggers = ["close", "hide", "workspace-out"];
+        triggers = ["close", "hide"];
         preset = "disappear";
         scale = 1.08;
         duration = 0.12;
     });
 }, {
-    # Dunst: slide from right
+    # Dunst: slide from right (sin workspace — lo maneja global)
     match = "class_g = 'Dunst'";
     animations = ({
-        triggers = ["open", "show", "workspace-in"];
+        triggers = ["open", "show"];
         preset = "slide-in";
         direction = "right";
         duration = 0.25;
     }, {
-        triggers = ["close", "hide", "workspace-out"];
+        triggers = ["close", "hide"];
         preset = "slide-out";
         direction = "right";
         duration = 0.20;

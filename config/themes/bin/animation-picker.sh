@@ -77,14 +77,14 @@ else
     echo "=== Animation Picker → $TRIGGER: $PRESET (destino: ${TARGET:-global}) ==="
 fi
 
-# Compute source paths for centralized includes
-PICKER_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "$PICKER_DIR/../../.." && pwd)"
-GLOBAL_SRC="$REPO_ROOT/config/themes/animations/global.picom"
-RULES_SRC="$REPO_ROOT/config/themes/animations/rules.picom"
+# Source paths — edit active runtime files directamente
+ANIM_DIR="$HOME/.config/themes/animations"
+GLOBAL_SRC="$ANIM_DIR/global.picom"
+RULES_SRC="$ANIM_DIR/rules.picom"
+REPO_DIR="$HOME/Documentos/oxido-i3-themes"
 
 export MODE TRIGGER PRESET TARGET PARAMS PRESET_NAME PICOM_DST CURRENT_LINK
-export GLOBAL_SRC RULES_SRC
+export GLOBAL_SRC RULES_SRC REPO_DIR
 
 output=$(python3 << 'PYEOF'
 import os, re
@@ -104,30 +104,40 @@ PRESETS = {
         "close": {"preset": "disappear", "scale": "1.05", "duration": "0.2"},
         "show":  {"preset": "fly-in", "direction": "up", "duration": "0.2"},
         "hide":  {"preset": "fly-out", "direction": "down", "duration": "0.15"},
+        "workspace-in":  {"preset": "appear", "scale": "0.95", "duration": "0.2"},
+        "workspace-out": {"preset": "disappear", "scale": "1.05", "duration": "0.15"},
     },
     "gnome": {
         "open":  {"preset": "fly-in", "direction": "up", "duration": "0.2"},
         "close": {"preset": "fly-out", "direction": "down", "duration": "0.15"},
         "show":  {"preset": "slide-in", "direction": "up", "duration": "0.2"},
         "hide":  {"preset": "slide-out", "direction": "down", "duration": "0.15"},
+        "workspace-in":  {"preset": "appear", "scale": "0.95", "duration": "0.2"},
+        "workspace-out": {"preset": "disappear", "scale": "1.05", "duration": "0.15"},
     },
     "macos": {
         "open":  {"preset": "appear", "scale": "0.90", "duration": "0.3"},
         "close": {"preset": "fly-out", "direction": "left", "duration": "0.25"},
         "show":  {"preset": "fly-in", "direction": "up", "duration": "0.2"},
         "hide":  {"preset": "fly-out", "direction": "down", "duration": "0.15"},
+        "workspace-in":  {"preset": "appear", "scale": "0.95", "duration": "0.25"},
+        "workspace-out": {"preset": "disappear", "scale": "1.08", "duration": "0.2"},
     },
     "win11": {
         "open":  {"preset": "fly-in", "direction": "up", "duration": "0.2"},
         "close": {"preset": "fly-out", "direction": "right", "duration": "0.2"},
         "show":  {"preset": "appear", "scale": "0.95", "duration": "0.15"},
         "hide":  {"preset": "disappear", "scale": "1.05", "duration": "0.1"},
+        "workspace-in":  {"preset": "appear", "scale": "0.95", "duration": "0.2"},
+        "workspace-out": {"preset": "disappear", "scale": "1.05", "duration": "0.15"},
     },
     "snap": {
         "open":  {"preset": "appear", "scale": "0.95", "duration": "0.1"},
         "close": {"preset": "disappear", "scale": "1.02", "duration": "0.08"},
         "show":  {"preset": "appear", "scale": "0.95", "duration": "0.08"},
         "hide":  {"preset": "disappear", "scale": "1.02", "duration": "0.06"},
+        "workspace-in":  {"preset": "appear", "scale": "0.97", "duration": "0.12"},
+        "workspace-out": {"preset": "disappear", "scale": "1.03", "duration": "0.1"},
     },
 }
 
@@ -167,20 +177,26 @@ def find_closing(lines, start_idx):
     return None
 
 
+def find_trigger_line(lines, trigger, start=0, end=None):
+    """Find a line that lists the given trigger in its triggers=[] list."""
+    pattern = re.compile(r'triggers\s*=\s*\[([^\]]*)\]')
+    for i in range(start, end or len(lines)):
+        m = pattern.search(lines[i])
+        if m:
+            items = [t.strip().strip('"') for t in m.group(1).split(',')]
+            if trigger in items:
+                return i
+    return None
+
 def find_global_trigger(lines, trigger):
     """Find a global animation trigger line (indent 4, before rules: section)."""
-    target = f'    triggers = ["{trigger}"];'
     rules_start = -1
     for i, line in enumerate(lines):
         if line.strip().startswith('rules:'):
             rules_start = i
             break
-    for i, line in enumerate(lines):
-        if line.rstrip() == target:
-            if rules_start >= 0 and i > rules_start:
-                continue
-            return i
-    return None
+    result = find_trigger_line(lines, trigger, 0, rules_start if rules_start >= 0 else None)
+    return result
 
 
 def find_rule_match(lines, app_name, start=0):
@@ -200,12 +216,8 @@ def find_animations_block(lines, rule_start):
 
 
 def find_trigger_in_section(lines, trigger, section_start, section_end):
-    """Find a trigger line with indent 8 within a section."""
-    target = f'        triggers = ["{trigger}"];'
-    for i in range(section_start, min(section_end or len(lines), len(lines))):
-        if lines[i].rstrip() == target:
-            return i
-    return None
+    """Find a trigger line with indent 8 within a section (handles combined triggers)."""
+    return find_trigger_line(lines, trigger, section_start, section_end)
 
 
 def update_file(filepath, trigger, preset, params, target=None, quiet=False):
@@ -350,6 +362,9 @@ if [ "$updated" -gt 0 ]; then
     sleep 0.3
     picom --config "$PICOM_DST" &>/dev/null &
     disown
+    # Sync to repo
+    cp "$GLOBAL_SRC" "$REPO_DIR/config/themes/animations/global.picom"
+    cp "$RULES_SRC" "$REPO_DIR/config/themes/animations/rules.picom"
 fi
 
 # Notify
