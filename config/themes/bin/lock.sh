@@ -28,7 +28,7 @@ LOCK_IMG="$THEME_DIR/unlock.png"
 [ ! -f "$LOCK_IMG" ] && LOCK_IMG="$HOME/.config/themes/themes/tokyo-night/unlock.png"
 [ ! -f "$LOCK_IMG" ] && LOCK_IMG=""
 
-i3lock-color \
+LC_TIME=C i3lock-color \
     --ignore-empty-password \
     --indicator \
     --clock \
@@ -52,9 +52,11 @@ i3lock-color \
     --layout-color="${FG}ff" \
     --greeter-color="${DISABLED}ff" \
     --greeter-font="JetBrainsMono Nerd Font Mono" \
+    --verif-font="JetBrainsMono Nerd Font Mono" \
+    --wrong-font="JetBrainsMono Nerd Font Mono" \
     --time-font="JetBrainsMono Nerd Font Mono" \
     --date-font="JetBrainsMono Nerd Font Mono" \
-    --time-str="%H:%M" \
+    --time-str="%I:%M %p" \
     --date-str="%A, %d %B" \
     --verif-text="✓" \
     --wrong-text="✗" \
