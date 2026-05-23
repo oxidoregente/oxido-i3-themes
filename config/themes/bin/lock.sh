@@ -73,8 +73,9 @@ LC_TIME=$LC_TIME i3lock-color \
     --wrong-text="✗" \
     --noinput-text="" \
     --greeter-text="" \
-    --greeter-pos="x+0:y-65" \
-    --time-pos="x+0:y-2" \
-    --date-pos="x+0:y+28" \
-    -c "${BG}ff" \
+    --greeter-pos="ix:iy-65" \
+    --time-pos="ix:iy" \
+    --date-pos="ix:iy+28" \
+    ${LOCK_IMG:+--image "$LOCK_IMG" --fill} \
+    ${LOCK_IMG:- -c "${BG}ff"} \
     2>/dev/null
