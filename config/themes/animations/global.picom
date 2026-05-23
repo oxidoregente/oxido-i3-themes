@@ -9,25 +9,110 @@ animations = ({
     direction = "down";
     duration = 0.20;
 }, {
+    # Show — cascading fly-in, cada ventana desde su propia altura sin superposicion
     triggers = ["show"];
-    preset = "fly-in";
-    direction = "up";
-    duration = 0.30;
+    offset-y = {
+        curve = "cubic-bezier(0.17, 0.67, 0.68, 1.03)";
+        duration = 0.30;
+        start = "-window-height";
+        end = "0";
+    };
+    opacity = {
+        curve = "linear";
+        duration = 0.25;
+        start = "0";
+        end = "window-raw-opacity";
+    };
+    shadow-offset-y = "offset-y";
 }, {
     triggers = ["hide"];
     preset = "fly-out";
     direction = "down";
     duration = 0.25;
 }, {
+    # Workspace-in — slide desde la derecha, cada ventana su propio ancho sin superposicion
     triggers = ["workspace-in"];
-    preset = "slide-in";
-    direction = "right";
-    duration = 0.30;
+    offset-x = {
+        curve = "cubic-bezier(0.24, 0.64, 0.79, 0.98)";
+        duration = 0.30;
+        start = "window-width";
+        end = "0";
+    };
+    opacity = {
+        curve = "linear";
+        duration = 0.25;
+        start = "0";
+        end = "window-raw-opacity";
+    };
+    shadow-offset-x = "offset-x";
+    shadow-opacity = "opacity";
+    crop-x = "window-x";
+    crop-y = "window-y";
+    crop-width = "window-width";
+    crop-height = "window-height";
 }, {
+    # Workspace-in-inverse — slide desde la izquierda (workspace anterior)
+    triggers = ["workspace-in-inverse"];
+    offset-x = {
+        curve = "cubic-bezier(0.24, 0.64, 0.79, 0.98)";
+        duration = 0.30;
+        start = "-window-width";
+        end = "0";
+    };
+    opacity = {
+        curve = "linear";
+        duration = 0.25;
+        start = "0";
+        end = "window-raw-opacity";
+    };
+    shadow-offset-x = "offset-x";
+    shadow-opacity = "opacity";
+    crop-x = "window-x";
+    crop-y = "window-y";
+    crop-width = "window-width";
+    crop-height = "window-height";
+}, {
+    # Workspace-out — slide hacia la izquierda
     triggers = ["workspace-out"];
-    preset = "slide-out";
-    direction = "left";
-    duration = 0.25;
+    offset-x = {
+        curve = "cubic-bezier(0.21, 0.02, 0.76, 0.36)";
+        duration = 0.25;
+        start = "0";
+        end = "-window-width";
+    };
+    opacity = {
+        curve = "linear";
+        duration = 0.20;
+        start = "window-raw-opacity-before";
+        end = "0";
+    };
+    shadow-offset-x = "offset-x";
+    shadow-opacity = "opacity";
+    crop-x = "window-x";
+    crop-y = "window-y";
+    crop-width = "window-width";
+    crop-height = "window-height";
+}, {
+    # Workspace-out-inverse — slide hacia la derecha
+    triggers = ["workspace-out-inverse"];
+    offset-x = {
+        curve = "cubic-bezier(0.21, 0.02, 0.76, 0.36)";
+        duration = 0.25;
+        start = "0";
+        end = "window-width";
+    };
+    opacity = {
+        curve = "linear";
+        duration = 0.20;
+        start = "window-raw-opacity-before";
+        end = "0";
+    };
+    shadow-offset-x = "offset-x";
+    shadow-opacity = "opacity";
+    crop-x = "window-x";
+    crop-y = "window-y";
+    crop-width = "window-width";
+    crop-height = "window-height";
 }, {
     triggers = ["position"];
     preset = "geometry-change";

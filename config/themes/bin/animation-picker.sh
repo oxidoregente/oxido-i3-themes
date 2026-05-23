@@ -98,46 +98,38 @@ PRESET_NAME = os.environ.get('PRESET_NAME', '')
 PICOM_DST = os.environ.get('PICOM_DST', '')
 CURRENT_LINK = os.environ.get('CURRENT_LINK', '')
 
+# Workspace triggers (workspace-in/out/inverse) usan sintaxis avanzada
+# en global.picom — no se configuran via presets simples.
 PRESETS = {
     "clasico": {
         "open":  {"preset": "appear", "scale": "0.92", "duration": "0.22"},
         "close": {"preset": "disappear", "scale": "1.05", "duration": "0.2"},
         "show":  {"preset": "fly-in", "direction": "up", "duration": "0.2"},
         "hide":  {"preset": "fly-out", "direction": "down", "duration": "0.15"},
-        "workspace-in":  {"preset": "appear", "scale": "0.95", "duration": "0.2"},
-        "workspace-out": {"preset": "disappear", "scale": "1.05", "duration": "0.15"},
     },
     "gnome": {
         "open":  {"preset": "fly-in", "direction": "up", "duration": "0.2"},
         "close": {"preset": "fly-out", "direction": "down", "duration": "0.15"},
         "show":  {"preset": "slide-in", "direction": "up", "duration": "0.2"},
         "hide":  {"preset": "slide-out", "direction": "down", "duration": "0.15"},
-        "workspace-in":  {"preset": "appear", "scale": "0.95", "duration": "0.2"},
-        "workspace-out": {"preset": "disappear", "scale": "1.05", "duration": "0.15"},
     },
     "macos": {
         "open":  {"preset": "appear", "scale": "0.90", "duration": "0.3"},
         "close": {"preset": "fly-out", "direction": "left", "duration": "0.25"},
         "show":  {"preset": "fly-in", "direction": "up", "duration": "0.2"},
         "hide":  {"preset": "fly-out", "direction": "down", "duration": "0.15"},
-        "workspace-in":  {"preset": "appear", "scale": "0.95", "duration": "0.25"},
-        "workspace-out": {"preset": "disappear", "scale": "1.08", "duration": "0.2"},
     },
     "win11": {
         "open":  {"preset": "fly-in", "direction": "up", "duration": "0.2"},
         "close": {"preset": "fly-out", "direction": "right", "duration": "0.2"},
         "show":  {"preset": "appear", "scale": "0.95", "duration": "0.15"},
         "hide":  {"preset": "disappear", "scale": "1.05", "duration": "0.1"},
-        "workspace-in":  {"preset": "appear", "scale": "0.95", "duration": "0.2"},
-        "workspace-out": {"preset": "disappear", "scale": "1.05", "duration": "0.15"},
     },
     "snap": {
         "open":  {"preset": "appear", "scale": "0.95", "duration": "0.1"},
         "close": {"preset": "disappear", "scale": "1.02", "duration": "0.08"},
         "show":  {"preset": "appear", "scale": "0.95", "duration": "0.08"},
         "hide":  {"preset": "disappear", "scale": "1.02", "duration": "0.06"},
-        "workspace-in":  {"preset": "appear", "scale": "0.97", "duration": "0.12"},
-        "workspace-out": {"preset": "disappear", "scale": "1.03", "duration": "0.1"},
     },
 }
 
@@ -220,7 +212,13 @@ def find_trigger_in_section(lines, trigger, section_start, section_end):
     return find_trigger_line(lines, trigger, section_start, section_end)
 
 
+WORKSPACE_TRIGGERS = {"workspace-in", "workspace-out", "workspace-in-inverse", "workspace-out-inverse"}
+
 def update_file(filepath, trigger, preset, params, target=None, quiet=False):
+    if trigger in WORKSPACE_TRIGGERS:
+        if not quiet:
+            print(f"  ✗ Trigger '{trigger}' usa sintaxis avanzada en global.picom — no se puede modificar con presets simples")
+        return False
     if not os.path.exists(filepath):
         if not quiet:
             print(f"  → Saltando: {filepath} no existe")
