@@ -465,24 +465,31 @@ durante su inicialización o usa `std::put_time` con el locale por defecto
 del proceso.
 
 ### Solución
-Se reemplazó `internal/date` por `custom/script` que ejecuta explícitamente
-el comando `date` con `LC_TIME=es_VE.utf8`:
+Se reemplazó `internal/date` por `custom/script` que usa un wrapper
+con archivo de estado, evitando la dependencia del IPC de Polybar:
 
 ```ini
 [module/date]
 type = custom/script
-exec = date "+%I:%M %p"
-exec-alt = LC_TIME=es_VE.utf8 date "+%A, %d %B %Y"
+exec = ~/.config/polybar/scripts/date-wrapper.sh
 interval = 1
-click-left = polybar-msg action "#date.hook.0"
+click-left = ~/.config/polybar/scripts/date-toggle.sh
 ```
 
-El `click-left` usa la nueva sintaxis de acciones IPC de Polybar 3.7 para
-toggle entre hora y fecha extendida. La sintaxis antigua `polybar-msg hook`
-está deprecada y no funciona correctamente como `click-left`.
+El wrapper `date-wrapper.sh` lee `/tmp/polybar-date-alt`. Si el archivo
+existe, muestra la fecha en español con `LC_TIME=es_VE.utf8`; si no,
+muestra la hora. El toggle `date-toggle.sh` crea/elimina ese archivo y
+envía `polybar-msg action` con un pequeño retardo para forzar la
+actualización inmediata del módulo.
+
+Esta arquitectura es robusta porque no depende del IPC interno de
+Polybar, que falla cuando `click-left` intenta enviar mensajes a su
+propio proceso.
 
 ### Archivos afectados
 - `config/polybar/layouts/bubble.ini` (y por herencia `config.ini`)
+- `config/polybar/scripts/date-wrapper.sh` (nuevo)
+- `config/polybar/scripts/date-toggle.sh` (nuevo)
 
 ---
 
