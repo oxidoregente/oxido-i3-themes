@@ -40,7 +40,7 @@ fi
 LC_TIME=$LC_TIME i3lock-color \
     --ignore-empty-password \
     --indicator \
-    --clock \
+    --force-clock \
     --radius 100 \
     --ring-width 5 \
     --line-color="${BG}00" \
@@ -65,16 +65,16 @@ LC_TIME=$LC_TIME i3lock-color \
     --wrong-font="JetBrainsMono Nerd Font Mono" \
     --time-font="JetBrainsMono Nerd Font Mono" \
     --date-font="JetBrainsMono Nerd Font Mono" \
-    --time-size=28 \
-    --date-size=14 \
+    --time-size=26 \
+    --date-size=13 \
     --time-str="%I:%M %p" \
     --date-str="%A, %d %B" \
     --verif-text="✓" \
     --wrong-text="✗" \
     --noinput-text="" \
     --greeter-text="" \
-    --greeter-pos="x+0:y-90" \
-    --time-pos="x+0:y-10" \
-    --date-pos="x+0:y+30" \
+    --greeter-pos="x+0:y-65" \
+    --time-pos="x+0:y-2" \
+    --date-pos="x+0:y+28" \
     ${LOCK_IMG:+--image "$LOCK_IMG" --fill} \
     2>/dev/null
