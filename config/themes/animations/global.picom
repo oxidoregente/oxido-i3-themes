@@ -20,14 +20,14 @@ animations = ({
     duration = 0.25;
 }, {
     triggers = ["workspace-in"];
-    preset = "appear";
-    scale = 0.95;
-    duration = 0.25;
+    preset = "slide-in";
+    direction = "right";
+    duration = 0.30;
 }, {
     triggers = ["workspace-out"];
-    preset = "disappear";
-    scale = 1.05;
-    duration = 0.20;
+    preset = "slide-out";
+    direction = "left";
+    duration = 0.25;
 }, {
     triggers = ["position"];
     preset = "geometry-change";
@@ -37,4 +37,3 @@ animations = ({
     preset = "geometry-change";
     duration = 0.35;
 });
-

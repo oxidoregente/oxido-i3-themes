@@ -32,6 +32,7 @@ i3lock-color \
     --ignore-empty-password \
     --indicator \
     --clock \
+    --font="JetBrainsMono Nerd Font Mono" \
     --radius 100 \
     --ring-width 5 \
     --line-color="${BG}00" \
