@@ -56,7 +56,7 @@ pick_app() {
     # Add custom option
     choices="$choices\n✏️  Otra..."
 
-    selected=$(printf "%s" "$choices" | rofi -dmenu -p "  $desc" -theme-str "$BASE_THEME" -i -select "$current")
+    selected=$(printf "%s" "$choices" | rofi -dmenu -p "  $desc" -theme-str "$BASE_THEME" -i -selected-row 0)
     if [ "$selected" = "✏️  Otra..." ]; then
         selected=$(echo "" | rofi -dmenu -p "  Escribe el comando" -theme-str "$BASE_THEME")
     fi

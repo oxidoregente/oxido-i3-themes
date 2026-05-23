@@ -40,7 +40,7 @@ fi
 LC_TIME=$LC_TIME i3lock-color \
     --ignore-empty-password \
     --indicator \
-    --force-clock \
+    --clock \
     --radius 100 \
     --ring-width 5 \
     --line-color="${BG}00" \
@@ -76,5 +76,5 @@ LC_TIME=$LC_TIME i3lock-color \
     --greeter-pos="x+0:y-65" \
     --time-pos="x+0:y-2" \
     --date-pos="x+0:y+28" \
-    ${LOCK_IMG:+--image "$LOCK_IMG" --fill} \
+    -c "${BG}ff" \
     2>/dev/null
