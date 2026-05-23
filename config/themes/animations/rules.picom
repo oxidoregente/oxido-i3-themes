@@ -25,12 +25,12 @@ rules: ({
         triggers = ["open"];
         preset = "appear";
         scale = 0.90;
-        duration = 0.15;
+        duration = 0.20;
     }, {
         triggers = ["close"];
         preset = "fly-out";
         direction = "down";
-        duration = 0.15;
+        duration = 0.18;
     });
 }, {
     # Firefox: slide from bottom
@@ -44,55 +44,35 @@ rules: ({
         triggers = ["close"];
         preset = "fly-out";
         direction = "down";
-        duration = 0.2;
+        duration = 0.22;
     });
 }, {
     # Rofi: snappy
     match = "class_g = 'rofi'";
     animations = ({
-        triggers = ["open"];
+        triggers = ["open", "show", "workspace-in"];
         preset = "appear";
-        scale = 0.95;
-        duration = 0.12;
+        scale = 0.92;
+        duration = 0.15;
     }, {
-        triggers = ["show"];
-        preset = "appear";
-        scale = 0.95;
-        duration = 0.12;
-    }, {
-        triggers = ["close"];
+        triggers = ["close", "hide", "workspace-out"];
         preset = "disappear";
-        scale = 1.05;
-        duration = 0.08;
-    }, {
-        triggers = ["hide"];
-        preset = "disappear";
-        scale = 1.05;
-        duration = 0.08;
+        scale = 1.08;
+        duration = 0.12;
     });
 }, {
     # Dunst: slide from right
     match = "class_g = 'Dunst'";
     animations = ({
-        triggers = ["open"];
+        triggers = ["open", "show", "workspace-in"];
         preset = "slide-in";
         direction = "right";
-        duration = 0.2;
+        duration = 0.25;
     }, {
-        triggers = ["show"];
-        preset = "slide-in";
-        direction = "right";
-        duration = 0.2;
-    }, {
-        triggers = ["close"];
+        triggers = ["close", "hide", "workspace-out"];
         preset = "slide-out";
         direction = "right";
-        duration = 0.15;
-    }, {
-        triggers = ["hide"];
-        preset = "slide-out";
-        direction = "right";
-        duration = 0.15;
+        duration = 0.20;
     });
 });
 

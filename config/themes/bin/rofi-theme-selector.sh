@@ -79,6 +79,7 @@ class ThemeSelector(Gtk.Window):
         self.set_border_width(15)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.connect("destroy", Gtk.main_quit)
+        self.connect("key-press-event", self.on_key_press)
         self._current_preview_theme = None
         self._preview_width = 0
         self._preview_height = 0
@@ -172,6 +173,15 @@ class ThemeSelector(Gtk.Window):
                 status = f" <span foreground='#a6e3a1'>● {L_ACT_THEME}</span>" if theme == CURRENT_THEME else ""
                 self.lbl_info.set_markup(f"<b>{theme}</b>{status}")
                 self._current_preview_theme = theme
+
+    def on_key_press(self, widget, event):
+        if event.keyval == 65293:  # Enter/Return
+            self.on_apply(None)
+            return True
+        elif event.keyval == 65307:  # Escape
+            self.destroy()
+            return True
+        return False
 
     def on_apply(self, btn):
         model, treeiter = self.treeview.get_selection().get_selected()

@@ -51,6 +51,9 @@ i3lock-color \
     --modif-color="${FG}ff" \
     --layout-color="${FG}ff" \
     --greeter-color="${DISABLED}ff" \
+    --greeter-font="JetBrainsMonoNerdFontMono" \
+    --time-font="JetBrainsMonoNerdFontMono" \
+    --date-font="JetBrainsMonoNerdFontMono" \
     --time-str="%H:%M" \
     --date-str="%A, %d %B" \
     --verif-text="✓" \

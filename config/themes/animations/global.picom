@@ -1,26 +1,30 @@
 animations = ({
     triggers = ["open"];
     preset = "appear";
-    scale = 0.92;
-    duration = 0.22;
+    scale = 0.90;
+    duration = 0.30;
 }, {
     triggers = ["close"];
     preset = "fly-out";
     direction = "down";
-    duration = 0.25;
+    duration = 0.20;
 }, {
-    triggers = ["show"];
+    triggers = ["show", "workspace-in"];
     preset = "fly-in";
     direction = "up";
-    duration = 0.2;
+    duration = 0.30;
 }, {
-    triggers = ["hide"];
+    triggers = ["hide", "workspace-out"];
     preset = "fly-out";
     direction = "down";
-    duration = 0.15;
-}, {
-    triggers = ["geometry"];
-    preset = "geometry-change";
     duration = 0.25;
+}, {
+    triggers = ["position"];
+    preset = "geometry-change";
+    duration = 0.30;
+}, {
+    triggers = ["size"];
+    preset = "geometry-change";
+    duration = 0.35;
 });
 
