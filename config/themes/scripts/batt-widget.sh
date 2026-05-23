@@ -34,16 +34,14 @@ fi
 if [ -f "$FLAG" ]; then
     # VISTA EXTENDIDA
     
-    # Perfil de energía
     PROF_RAW=$(powerprofilesctl get 2>/dev/null)
     case "$PROF_RAW" in
-        "performance") PROF="🚀" ;;
-        "balanced")    PROF="⚖️" ;;
-        "power-saver") PROF="🍃" ;;
+        "performance") PROF="🚀 Rendimiento" ;;
+        "balanced")    PROF="⚖️ Equilibrado" ;;
+        "power-saver") PROF="🍃 Ahorro" ;;
         *)             PROF="" ;;
     esac
 
-    # Tiempo restante con ACPI (limpio)
     if [ "$STATUS" != "Charging" ] && [ "$STATUS" != "Full" ]; then
         TIME=$(acpi -b 2>/dev/null | grep -o '[0-9][0-9]:[0-9][0-9]:[0-9][0-9]' | head -1 | sed 's/:[0-9][0-9]$//')
         [ -z "$TIME" ] && TIME="--"
