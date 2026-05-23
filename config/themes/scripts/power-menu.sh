@@ -39,8 +39,11 @@ element-text { horizontal-align: 0.5; }
 case "$chosen" in
     *"Bloquear pantalla")
         ~/.config/themes/bin/lock.sh ;;
+    # NOTA: systemctl suspend sin lock.sh deliberadamente.
+    # xss-lock (ejecutado en i3 config) captura la senal PrepareForSleep
+    # de logind y ejecuta lock.sh automaticamente ANTES de suspender.
     *"Suspender")
-        ~/.config/themes/bin/lock.sh && systemctl suspend ;;
+        systemctl suspend ;;
     *"Apagar pantalla")
         xset dpms force off ;;
     *"Hibernar")

@@ -86,6 +86,9 @@ case $chosen in
     *$shutdown*) systemctl poweroff ;;
     *$reboot*)   systemctl reboot ;;
     *$lock*)     ~/.config/themes/bin/lock.sh ;;
-    *$suspend*)  ~/.config/themes/bin/lock.sh && systemctl suspend ;;
+    # NOTA: systemctl suspend sin lock.sh deliberadamente.
+    # xss-lock (ejecutado en i3 config) captura la senal PrepareForSleep
+    # de logind y ejecuta lock.sh automaticamente ANTES de suspender.
+    *$suspend*)  systemctl suspend ;;
     *$logout*)   i3-msg exit ;;
 esac
