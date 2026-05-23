@@ -172,9 +172,9 @@ bindsym $mod+Shift+9 move container to workspace number $ws9
 bindsym $mod+Shift+0 move container to workspace number $ws10
 
 # reload the configuration file
-bindsym $mod+Shift+r reload
+bindsym $mod+Shift+o reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
-bindsym $mod+Shift+o restart
+bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
 
@@ -277,13 +277,10 @@ default_floating_border pixel 0
 # Servicios gráficos (picom, polybar, conky) - manejados por script unificado
 exec_always --no-startup-id ~/.config/themes/scripts/start-services.sh
 
-# EWW daemon para widgets flotantes (powermenu, control-center)
-exec_always --no-startup-id eww daemon
-
-# Polybar (se inicia desde el script, pero mantener por compatibilidad)
+# Polybar (se lanza desde apply-polybar.sh, mantener por si acaso)
 exec_always --no-startup-id ~/.config/polybar/launch.sh
 
-# Configuración de Red
+# Configuración de Red (nm-applet ya está arriba en XDG autostart)
 # exec --no-startup-id nm-applet
 
 # Forzar esquema oscuro en aplicaciones compatibles
@@ -298,22 +295,14 @@ exec_always --no-startup-id gsettings set org.gnome.desktop.interface gtk-theme 
 # Atajo manual (Mod + L)
 # bindsym $mod+l exec betterlockscreen -l blur
 
-# Power Menu EWW (toggle flotante)
-bindsym $mod+Shift+Escape exec --no-startup-id ~/.config/eww/scripts/toggle-powermenu.sh
-bindsym XF86PowerOff exec --no-startup-id ~/.config/eww/scripts/toggle-powermenu.sh
+# Power Menu Rofi (cuadrícula moderna)
+bindsym $mod+Shift+Escape exec --no-startup-id ~/.config/themes/scripts/rofi-powermenu.sh
+bindsym XF86PowerOff exec --no-startup-id ~/.config/themes/scripts/rofi-powermenu.sh
 
-# Control Center EWW (toggle flotante)
-bindsym $mod+Shift+c exec --no-startup-id ~/.config/eww/scripts/toggle-control-center.sh
+# Control Center Rofi (ajustes del sistema)
 
-# Modo EWW: atrapa Escape para cerrar (como Rofi)
-set $mode_eww EWW activo (Escape cerrar)
-mode "$mode_eww" {
-    bindsym Escape exec --no-startup-id ~/.config/eww/scripts/close-eww.sh
-    bindsym $mod+Escape exec --no-startup-id ~/.config/eww/scripts/close-eww.sh
-}
-
-# Cerrar ventanas EWW con Escape
-bindsym $mod+Escape exec --no-startup-id ~/.config/eww/scripts/close-eww.sh
+# Cerrar ventanas Rofi/EWW con Escape
+bindsym $mod+Escape exec --no-startup-id killall rofi
 
 # --- NOTIFICACIONES ---
 
@@ -322,7 +311,6 @@ bindsym $mod+Shift+d exec --no-startup-id ~/.config/themes/scripts/toggle-dnd.sh
 
 # Notificaciones rápidas del sistema
 bindsym $mod+Shift+period exec --no-startup-id ~/.config/themes/scripts/notify-time.sh
-bindsym $mod+Shift+comma exec --no-startup-id gnome-calendar
 bindsym $mod+Shift+b exec --no-startup-id ~/.config/themes/scripts/notify-battery.sh
 bindsym $mod+Shift+w exec --no-startup-id ~/.config/themes/scripts/notify-weather.sh
 

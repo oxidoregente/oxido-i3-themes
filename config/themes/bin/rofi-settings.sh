@@ -1,38 +1,38 @@
 #!/bin/bash
 # ⚙️  Rofi Settings Center — main navigation menu
-# All sub-scripts are standalone and can be bound directly to keys
+# Unifica el acceso a toda la configuración del sistema con UI moderna
 
-DIR=~/.config/themes/scripts/settings
-BASE_THEME=$(cat "$DIR/.rasi-base" 2>/dev/null || echo '* { font: "FiraCode Nerd Font 10"; }
-window { width: 400; border-radius: 16px; background-color: #1e1e2e; }
-mainbox { children: [listview]; spacing: 4px; padding: 8px; }
-listview { spacing: 4px; dynamic: true; }
-element { border-radius: 10px; padding: 12px; background-color: #313244; text-color: #cdd6f4; }
-element selected { background-color: #89b4fa; text-color: #1e1e2e; }
-element-icon { size: 1.4em; }
-element-text { horizontal-align: 0.5; }')
+# Detectar rutas y cargar builder
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
+[ -f "$SCRIPT_DIR/rofi-builder.sh" ] && source "$SCRIPT_DIR/rofi-builder.sh"
 
-choice=$(cat <<EOF | rofi -dmenu -p "  ⚙️  Centro de Control" -theme-str "$BASE_THEME" -i
-📱  Aplicaciones
-🔊  Sonido
-☀️  Pantalla
-🔔  Notificaciones
-🎬  Animaciones
-🎨  Apariencia
-⚡  Energía
-🔧  Sistema
-📋  Utilidades
+DIR="$THEMES_ROOT/config/themes/scripts/settings"
+[ ! -d "$DIR" ] && DIR="$THEMES_ROOT/scripts/settings"
+
+choice=$(cat <<EOF | rofi -dmenu -p "$L_CENTER" -i -theme-str "$ROFI_THEME_MAIN"
+$L_APPS
+$L_SOUND
+$L_DISPLAY
+$L_NOTIFY
+$L_ANIM
+$L_APPEAR
+$L_POWER
+$L_SYSTEM
+$L_UTILS
+$L_LANG
 EOF
 )
 
 case "$choice" in
-    *"Aplicaciones") exec "$DIR/default-apps.sh" ;;
-    *"Sonido")     exec "$DIR/sound.sh" ;;
-    *"Pantalla")   exec "$DIR/display.sh" ;;
-    *"Notificaciones") exec "$DIR/notify.sh" ;;
-    *"Animaciones") exec "$DIR/animation.sh" ;;
-    *"Apariencia") exec "$DIR/appearance.sh" ;;
-    *"Energía")    exec "$DIR/power.sh" ;;
-    *"Sistema")    exec "$DIR/system.sh" ;;
-    *"Utilidades") exec "$DIR/utils.sh" ;;
+    *"$L_APPS"*)   exec "$DIR/default-apps.sh" ;;
+    *"$L_SOUND"*)  exec "$DIR/sound.sh" ;;
+    *"$L_DISPLAY"*) exec "$DIR/display.sh" ;;
+    *"$L_NOTIFY"*) exec "$DIR/notify.sh" ;;
+    *"$L_ANIM"*)   exec "$DIR/animation.sh" ;;
+    *"$L_APPEAR"*) exec "$DIR/appearance.sh" ;;
+    *"$L_POWER"*)  exec "$DIR/power.sh" ;;
+    *"$L_SYSTEM"*) exec "$DIR/system.sh" ;;
+    *"$L_UTILS"*)  exec "$DIR/utils.sh" ;;
+    *"$L_LANG"*)   exec "$DIR/language.sh" ;;
 esac

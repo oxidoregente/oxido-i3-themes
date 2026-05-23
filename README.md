@@ -86,6 +86,21 @@ El sistema aplica:
 
 ---
 
+### 🌍 Soporte Multi-idioma (i18n)
+El sistema ahora soporta cambio de idioma dinámico (Español/Inglés) para todos los menús de Rofi y notificaciones.
+- **Configuración**: `Centro de Control` → `🌍 Idioma`.
+
+### 📏 Escalado Visual de Rofi
+Puedes agrandar o achicar todos los menús de Rofi de forma centralizada.
+- **Archivo**: `~/.config/themes/rofi/scale.env`
+- **Variables**: `ROFI_SCALE` (ej: 1.25 para +25%), `ROFI_FONT_SIZE`, etc.
+
+### 🔋 Gestión de Batería Mejorada
+- **Fix**: Corregido bug que crasheaba la Polybar al hacer click en la batería.
+- **Nuevos Modos**: Selector de perfiles de energía (Ahorro, Equilibrado, Rendimiento) integrado.
+
+---
+
 ## 📦 Instalación
 
 ### Requisitos

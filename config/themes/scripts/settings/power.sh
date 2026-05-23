@@ -1,14 +1,9 @@
 #!/bin/bash
 # ⚡  Power settings: PowerSaver, DPMS, autolock, lid
-DIR=~/.config/themes/scripts/settings
-BASE_THEME=$(cat "$DIR/.rasi-base" 2>/dev/null || echo '* { font: "FiraCode Nerd Font 10"; }
-window { width: 440; border-radius: 16px; background-color: #1e1e2e; }
-mainbox { children: [listview]; spacing: 4px; padding: 8px; }
-listview { spacing: 4px; dynamic: true; }
-element { border-radius: 10px; padding: 10px 14px; background-color: #313244; text-color: #cdd6f4; }
-element selected { background-color: #89b4fa; text-color: #1e1e2e; }
-element-icon { size: 1.2em; }
-element-text { horizontal-align: 0.5; }')
+REPO_DIR="/home/oxido/Documentos/oxido-i3-themes"
+source "$REPO_DIR/config/themes/scripts/rofi-builder.sh"
+
+DIR="$REPO_DIR/config/themes/scripts/settings"
 
 PW_SAVER=/tmp/powersaver_active
 CURRENT_LID=$(grep "^HandleLidSwitch" /etc/systemd/logind.conf.d/lid-override.conf 2>/dev/null | cut -d= -f2)
@@ -16,28 +11,29 @@ CURRENT_LID=$(grep "^HandleLidSwitch" /etc/systemd/logind.conf.d/lid-override.co
 [ -z "$CURRENT_LID" ] && CURRENT_LID="suspend"
 
 ps_status() {
-    if [ -f "$PW_SAVER" ]; then echo "  Activado — sin picom, sin conky"; else echo "  Desactivado — modo normal"; fi
+    if [ -f "$PW_SAVER" ]; then echo "$L_BAT_ACTIVE"; else echo "OFF"; fi
 }
 
 while true; do
-    choice=$(cat <<EOF | rofi -dmenu -p "  ⚡  Energía" -theme-str "$BASE_THEME" -i
-🌙  PowerSaver: $(ps_status)
-💤  DPMS apagar pantalla: 5 min ▸
-🔒  Bloqueo automático: 8 min ▸
-󰤁  Tapa al cerrar: ${CURRENT_LID} ▸
-⬅️  Volver
+    choice=$(cat <<EOF | rofi -dmenu -p "$L_POWER" -theme-str "$ROFI_THEME_MAIN" -i
+$L_PS: $(ps_status)
+💤  DPMS: 5 min ▸
+$L_AUTOLOCK: 8 min ▸
+󰤁  $L_LID: ${CURRENT_LID} ▸
+$L_BACK
 EOF
     )
     case "$choice" in
-        *"PowerSaver"*)
+        *"$L_PS"*)
             ~/.config/themes/scripts/toggle-powersaver.sh ;;
         *"DPMS"*)
             exec "$DIR/dpms.sh" ;;
-        *"Bloqueo automático"*)
+        *"$L_AUTOLOCK"*)
             exec "$DIR/autolock.sh" ;;
-        *"Tapa"*)
+        *"$L_LID"*)
             exec "$DIR/lid.sh" ;;
-        *"Volver"*) exec ~/.config/themes/bin/rofi-settings.sh ;;
+        *"$L_BACK"*)
+            exec "$REPO_DIR/config/themes/bin/rofi-settings.sh" ;;
         *) exit 0 ;;
     esac
 done

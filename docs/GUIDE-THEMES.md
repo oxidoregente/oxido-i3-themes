@@ -103,15 +103,12 @@ Each segment (workspaces, date, system info) has its own color bubble.
 │   │   ├── animation.sh                  # Animation menu
 │   │   ├── appearance.sh                 # Theme/conky/gaps
 │   │   └── ...                           # (21 menus total)
-│   ├── power-menu.sh                     # Power options (legacy Rofi, replaced by EWW)
+│   ├── rofi-powermenu.sh                 # Power menu (Rofi grid, 5 actions)
+│   ├── power-menu.sh                     # Power options (legacy, replaced by Rofi)
 │   ├── toggle-powersaver.sh              # PowerSaver mode
 │   ├── toggle-dnd.sh                     # Do Not Disturb
 │   └── ...
-├── eww/                                  # EWW widgets (floating UI)
-│   ├── eww.yuck                          # Widget definitions (powermenu, control-center)
-│   ├── eww.scss                          # GTK CSS styles with SCSS preprocessing
-│   └── scripts/
-│       ├── toggle-powermenu.sh           # Toggle EWW powermenu
+└──
 │       └── toggle-control-center.sh      # Toggle EWW control center
 ├── animations/
 │   ├── global.picom                      # Global animation triggers
@@ -169,10 +166,10 @@ The source of truth lives at `~/Documentos/oxido-i3-themes/` with the same struc
 | `$mod+Shift+comma` | Open calendar (gnome-calendar) |
 | `$mod+Shift+b` | Show battery notification |
 | `$mod+Shift+w` | Show weather notification |
-| `$mod+Shift+Escape` | Power menu (EWW floating widget) |
-| `$mod+Shift+c` | Control Center (EWW floating: WiFi, BT, volume, brightness, power) |
+| `$mod+Shift+Escape` | Power menu (Rofi grid) |
+| `$mod+Shift+s` | Control Center (Rofi settings) |
 | `$mod+Shift+Slash` | Show keybindings help |
-| `$mod+Escape` | System mode (lock, exit, suspend) |
+| `$mod+Escape` | Close Rofi/EWW dialogs |
 
 ### Navigation
 
@@ -542,38 +539,48 @@ sudo pacman -S nerd-fonts-jetbrains-mono ttf-nerd-fonts-symbols
 
 ---
 
-## 14. EWW Widgets
+## 14. Rofi Power Menu & Control Center
 
-EWW (ElKowar's Wacky Widgets) provides floating GTK widgets complementing the Polybar. Currently includes:
+The project uses **Rofi** for floating menus, replacing the previous EWW-based widgets. Rofi was chosen for stability, minimal dependencies, and native i3 integration.
 
-- **Powermenu**: 5 action buttons (Shutdown, Reboot, Lock, Suspend, Logout) with color-coded backgrounds
-- **Control Center**: Quick toggles for WiFi, Bluetooth, Volume slider, Brightness slider + link to powermenu
+### Power Menu (Grid Layout)
+
+Activated via `$mod+Shift+Escape` or the power button. Shows 5 actions in a horizontal grid:
+- **Shutdown**, **Reboot**, **Suspend**, **Lock**, **Logout**
+- Displays system uptime below the action buttons
+- Uses theme colors dynamically via `rofi-builder.sh`
+
+Script: `config/themes/scripts/rofi-powermenu.sh`
+
+### Control Center (Settings Menu)
+
+Activated via `$mod+Shift+s`. A multi-level Rofi menu with categorized settings:
+
+| Category | Functions |
+|----------|-----------|
+| Applications | Set default terminal, browser, file manager |
+| Sound | Volume, mute, audio sinks |
+| Display | Brightness, gaps, picom toggle |
+| Notifications | DND toggle, notification history |
+| Animations | Preset picker, per-app animation rules |
+| Appearance | Theme selector, polybar layout, GTK theme |
+| Power | Power profiles, battery info, lid behavior |
+| System | System info, process monitor, color picker |
 
 ### Dependencies
 
-- `eww 0.6.0+` compiled with `--features x11` (installed in `/usr/local/bin/eww`)
-- Rust toolchain (rustup) for compilation
-- GTK3, cairo, pango, gdk-pixbuf, libdbusmenu-gtk3 development packages
-- `pamixer` for volume control
-- `brightnessctl` for backlight control
+- `rofi` 1.7+ with `-dmenu` support
+- `powerprofilesctl` (power profiles)
+- `brightnessctl` (backlight control)
+- `pavucontrol` (audio settings)
 
-### Usage
+### Battery Module
 
-| Action | Command |
-|--------|---------|
-| Toggle powermenu | `eww open/close powermenu` |
-| Toggle control-center | `eww open/close control-center` |
-| Close all | `eww close-all` |
-| Debug | `eww logs` (blocking, use `timeout`) |
-| Inspector | `eww inspector` (GTK inspector) |
+The polybar battery module provides:
+- **Left click**: Notification with battery %, remaining time, and power profile
+- **Right click**: Cycle power profiles (Performance ↔ Balanced ↔ Power Saver)
 
-### Architecture
-
-- **`eww.yuck`**: Widget definitions using Yuck (Lisp-like DSL). Variables (`defpoll`) for volume and brightness.
-- **`eww.scss`**: GTK CSS with SCSS preprocessing. Colors are defined as CSS classes, not inline styles.
-- **Toggle scripts**: `toggle-powermenu.sh` and `toggle-control-center.sh` toggle between open/close.
-
-The EWW daemon starts automatically via `exec_always` in the i3 config.
+Scripts: `batt-widget.sh`, `notify-battery-detail.sh`, `cycle-power-profile.sh`
 
 ## 15. Troubleshooting
 

@@ -224,6 +224,122 @@ en una app específica (ej. "show" no existe en Alacritty).
 
 ---
 
+## 11. Corrupción estructural en los 23 temas polybar (sección powermenu)
+
+### Problema
+En **los 23 temas** (`config/themes/themes/*/polybar/config.ini`) se detectó que
+la cabecera `[module/powermenu]` **no existía**. Las propiedades del powermenu
+estaban filtradas dentro del bloque `[module/battery]`, sobrescribiendo su
+`type = internal/battery` por `type = custom/text` y mostrando el icono de
+power () en lugar del indicador de batería.
+
+Adicionalmente, el `[module/tray]` era una cabecera huérfana sin contenido,
+y `[module/network]` estaba definido dentro de la sección tray. La línea
+`type = internal/tray` aparecía al final del archivo como última línea, como
+si fuera parte del bloque network.
+
+### Estructura corrupta (antes de la reparación)
+```ini
+[module/battery]
+type = internal/battery
+... (config correcta hasta línea 201)
+type = custom/text           # ← ¡Sobrescribe battery!
+format = " %{T2}%{T-}"     # ← Muestra power icon en vez de batería
+...
+click-left = /home/oxido/.config/eww/scripts/toggle-powermenu.sh
+
+[module/tray]               # ← Cabecera huérfana (sin body)
+[module/network]
+type = internal/network
+...
+type = internal/tray         # ← Última línea del archivo
+```
+
+### Causa raíz
+La cabecera `[module/powermenu]` se omitió durante una fase de refactorización
+o generación masiva de los 23 temas. Como polybar no mostraba errores
+explícitos (el parser de INI simplemente acumulaba propiedades en la sección
+actual), el error pasó desapercibido. Al concatenar los temas con los layouts
+(vía `apply-polybar.sh`), las definiciones correctas del layout sobrescribían
+las corruptas, ocultando el problema en el runtime pero dejando los archivos
+fuente inservibles por sí solos.
+
+### Solución
+Script Python que:
+1. Detecta la línea `type = custom/text` inmediatamente después de
+   `animation-charging-framerate = 750` dentro de `[module/battery]`
+2. Inserta `[module/powermenu]` antes de esa línea
+3. Reemplaza la ruta EWW (`eww/scripts/toggle-powermenu.sh`) por la ruta Rofi
+   (`rofi-powermenu.sh`)
+4. Reestructura la sección tray/network eliminando la cabecera huérfana
+   `[module/tray]`, dejando `[module/network]` como sección independiente,
+   y creando un nuevo `[module/tray]` con su `type = internal/tray`
+
+**Archivos afectados:** 23 theme configs + 11 layouts
+**Commit:** próximo
+
+---
+
+## 12. EWW config inexistente pero referenciada en todo el proyecto
+
+### Problema
+El proyecto dependía de EWW (Elkowar's Wacky Widgets) para los menús de
+powermenu y control-center, pero:
+- `~/.config/eww/` no existía (sin `eww.yuck`, `eww.scss`, ni scripts)
+- El binario `eww` estaba instalado (v0.6.0) pero sin configuración
+- `i3 config` ejecutaba `exec_always eww daemon` en cada arranque (fallaba)
+- 49 referencias a `eww/scripts/toggle-powermenu.sh` en layouts y temas
+- La documentación describía directorios EWW que no existían
+
+### Causa raíz
+EWW fue el primer mecanismo implementado para widgets flotantes, pero
+posteriormente se migró a Rofi (más estable, menos dependencias). La migración
+quedó incompleta: se cambiaron algunos layouts pero no todos, y los archivos
+de configuración EWW nunca se subieron al repositorio ni se copiaron al
+sistema.
+
+### Solución
+1. Eliminada línea `exec_always eww daemon` del i3 config
+2. Reemplazadas las 49 referencias a `eww/scripts/toggle-powermenu.sh` por
+   `rofi-powermenu.sh` en layouts y temas
+3. Powermenu ahora usa exclusivamente `rofi-powermenu.sh` (Rofi grid moderno)
+4. Control Center usa `rofi-settings.sh` vía `$mod+Shift+s`
+
+**Archivos afectados:** 23 temas, 15 layouts, i3/config
+**Commit:** próximo
+
+---
+
+## 13. Battery click handlers inconsistentes y propensos a errores
+
+### Problema
+Existían dos sistemas diferentes de click en batería:
+- 11 layouts estándar: usaban `notify-battery-detail.sh` (notificación Dunst),
+  sin señales a polybar.
+- 4 layouts premium (bubble, floating, cynthia, material): usaban
+  `toggle-battery-info.sh` que enviaba `SIGRTMIN+10` (signal 44) a polybar
+  para forzar actualización, y `rofi-battery-mode.sh` para menú de perfiles.
+
+El segundo sistema causaba:
+- Múltiples instancias de Rofi al hacer clic rápido
+- Posibles crashes de polybar si la señal llegaba en momento incorrecto
+- Condición de carrera con el archivo flag `/tmp/polybar_batt_extended`
+
+### Causa raíz
+El sistema de señal SIGRTMIN+10 se implementó para dar actualización
+"instantánea" del widget, pero polybar puede manejar la actualización por sí
+mismo con `interval = 10`. La señal era una optimización prematura.
+
+### Solución
+Unificar todos los layouts al sistema simple de notificación:
+- `click-left`: `notify-battery-detail.sh`
+- `click-right`: `cycle-power-profile.sh`
+- Ninguno envía señales a polybar
+- `batt-widget.sh` se actualiza por intervalos normales
+
+**Archivos afectados:** 4 layouts premium (bubble, floating, cynthia, material)
+**Commit:** próximo
+
 ---
 
 ## 10. `@include` no funciona dentro de estructuras de datos (v2 — confirmación)

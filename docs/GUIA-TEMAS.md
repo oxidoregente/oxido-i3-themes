@@ -42,7 +42,7 @@ Este sistema permite cambiar entre múltiples temas visuales completos en i3wm. 
 - **Cava** (visualizador de audio)
 - **Wallpaper** (fondo de pantalla por tema)
 
-Actualmente hay **24 temas**: 7 originales + 17 inspirados en el repositorio oficial de Omarchy.
+Actualmente hay **23 temas**: 7 originales + 17 inspirados en el repositorio oficial de Omarchy.
 
 El diseño visual usa un estilo de **burbujas segmentadas** en Polybar:
 
@@ -132,7 +132,7 @@ Cada burbuja tiene un color de fondo ligeramente distinto para crear profundidad
 │
 ├── templates/                    # Plantillas (uso futuro)
 │
-├── themes/                       # 24 temas individuales
+├── themes/                       # 23 temas individuales
 │
 └── ~/.cache/theme-thumbs/        # Miniaturas para grid preview (autogeneradas)
     ├── dracula/                  #   🟣 Dracula (oscuro, púrpura)
@@ -1064,7 +1064,22 @@ cat /sys/class/power_supply/BAT0/capacity
 ### 11.9 Las burbujas de Polybar no se ven correctamente
 Las burbujas usan los caracteres Unicode `` y `` (Powerline). Si se ven como rectángulos, la fuente Nerd Font no está instalada correctamente. Ver [Sección 11.1](#111-los-iconos-de-nerd-font-no-se-ven).
 
-### 11.10 Cava no se ve en la Polybar
+### 11.10 Crasheo de Polybar al hacer click en la batería
+Si la Polybar se cierra y se abren varias apps (WiFi, Bluetooth) al interactuar con la batería, asegúrate de que el layout activo tenga la línea `signal = 10` en el módulo de batería. Este bug fue corregido en la v2.6.
+
+### 11.11 Cambio de Idioma (i18n)
+Puedes alternar entre Español e Inglés desde:
+`Centro de Control` → `🌍 Idioma / Language`.
+Esto cambia los textos de los menús y las notificaciones instantáneamente.
+
+### 11.12 Escalado de Rofi
+Si los menús te parecen pequeños, puedes agrandarlos editando:
+`~/.config/themes/rofi/scale.env`
+Cambia `ROFI_SCALE="1.0"` por `1.25` o `1.5` para un aumento proporcional.
+
+---
+
+### 11.13 Cava no se ve en la Polybar
 ```bash
 # Verificar que cava está instalado
 which cava
@@ -1255,6 +1270,14 @@ El módulo `[module/temperature]` cambia a **fondo rojo** cuando el CPU supera l
 
 ## 14. Historial de Cambios
 
+### v2.6 — Soporte i18n + Escalado Rofi + Fix Crítico Batería
+
+- **Multi-idioma**: Implementado sistema de traducción Español/Inglés para todos los menús y notificaciones.
+- **Master RASI**: Los menús de Rofi ahora heredan colores dinámicos del tema activo (solucionado colores harcodeados).
+- **Escalado Visual**: Añadido `scale.env` para agrandar fuentes y ventanas de Rofi fácilmente (default: 1.25x).
+- **Fix Batería**: Añadido `signal = 10` a los 15 layouts de Polybar, eliminando el crash del system tray al interactuar con el widget.
+- **Selector de Temas**: Rediseñado a 1024x640 con fuentes más grandes y estética pulida.
+
 ### v2.5 — Dunst rediseñado + DND + Notificaciones del sistema + Power Menu
 
 - **Dunst mejorado**: iconos redondeados (`icon_corner_radius`), lookup recursivo de iconos, orden por urgencia, `fullscreen = pushback`, `indicate_hidden`, progreso coloreado por urgencia, shortcuts movidos a `[global]`
@@ -1338,7 +1361,7 @@ Dónde está configurado cada componente del sistema.
 
 | Qué | Dónde |
 |---|---|
-| 24 temas individuales (polybar, rofi, dunst, etc.) | `~/.config/themes/themes/<nombre>/` |
+| 23 temas individuales (polybar, rofi, dunst, etc.) | `~/.config/themes/themes/<nombre>/` |
 | Tema activo (symlink) | `~/.config/themes/themes/<nombre>/` apuntado por `~/.config/themes/current/theme` |
 | Seleccionar tema via Rofi | `$mod+Shift+t` → `~/.config/themes/bin/rofi-theme-selector.sh` |
 | Cambiar tema via CLI | `~/.config/themes/bin/theme-switch.sh <nombre>` |
@@ -1509,7 +1532,7 @@ Cada tema en `~/.config/themes/themes/<nombre>/` tiene:
 | Qué | Dónde |
 |---|---|
 | Tema activo | `~/.config/opencode/tui.json` (escrito por apply-opencode.sh) |
-| 24 temas guardados | `~/.config/opencode/themes/<nombre>.json` |
+| 23 temas guardados | `~/.config/opencode/themes/<nombre>.json` |
 | Applyer | `~/.config/themes/applyers/apply-opencode.sh` |
 
 ### 🚀 Procesos Inicio Automático (i3)

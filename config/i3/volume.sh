@@ -1,11 +1,11 @@
 #!/bin/bash
-# Manejo de volumen y notificaciones para i3
+# 🔊  Manejo de volumen y notificaciones para i3
+REPO_DIR="/home/oxido/Documentos/oxido-i3-themes"
+source "$REPO_DIR/config/themes/scripts/lang-builder.sh"
 
 case $1 in
     up) 
-        # Obtenemos el volumen actual antes de subirlo
         CURRENT_VOL=$(pactl get-sink-volume @DEFAULT_SINK@ | grep -Po '[0-9]+(?=%)' | head -1)
-        
         if [ "$CURRENT_VOL" -lt 100 ]; then
             pactl set-sink-volume @DEFAULT_SINK@ +5%
         else
@@ -20,12 +20,13 @@ case $1 in
         ;;
 esac
 
-# --- El resto de tu código de notificación se queda igual ---
 VOL=$(pactl get-sink-volume @DEFAULT_SINK@ | grep -Po '[0-9]+(?=%)' | head -1)
 MUTE=$(pactl get-sink-mute @DEFAULT_SINK@ | grep -Po '(?<=Mute: )(yes|no)')
 
 if [ "$MUTE" == "yes" ]; then
-    notify-send "Audio" "Silenciado" -h string:x-dunst-stack-tag:audio -h int:value:0
+    # Notificación de Silencio
+    dunstify -a "oxido_system" -u low -h string:x-dunst-stack-tag:audio -h int:value:0 "🔇  Audio" "$L_NOT_DND_ON"
 else
-    notify-send "Volumen" "${VOL}%" -h string:x-dunst-stack-tag:audio -h int:value:"$VOL"
+    # Notificación de Volumen con Barra de Progreso
+    dunstify -a "oxido_system" -u low -h string:x-dunst-stack-tag:audio -h int:value:"$VOL" "$L_VOL_UP" "$VOL%"
 fi

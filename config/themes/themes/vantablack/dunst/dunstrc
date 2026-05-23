@@ -1,21 +1,25 @@
 [global]
-    font = JetBrainsMono Nerd Font Mono 14
+    # Fuente ligeramente más grande y clara
+    font = JetBrainsMono Nerd Font Mono 15
 
-    corner_radius = 16
-    icon_corner_radius = 10
+    # Esquinas extra redondeadas (coincide con Rofi)
+    corner_radius = 20
+    icon_corner_radius = 12
 
     frame_width = 2
     frame_color = "#8d8d8d"
 
-    gap_size = 6
+    # Espaciado entre notificaciones
+    gap_size = 8
     separator_height = 2
     separator_color = frame
 
-    padding = 16
-    horizontal_padding = 20
-    line_height = 4
+    padding = 18
+    horizontal_padding = 22
+    line_height = 5
 
-    offset = 20x20
+    # Posición (Top Right con buen margen)
+    offset = 25x25
     origin = top-right
 
     markup = full
@@ -26,24 +30,25 @@
     icon_path = /usr/share/icons/Adwaita/16x16/status/:/usr/share/icons/Adwaita/16x16/devices/:/usr/share/icons/Adwaita/16x16/apps/:/usr/share/icons/Adwaita/16x16/mimetypes/:/usr/share/icons/Adwaita/32x32/status/:/usr/share/icons/Adwaita/32x32/devices/:/usr/share/icons/Adwaita/48x48/status/:/usr/share/icons/Adwaita/48x48/devices/:/usr/share/icons/Adwaita/scalable/status/:/usr/share/icons/Adwaita/symbolic/status/
     enable_recursive_icon_lookup = true
     max_icon_size = 48
-    min_icon_size = 24
+    min_icon_size = 32
 
     word_wrap = yes
     ellipsize = middle
     ignore_newline = false
 
-    notification_limit = 15
+    notification_limit = 10
     history_length = 50
 
     sticky_history = yes
     show_age_threshold = 60
 
+    # Barras de progreso premium
     progress_bar = true
-    progress_bar_height = 8
-    progress_bar_frame_width = 0
-    progress_bar_min_width = 150
-    progress_bar_max_width = 300
-    progress_bar_corner_radius = 4
+    progress_bar_height = 10
+    progress_bar_frame_width = 1
+    progress_bar_min_width = 180
+    progress_bar_max_width = 320
+    progress_bar_corner_radius = 5
 
     highlight = "#8d8d8d"
     background = "#000000ee"
@@ -58,6 +63,7 @@
     mouse_middle_click = close_current
     mouse_right_click = close_all
 
+    # Evita que se amontonen si son idénticas
     stack_duplicates = true
     hide_duplicate_count = false
 
@@ -93,7 +99,16 @@
     icon = dialog-warning-symbolic
     script = paplay /usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga
 
-# Per-app rules
+# --- REGLAS PERSONALIZADAS ---
+
+# Regla para notificaciones del sistema de oxido-i3-themes
+[oxido_system]
+    appname = "oxido_system"
+    timeout = 3
+    # Permitir iconos aunque sean notis de sistema
+    max_icon_size = 32
+
+# Navegadores
 [firefox]
     appname = "Firefox"
     urgency = critical
@@ -114,30 +129,18 @@
     urgency = critical
     timeout = 10
 
+# Utilidades
 [screenshot]
     appname = "Screenshot"
-    timeout = 3
+    timeout = 5
     urgency = low
 
 [flameshot]
     appname = "flameshot"
-    timeout = 3
+    timeout = 5
     urgency = low
 
-[volume]
-    appname = "pamixer"
-    format = "<b>%s</b>\n%b"
-    urgency = low
-    timeout = 2
-    max_icon_size = 0
-
-[brightness]
-    appname = "brightnessctl"
-    format = "<b>%s</b>\n%b"
-    urgency = low
-    timeout = 2
-    max_icon_size = 0
-
+# Chat
 [telegram]
     appname = "Telegram"
     urgency = critical

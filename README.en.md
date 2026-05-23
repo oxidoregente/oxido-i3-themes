@@ -95,6 +95,21 @@ Press `$mod+Shift+/` to view all i3 keyboard shortcuts in a searchable Rofi menu
 
 ---
 
+### 🌍 Multi-language Support (i18n)
+The system now supports dynamic language switching (Spanish/English) for all Rofi menus and notifications.
+- **Setup**: `Control Center` → `🌍 Language`.
+
+### 📏 Visual Scaling for Rofi
+Easily scale all Rofi menus from a single place.
+- **File**: `~/.config/themes/rofi/scale.env`
+- **Variables**: `ROFI_SCALE` (e.g., 1.25 for +25%), `ROFI_FONT_SIZE`, etc.
+
+### 🔋 Improved Battery Management
+- **Fix**: Fixed critical bug that crashed Polybar when clicking the battery icon.
+- **Power Profiles**: Integrated selector for energy profiles (Power Save, Balanced, Performance).
+
+---
+
 ## 📦 Installation
 
 ### Requirements

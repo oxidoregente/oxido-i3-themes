@@ -2,12 +2,20 @@
 # 🎨  Theme Selector — split panel: lista + preview grande
 # Usa Python GTK3 (no requiere yad ni otras dependencias)
 
-THEMES_DIR=~/.config/themes/themes
-CURRENT_THEME=$(basename "$(readlink ~/.config/themes/current/theme)" 2>/dev/null)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[ -f "$SCRIPT_DIR/../scripts/core.sh" ] && source "$SCRIPT_DIR/../scripts/core.sh"
+[ -f "$SCRIPT_DIR/core.sh" ] && source "$SCRIPT_DIR/core.sh"
+
+CURRENT_THEME=$(basename "$(readlink $THEMES_ROOT/current/theme)" 2>/dev/null)
 CACHE_DIR=~/.cache/theme-thumbs
-PREVIEW_SIZE="480x270"
+PREVIEW_SIZE="640x360"
 
 mkdir -p "$CACHE_DIR"
+
+# Cargar builder para colores e idioma
+[ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
+
+THEMES_DIR="$THEMES_ROOT/themes"
 
 read_wallpaper() {
     local wall_file="$1/backgrounds/wallpaper"
@@ -15,257 +23,175 @@ read_wallpaper() {
     ls "$1/backgrounds/"*.* 2>/dev/null | head -1
 }
 
-# Regenerate thumbnails if needed (larger for the new UI)
+# Regenerate thumbnails if needed
 for theme in "$THEMES_DIR"/*/; do
+    [ ! -d "$theme" ] && continue
     name=$(basename "$theme")
     thumb="$CACHE_DIR/$name.png"
     src=""
     if [ -f "$theme/preview.png" ]; then
         src="$theme/preview.png"
-    elif [ -f "$theme/preview-unlock.png" ]; then
-        src="$theme/preview-unlock.png"
     elif [ -f "$theme/unlock.png" ]; then
         src="$theme/unlock.png"
     else
         wp=$(read_wallpaper "$theme")
         [ -n "$wp" ] && src="$wp"
     fi
-    if [ -f "$thumb" ] && [ "$src" -nt "$thumb" ] 2>/dev/null; then
-        rm -f "$thumb"
-    fi
     if [ ! -f "$thumb" ] && [ -n "$src" ]; then
         convert "$src" -resize "${PREVIEW_SIZE}^" -gravity center -extent "$PREVIEW_SIZE" -quality 92 "$thumb" 2>/dev/null
     fi
-    if [ ! -f "$thumb" ]; then
-        bg=$(grep "^background=" "$theme/polybar/colors.ini" 2>/dev/null | head -1 | sed 's/.*#//' | sed 's/^/#/')
-        fg=$(grep "^foreground=" "$theme/polybar/colors.ini" 2>/dev/null | head -1 | sed 's/.*#//' | sed 's/^/#/')
-        [ -z "$bg" ] && bg="#1e1e2e"
-        [ -z "$fg" ] && fg="#cdd6f4"
-        convert -size "$PREVIEW_SIZE" "xc:$bg" -fill "$fg" -gravity center -pointsize 28 -annotate 0 "$name" "$thumb" 2>/dev/null
-    fi
 done
 
-export THEMES_DIR CACHE_DIR CURRENT_THEME
+export THEMES_DIR CACHE_DIR CURRENT_THEME SEL BG BGA FG
+export L_SELECT L_CANCEL L_RANDOM L_ACT_THEME L_CUR_THEME
 
 python3 << 'PYEOF'
 import os, sys, json
-
-THEMES_DIR = os.path.expanduser(os.environ['THEMES_DIR'])
-CACHE_DIR = os.path.expanduser(os.environ['CACHE_DIR'])
-CURRENT_THEME = os.environ.get('CURRENT_THEME', '')
-
 try:
     import gi
     gi.require_version('Gtk', '3.0')
-    gi.require_version('GdkPixbuf', '2.0')
-    from gi.repository import Gtk, GdkPixbuf, Gdk, GLib, Pango
-except ImportError as e:
-    print(f"Error: Python GTK3 no disponible ({e})", file=sys.stderr)
+    from gi.repository import Gtk, GdkPixbuf, Gdk
+except Exception as e:
+    print(f"Error loading GTK: {e}")
     sys.exit(1)
 
-theme_dirs = sorted([d for d in os.listdir(THEMES_DIR)
-    if os.path.isdir(os.path.join(THEMES_DIR, d))])
+THEMES_DIR = os.path.expanduser(os.environ.get('THEMES_DIR', '~/.config/themes/themes'))
+CACHE_DIR = os.path.expanduser(os.environ.get('CACHE_DIR', '~/.cache/theme-thumbs'))
+CURRENT_THEME = os.environ.get('CURRENT_THEME', '')
+SEL = os.environ.get('SEL', '#89b4fa')
+BG = os.environ.get('BG', '#1e1e2e')
+BGA = os.environ.get('BGA', '#313244')
+FG = os.environ.get('FG', '#cdd6f4')
+
+L_SELECT = os.environ.get('L_SELECT', 'Select')
+L_CANCEL = os.environ.get('L_CANCEL', 'Cancel')
+L_RANDOM = os.environ.get('L_RANDOM', 'Random')
+L_ACT_THEME = os.environ.get('L_ACT_THEME', 'Active')
+L_CUR_THEME = os.environ.get('L_CUR_THEME', 'Themes')
+
+theme_dirs = sorted([d for d in os.listdir(THEMES_DIR) if os.path.isdir(os.path.join(THEMES_DIR, d))]) if os.path.exists(THEMES_DIR) else []
 
 class ThemeSelector(Gtk.Window):
     def __init__(self):
-        super().__init__(title="🎨  Theme Selector")
-        self.set_default_size(960, 580)
-        self.set_border_width(12)
+        super().__init__(title="🎨 " + L_CUR_THEME)
+        self.set_default_size(1024, 640)
+        self.set_border_width(15)
         self.set_position(Gtk.WindowPosition.CENTER)
-        self.set_wmclass("theme-selector", "ThemeSelector")
         self.connect("destroy", Gtk.main_quit)
-        self.connect("key-press-event", self.on_key_press)
+        self._current_preview_theme = None
+        self._preview_width = 0
+        self._preview_height = 0
 
-        css = b"""
-        window { background-color: #1e1e2e; }
-        list { background-color: #181825; }
-        list row { padding: 6px 10px; background-color: #181825; color: #cdd6f4; }
-        list row:selected { background-color: #89b4fa; color: #1e1e2e; }
-        list row:hover { background-color: #313244; }
-        button { background-color: #313244; color: #cdd6f4; border-radius: 8px; padding: 8px 20px; border: 0; font-size: 11pt; }
-        button:hover { background-color: #89b4fa; color: #1e1e2e; }
-        label { color: #cdd6f4; }
-        """
+        css = f"""
+        window {{ background-color: {BG}; border: 2px solid {SEL}; border-radius: 20px; }}
+        list {{ background-color: {BGA}; border-radius: 12px; }}
+        list row {{ padding: 10px 15px; color: {FG}; font-size: 12pt; }}
+        list row:selected {{ background-color: {SEL}; color: {BG}; border-radius: 10px; }}
+        button {{ background-color: {BGA}; color: {FG}; border-radius: 12px; padding: 10px 25px; border: 0; font-size: 12pt; font-weight: bold; }}
+        button:hover {{ background-color: {SEL}; color: {BG}; }}
+        label {{ color: {FG}; font-size: 14pt; }}
+        scrolledwindow {{ border-radius: 12px; }}
+        """.encode()
+        
         provider = Gtk.CssProvider()
         provider.load_from_data(css)
-        Gtk.StyleContext.add_provider_for_screen(
-            Gdk.Screen.get_default(), provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
-        # Main box: horizontal split
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
-
-        # ─── Left: theme list ───
-        left_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        left_box.set_size_request(260, -1)
-
-        lbl_list = Gtk.Label(label="<b>Temas</b>")
-        lbl_list.set_use_markup(True)
-        lbl_list.set_xalign(0)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=20)
+        
+        # Left Panel
+        left_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        left_box.set_size_request(300, -1)
+        lbl_list = Gtk.Label(label=f"<b>{L_CUR_THEME}</b>", use_markup=True, xalign=0)
         left_box.pack_start(lbl_list, False, False, 0)
 
-        sw = Gtk.ScrolledWindow()
-        sw.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        sw.set_min_content_height(400)
-
-        self.liststore = Gtk.ListStore(str, str)  # display_name, theme_name
-
-        self.liststore.append(["🎲 Tema aleatorio", "__random__"])
+        self.liststore = Gtk.ListStore(str, str)
+        self.liststore.append(["🎲 " + L_RANDOM, "__random__"])
         for t in theme_dirs:
-            display = t
-            if t == CURRENT_THEME:
-                display = f"▶ {t}"
+            display = "▶ " + t if t == CURRENT_THEME else t
             self.liststore.append([display, t])
 
-        self.treeview = Gtk.TreeView(model=self.liststore)
-        self.treeview.set_headers_visible(False)
-
-        renderer = Gtk.CellRendererText()
-        renderer.set_property("font", "FiraCode Nerd Font 10")
-        col = Gtk.TreeViewColumn("Theme", renderer, text=0)
-        col.set_expand(True)
-        self.treeview.append_column(col)
-
-        self.treeview.connect("cursor-changed", self.on_selection_changed)
-        self.treeview.connect("row-activated", self.on_row_activated)
-
+        self.treeview = Gtk.TreeView(model=self.liststore, headers_visible=False)
+        self.treeview.append_column(Gtk.TreeViewColumn("", Gtk.CellRendererText(font="JetBrainsMono NF 11"), text=0))
+        self.treeview.connect("cursor-changed", lambda w: self.update_preview())
+        
+        sw = Gtk.ScrolledWindow()
         sw.add(self.treeview)
         left_box.pack_start(sw, True, True, 0)
-
         hbox.pack_start(left_box, False, False, 0)
 
-        # ─── Right: preview ───
-        right_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
-
-        lbl_preview = Gtk.Label(label="<b>Vista previa</b>")
-        lbl_preview.set_use_markup(True)
-        lbl_preview.set_xalign(0)
-        right_box.pack_start(lbl_preview, False, False, 0)
-
-        preview_holder = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        preview_holder.set_size_request(600, -1)
-
+        # Right Panel
+        right_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
         self.preview_image = Gtk.Image()
-        self.preview_image.set_size_request(600, 338)
-        self.preview_image.set_halign(Gtk.Align.CENTER)
-        self.preview_image.set_valign(Gtk.Align.CENTER)
-        preview_holder.pack_start(self.preview_image, True, True, 0)
+        right_box.pack_start(self.preview_image, True, True, 0)
+        right_box.connect("size-allocate", self.on_right_resize)
 
-        self.lbl_theme_name = Gtk.Label(label="")
-        self.lbl_theme_name.set_use_markup(True)
-        preview_holder.pack_start(self.lbl_theme_name, False, False, 4)
+        self.lbl_info = Gtk.Label(label="", use_markup=True)
+        right_box.pack_start(self.lbl_info, False, False, 0)
 
-        right_box.pack_start(preview_holder, True, True, 0)
-
-        # Buttons
-        btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
         btn_box.set_halign(Gtk.Align.END)
-
-        random_btn = Gtk.Button(label="Aleatorio")
-        random_btn.connect("clicked", self.on_random)
-        btn_box.pack_end(random_btn, False, False, 0)
-
-        cancel_btn = Gtk.Button(label="Cancelar")
-        cancel_btn.connect("clicked", lambda w: self.destroy())
-        btn_box.pack_end(cancel_btn, False, False, 0)
-
-        apply_btn = Gtk.Button(label="Aplicar tema")
-        apply_btn.get_style_context().add_class("suggested-action")
-        apply_btn.connect("clicked", self.on_apply)
-        btn_box.pack_end(apply_btn, False, False, 0)
-
+        for label, callback in [(L_CANCEL, self.destroy), (L_RANDOM, self.on_random), (L_SELECT, self.on_apply)]:
+            btn = Gtk.Button(label=label)
+            btn.connect("clicked", callback if callable(callback) else lambda w: callback())
+            btn_box.pack_start(btn, False, False, 0)
+        
         right_box.pack_end(btn_box, False, False, 0)
         hbox.pack_start(right_box, True, True, 0)
 
         self.add(hbox)
-        self.selected_theme = CURRENT_THEME
-
-        # Select current theme in list (after preview_image exists)
-        for i, row in enumerate(self.liststore):
-            if row[1] == CURRENT_THEME:
-                self.treeview.set_cursor(Gtk.TreePath(i))
-                break
-
-        # Show initial preview
+        self.show_all()
         self.update_preview()
 
-    def get_selected_theme(self):
-        selection = self.treeview.get_selection()
-        model, treeiter = selection.get_selected()
-        if treeiter is not None:
-            return model[treeiter][1]
-        return None
-
-    def on_selection_changed(self, treeview):
-        self.update_preview()
+    def on_right_resize(self, widget, allocation):
+        new_w = max(200, allocation.width - 20)
+        new_h = max(112, int(new_w * 9 / 16))
+        if new_w != self._preview_width or new_h != self._preview_height:
+            self._preview_width = new_w
+            self._preview_height = new_h
+            self._current_preview_theme = None  # force refresh
+            self.update_preview()
 
     def update_preview(self):
-        theme = self.get_selected_theme()
-        if not theme:
-            return
-        self.selected_theme = theme
+        selection = self.treeview.get_selection()
+        model, treeiter = selection.get_selected()
+        if treeiter:
+            theme = model[treeiter][1]
+            if theme == "__random__":
+                self.preview_image.set_from_icon_name("media-playlist-shuffle", Gtk.IconSize.DIALOG)
+                self.lbl_info.set_markup(f"<b>{L_RANDOM}</b>")
+            elif theme != self._current_preview_theme or self._preview_width == 0:
+                thumb = os.path.join(CACHE_DIR, f"{theme}.png")
+                if os.path.exists(thumb) and self._preview_width > 0:
+                    w = self._preview_width
+                    h = self._preview_height or int(w * 9 / 16)
+                    self.preview_image.set_from_pixbuf(
+                        GdkPixbuf.Pixbuf.new_from_file_at_scale(thumb, w, h, True)
+                    )
+                status = f" <span foreground='#a6e3a1'>● {L_ACT_THEME}</span>" if theme == CURRENT_THEME else ""
+                self.lbl_info.set_markup(f"<b>{theme}</b>{status}")
+                self._current_preview_theme = theme
 
-        if theme == "__random__":
-            self.preview_image.set_from_icon_name(
-                "media-playlist-shuffle", Gtk.IconSize.DIALOG)
-            self.lbl_theme_name.set_markup(
-                "<b>🎲 Tema aleatorio</b>\nSelecciona un tema al azar")
-            return
-
-        thumb_path = os.path.join(CACHE_DIR, f"{theme}.png")
-        if os.path.exists(thumb_path):
-            try:
-                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                    thumb_path, 600, 338, True)
-                self.preview_image.set_from_pixbuf(pixbuf)
-            except Exception:
-                self.preview_image.set_from_icon_name(
-                    "image-x-generic", Gtk.IconSize.DIALOG)
-        else:
-            self.preview_image.set_from_icon_name(
-                "image-x-generic", Gtk.IconSize.DIALOG)
-
-        is_current = theme == CURRENT_THEME
-        status = " <span foreground='#a6e3a1'>● Activo</span>" if is_current else ""
-        self.lbl_theme_name.set_markup(
-            f"<b>{theme}</b>{status}")
-
-    def on_row_activated(self, treeview, path, column):
-        self.apply_theme()
-
-    def on_apply(self, button):
-        self.apply_theme()
-
-    def apply_theme(self):
-        theme = self.selected_theme
-        if theme == "__random__":
-            import random
-            themes = [row[1] for row in self.liststore if row[1] != "__random__"]
-            theme = random.choice(themes)
-        if theme and theme != CURRENT_THEME:
+    def on_apply(self, btn):
+        model, treeiter = self.treeview.get_selection().get_selected()
+        if treeiter:
+            theme = model[treeiter][1]
+            if theme == "__random__":
+                import random
+                theme = random.choice([t for t in theme_dirs])
             os.system(f"~/.config/themes/bin/theme-switch.sh '{theme}' &")
-        self.destroy()
+            self.destroy()
 
-    def on_random(self, button):
-        themes = [row[1] for row in self.liststore if row[1] != "__random__"]
-        if not themes:
-            return
+    def on_random(self, btn):
         import random
-        theme = random.choice(themes)
+        if not theme_dirs: return
+        theme = random.choice(theme_dirs)
         for i, row in enumerate(self.liststore):
             if row[1] == theme:
-                path = Gtk.TreePath(i)
-                self.treeview.set_cursor(path)
-                self.treeview.scroll_to_cell(path, None, True, 0.5, 0.5)
-                self.update_preview()
+                self.treeview.set_cursor(Gtk.TreePath(i))
+                self.treeview.scroll_to_cell(Gtk.TreePath(i), None, True, 0.5, 0.5)
                 break
 
-    def on_key_press(self, widget, event):
-        if event.keyval == Gdk.KEY_Escape:
-            self.destroy()
-        return False
-
-win = ThemeSelector()
-win.show_all()
+ThemeSelector()
 Gtk.main()
 PYEOF

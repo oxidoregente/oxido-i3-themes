@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
-import os, re
+import os, re, sys
 
-THEMES_DIR = os.path.expanduser("~/.config/themes/themes")
-TEMPLATE = os.path.join(THEMES_DIR, "tokyo-night", "dunst", "dunstrc")
+# Detectar si estamos en el repo o en .config
+REPO_DIR = "/home/oxido/Documentos/oxido-i3-themes"
+if os.path.isdir(REPO_DIR):
+    THEMES_DIR = os.path.join(REPO_DIR, "config/themes/themes")
+    TEMPLATE = os.path.join(THEMES_DIR, "tokyo-night", "dunst", "dunstrc")
+else:
+    THEMES_DIR = os.path.expanduser("~/.config/themes/themes")
+    TEMPLATE = os.path.join(THEMES_DIR, "tokyo-night", "dunst", "dunstrc")
 
 def load_colors(name):
     tdir = os.path.join(THEMES_DIR, name)
@@ -32,6 +38,10 @@ def load_colors(name):
         return c
     return {}
 
+if not os.path.exists(TEMPLATE):
+    print(f"Error: Plantilla no encontrada en {TEMPLATE}")
+    sys.exit(1)
+
 themes = {}
 for d in sorted(os.listdir(THEMES_DIR)):
     tdir = os.path.join(THEMES_DIR, d)
@@ -50,7 +60,7 @@ for d in sorted(os.listdir(THEMES_DIR)):
         'yellow': colors.get('yellow', '#e0af68'),
     }
 
-print(f"Loaded {len(themes)} themes")
+print(f"Loaded {len(themes)} themes from {THEMES_DIR}")
 
 with open(TEMPLATE) as f:
     template = f.read()
@@ -88,4 +98,4 @@ for name, c in sorted(themes.items()):
         f.write(content)
     print(f"  ✓ {name}")
 
-print(f"\nDone: {len(themes)} dunst configs")
+print(f"\nDone: {len(themes)} dunst configs updated.")
