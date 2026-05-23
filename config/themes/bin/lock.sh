@@ -28,7 +28,16 @@ LOCK_IMG="$THEME_DIR/unlock.png"
 [ ! -f "$LOCK_IMG" ] && LOCK_IMG="$HOME/.config/themes/themes/tokyo-night/unlock.png"
 [ ! -f "$LOCK_IMG" ] && LOCK_IMG=""
 
-LC_TIME=C i3lock-color \
+# Detectar idioma activo para el formato de fecha
+lang=$(grep '^LANG=' "$HOME/.config/themes/lang/active_lang.env" 2>/dev/null | cut -d'"' -f2)
+[ -z "$lang" ] && lang="es"
+if [ "$lang" = "en" ]; then
+    LC_TIME="en_US.utf8"
+else
+    LC_TIME="es_VE.utf8"
+fi
+
+LC_TIME=$LC_TIME i3lock-color \
     --ignore-empty-password \
     --indicator \
     --clock \
@@ -45,7 +54,7 @@ LC_TIME=C i3lock-color \
     --bshl-color="${ALERT}ff" \
     --separator-color="${DISABLED}88" \
     --time-color="${FG}ff" \
-    --date-color="${DISABLED}ff" \
+    --date-color="${FG}ff" \
     --verif-color="${FG}ff" \
     --wrong-color="${ALERT}ff" \
     --modif-color="${FG}ff" \
@@ -56,14 +65,16 @@ LC_TIME=C i3lock-color \
     --wrong-font="JetBrainsMono Nerd Font Mono" \
     --time-font="JetBrainsMono Nerd Font Mono" \
     --date-font="JetBrainsMono Nerd Font Mono" \
+    --time-size=28 \
+    --date-size=14 \
     --time-str="%I:%M %p" \
     --date-str="%A, %d %B" \
     --verif-text="✓" \
     --wrong-text="✗" \
     --noinput-text="" \
     --greeter-text="" \
-    --greeter-pos="x+0:y-100" \
-    --time-pos="x+0:y-50" \
-    --date-pos="x+0:y-25" \
+    --greeter-pos="x+0:y-90" \
+    --time-pos="x+0:y-10" \
+    --date-pos="x+0:y+30" \
     ${LOCK_IMG:+--image "$LOCK_IMG" --fill} \
     2>/dev/null
