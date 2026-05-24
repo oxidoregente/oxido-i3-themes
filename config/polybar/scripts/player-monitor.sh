@@ -1,10 +1,13 @@
 #!/bin/bash
-# player-monitor.sh — Mata/relanza la barra player según reproductores activos
+# player-monitor.sh — Mata/relanza la barra player y reajusta anchos
 # oxido-i3-themes
 #
-# Cuando no hay reproductor activo: mata el proceso polybar player
-# para que el strut se libere y no deje espacio vacío.
-# Cuando aparece un reproductor activo: relanza la barra player.
+# Cuando NO hay reproductor activo:
+#   - Mata polybar player (libera el slot)
+#   - Expande la barra center para ocupar el espacio liberado
+# Cuando SÍ hay reproductor activo:
+#   - Restaura el ancho original de la barra center
+#   - Relanza polybar player en su slot
 # Lockfile previene múltiples instancias.
 
 LOCKFILE="/tmp/polybar-player-monitor.lock"
@@ -34,8 +37,24 @@ detect_monitor() {
     xrandr --query 2>/dev/null | grep " connected" | head -1 | cut -d" " -f1
 }
 
+center_width_orig=""
+
+set_center_width() {
+    local pct="$1"
+    sed -i "/^\[bar\/center\]/,/^\[bar\// s/^width =.*/width = $pct/" "$CONFIG"
+}
+
+restart_center() {
+    pkill -f "^polybar --reload center" 2>/dev/null
+    sleep 0.2
+    local mon
+    mon=$(detect_monitor)
+    [ -n "$mon" ] && MONITOR="$mon" polybar --reload center 2>/dev/null &
+    disown 2>/dev/null
+}
+
 kill_player() {
-    pkill -f "polybar.*--reload.*player" 2>/dev/null
+    pkill -f "^polybar --reload player" 2>/dev/null
 }
 
 start_player() {
@@ -47,10 +66,35 @@ start_player() {
     fi
 }
 
-sleep 0.5
+adopt_no_player() {
+    local w
+    # Guardar ancho original de center solo una vez
+    if [ -z "$center_width_orig" ]; then
+        center_width_orig=$(sed -n '/^\[bar\/center\]/,/^\[bar\// s/^width = //p' "$CONFIG" | head -1)
+        [ -z "$center_width_orig" ] && center_width_orig="12%"
+    fi
+    # Calcular nuevo ancho: center_actual + player + gaps
+    w=$(python3 -c "
+co = ${center_width_orig%\%}
+w = round(co + 22.0, 1)  # 20 player + 2 gap
+print(f'{w}%')
+" 2>/dev/null)
+    [ -z "$w" ] && w="34%"
+    set_center_width "$w"
+    kill_player
+    restart_center
+}
 
-# Matar barra player al inicio (no deja strut)
-kill_player
+restore_player_widths() {
+    [ -n "$center_width_orig" ] && set_center_width "$center_width_orig"
+    kill_player
+    sleep 0.15
+    restart_center
+    sleep 0.3
+    start_player
+}
+
+sleep 0.5
 
 prev_alive=""
 while true; do
@@ -59,14 +103,13 @@ while true; do
     should_show=0
     [ -n "$alive" ] && [ "$fs" = "0" ] && should_show=1
 
-    if [ "$should_show" = "1" ]; then
-        if [ "$prev_alive" != "1" ]; then
-            player_pid=$(pgrep -f "polybar.*--reload.*player" 2>/dev/null | head -1)
-            [ -z "$player_pid" ] && start_player
-        fi
-    else
-        if [ "$prev_alive" = "1" ]; then
-            kill_player
+    if [ -n "$prev_alive" ]; then
+        if [ "$should_show" = "1" ]; then
+            if [ "$prev_alive" != "1" ]; then
+                restore_player_widths
+            fi
+        elif [ "$prev_alive" = "1" ]; then
+            adopt_no_player
         fi
     fi
 
