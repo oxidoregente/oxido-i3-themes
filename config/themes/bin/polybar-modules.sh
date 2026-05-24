@@ -19,7 +19,7 @@ SEC_LABEL() {
 
 # Mapeo sección → nombre de barra en el layout
 SEC_BAR() {
-    case "$1" in L) echo "left" ;; C) echo "center" ;; R) echo "right" ;; esac
+    case "$1" in L|left) echo "left" ;; C|center) echo "center" ;; R|right) echo "right" ;; esac
 }
 
 LAYOUTS_DIR="$HOME/.config/polybar/layouts"
@@ -28,6 +28,13 @@ LAYOUT_NAME=$(cat "$CURRENT_LAYOUT_FILE" 2>/dev/null || echo "bubble")
 LAYOUT_PATH="$LAYOUTS_DIR/$LAYOUT_NAME.ini"
 [ ! -f "$LAYOUT_PATH" ] && LAYOUT_PATH="$HOME/Documentos/oxido-i3-themes/config/polybar/layouts/$LAYOUT_NAME.ini"
 [ ! -f "$LAYOUT_PATH" ] && { echo "Layout no encontrado"; exit 1; }
+
+# Solo compatible con layout bubble (split bars con left/center/right)
+if [ "$LAYOUT_NAME" != "bubble" ]; then
+    rofi -e "El gestor de módulos solo funciona con el layout Bubble.
+Seleccioná otro layout con \$mod+Shift+l" -theme-str 'window {width: 400px; border-radius: 20px;}'
+    exit 0
+fi
 
 FIJOS="ws-start ws-end center-start center-end sys-start sys-end player-start player-end nowplaying"
 
@@ -42,14 +49,18 @@ DECO_RIGHT="sys-start sys-end"
 leer_modulos() {
     local section="$1"
     local bar=$(SEC_BAR "$section")
-    sed -n "/^\[bar\/$bar\]/,/^\[/s/^modules-$section *= *//p" "$LAYOUT_PATH" | head -1
+    local key="$section"
+    [ "$section" = "center" ] && key="left"
+    sed -n "/^\[bar\/$bar\]/,/^\[/s/^modules-$key *= *//p" "$LAYOUT_PATH" | head -1
 }
 
 # Escribir módulos en la sección correcta de la barra correspondiente
 escribir_modulos() {
     local section="$1" modules="$2"
     local bar=$(SEC_BAR "$section")
-    sed -i "/^\[bar\/$bar\]/,/^\[/s/^modules-$section *=.*/modules-$section = $modules/" "$LAYOUT_PATH"
+    local key="$section"
+    [ "$section" = "center" ] && key="left"
+    sed -i "/^\[bar\/$bar\]/,/^\[/s/^modules-$key *=.*/modules-$key = $modules/" "$LAYOUT_PATH"
 }
 
 ORIG_LEFT=$(leer_modulos "left")
@@ -349,7 +360,7 @@ apply_and_restart() {
     local theme_dir=$(readlink "$HOME/.config/themes/current/theme")
     if [ -n "$theme_dir" ] && [ -f "$theme_dir/polybar/colors.ini" ]; then
         cat "$theme_dir/polybar/colors.ini" "$LAYOUT_PATH" > "$HOME/.config/polybar/config.ini"
-        for bar in left center right player; do
+        for bar in $(grep "^\[bar/" "$HOME/.config/polybar/config.ini" 2>/dev/null | sed 's/\[bar\/\(.*\)\]/\1/'); do
             sed -i "/^\[bar\/$bar\]/a bottom = false" "$HOME/.config/polybar/config.ini"
         done
     fi

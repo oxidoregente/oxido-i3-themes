@@ -35,7 +35,7 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- ~/.config/themes/bin/lock
 
 # NetworkManager is the most popular way to manage wireless networks on Linux,
 # and nm-applet is a desktop environment-independent system tray GUI for it.
-exec --no-startup-id nm-applet
+exec_always --no-startup-id nm-applet
 
 # Control de Volumen (usando el script)
 
@@ -52,6 +52,8 @@ floating_modifier $mod
 tiling_drag modifier titlebar
 
 # start a terminal
+for_window [title="terminal_alacritty"] border pixel 2
+# bindsym $mod+Return exec ~/.config/themes/scripts/launch-terminal.sh -T "terminal_alacritty"
 bindsym $mod+Return exec --no-startup-id ~/.config/themes/scripts/launch-terminal.sh
 
 # start the browser
@@ -99,7 +101,8 @@ bindsym $mod+Right focus right
 # move focused window
 bindsym $mod+Shift+j move left
 bindsym $mod+Shift+k move down
-bindsym $mod+Shift+l move up
+bindsym $mod+Shift+l exec --no-startup-id ~/.config/themes/bin/rofi-layout-selector.sh
+# move up está en $mod+Shift+Up abajo
 bindsym $mod+Shift+semicolon move right
 
 # alternatively, you can use the cursor keys:
@@ -174,7 +177,7 @@ bindsym $mod+Shift+0 move container to workspace number $ws10
 # reload the configuration file
 bindsym $mod+Shift+o reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
-bindsym $mod+Shift+r exec --no-startup-id "killall -q conky 2>/dev/null; i3-msg restart"
+bindsym $mod+Shift+r exec --no-startup-id "killall -q conky nm-applet 2>/dev/null; i3-msg restart"
 # exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
 
@@ -270,18 +273,18 @@ exec_always --no-startup-id nitrogen --restore
 gaps inner 6
 gaps outer 2
 
-# Barra invisible: reserva 34px arriba para polybar (override-redirect=true)
-bar {
-    position top
-    i3bar_command i3bar --transparency
-    mode dock
-    height 34
-    colors {
-        background #0c0b0cAA
-    }
-    modifier None
-    binding_mode_indicator no
-}
+# Barra invisible: la barra derecha de polybar (dock managed) provee el strut
+# bar {
+#     position top
+#     i3bar_command i3bar --transparency
+#     mode dock
+#     height 34
+#     colors {
+#         background #0c0b0cAA
+#     }
+#     modifier None
+#     binding_mode_indicator no
+# }
 
 # Opcional: Eliminar bordes de ventana
 default_border pixel 0
@@ -293,12 +296,15 @@ exec_always --no-startup-id ~/.config/themes/scripts/start-services.sh
 # Polybar (se lanza desde apply-polybar.sh, mantener por si acaso)
 exec_always --no-startup-id ~/.config/polybar/launch.sh
 
-# Configuración de Red (nm-applet ya está arriba en XDG autostart)
-# exec --no-startup-id nm-applet
+# Fullscreen monitor: oculta polybar cuando una ventana entra en fullscreen
+exec_always --no-startup-id ~/.config/polybar/scripts/fullscreen-monitor.sh
 
 # Forzar esquema oscuro en aplicaciones compatibles
 exec_always --no-startup-id gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 exec_always --no-startup-id gsettings set org.gnome.desktop.interface gtk-theme 'Mint-Y-Dark'
+
+# Stalonetray: desactivado, polybar tray module asume la bandeja
+# for_window [instance="stalonetray"] floating enable
 
 # --- GESTIÓN DE BLOQUEO DEFINITIVA ---
 
@@ -371,3 +377,8 @@ exec --no-startup-id xautolock -time 8 -locker "~/.config/themes/bin/lock.sh" -d
 # Atajo para abrir Pavucontrol
 bindsym $mod+Control+m exec --no-startup-id pavucontrol 
 bindsym $mod+Shift+m exec --no-startup-id ~/.config/themes/bin/polybar-modules.sh
+
+# Terminal Flotante
+for_window [title="terminal_flotante"] floating enable, border pixel 2, resize set 900 px 570 px, move position center
+bindsym $mod+Shift+Return exec alacritty -T "terminal_flotante"
+
