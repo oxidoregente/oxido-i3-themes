@@ -33,14 +33,18 @@ rules: ({
         duration = 0.18;
     });
 }, {
-    # Firefox: slide from bottom
-    match = "class_g = 'Firefox' || class_g = 'firefox'";
+    # Polybar: opaco, sin sombra, sin animaciones open/close
+    match = "class_g = 'Polybar' || class_g = 'polybar'";
+    opacity = 1.0;
+    # Sin animaciones open/close (aparece/desaparece sin transición)
     animations = ({
         triggers = ["open"];
-        preset = "fly-in";
-        direction = "up";
-        duration = 0.25;
+        duration = 0.001;
     }, {
+        triggers = ["close"];
+        duration = 0.001;
+    });
+}, {
         triggers = ["close"];
         preset = "fly-out";
         direction = "down";

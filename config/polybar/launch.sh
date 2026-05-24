@@ -18,12 +18,14 @@ if type "xrandr" > /dev/null; then
         MONITOR=$m polybar --reload left &
         MONITOR=$m polybar --reload center &
         MONITOR=$m polybar --reload right &
+        MONITOR=$m polybar --reload player &
     done
 else
     polybar --reload left &
     polybar --reload center &
     polybar --reload right &
+    polybar --reload player &
 fi
 
-# Daemon para la barra oculta de reproducción
-~/.config/polybar/scripts/nowplaying-launcher.sh & disown
+# Monitor de visibilidad de player bar (IPC show/hide)
+~/.config/polybar/scripts/player-monitor.sh & disown

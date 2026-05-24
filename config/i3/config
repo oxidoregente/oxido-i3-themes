@@ -273,10 +273,11 @@ gaps outer 2
 # Barra invisible: reserva 34px arriba para polybar (override-redirect=true)
 bar {
     position top
+    i3bar_command i3bar --transparency
     mode dock
     height 34
     colors {
-        background #0c0b0c
+        background #0c0b0cAA
     }
     modifier None
     binding_mode_indicator no
