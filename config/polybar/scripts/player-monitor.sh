@@ -16,7 +16,8 @@ trap 'rm -rf "$LOCKFILE"' EXIT
 source "$HOME/.config/polybar/scripts/playerctl-wrapper.sh"
 CONFIG="$HOME/.config/polybar/config.ini"
 
-EXPANDED_W="41%"  # center expandido cuando player está oculto
+EXPANDED_W="39%"  # center expandido cuando player está oculto
+CENTER_O_PLAYER="29%"
 
 is_fullscreen() {
     i3-msg -t get_tree 2>/dev/null | python3 -c "
@@ -37,15 +38,22 @@ detect_monitor() {
 }
 
 center_width_orig=""
+center_offset_orig=""
 
 save_center_orig() {
     [ -n "$center_width_orig" ] && return
     center_width_orig=$(sed -n '/^\[bar\/center\]/,/^\[bar\// s/^width = //p' "$CONFIG" | head -1)
     [ -z "$center_width_orig" ] && center_width_orig="12%"
+    center_offset_orig=$(sed -n '/^\[bar\/center\]/,/^\[bar\// s/^offset-x = //p' "$CONFIG" | head -1)
+    [ -z "$center_offset_orig" ] && center_offset_orig="27%"
 }
 
 set_center_width() {
     sed -i "/^\[bar\/center\]/,/^\[bar\// s/^width =.*/width = $1/" "$CONFIG"
+}
+
+set_center_offset() {
+    sed -i "/^\[bar\/center\]/,/^\[bar\// s/^offset-x =.*/offset-x = $1/" "$CONFIG"
 }
 
 restart_center() {
@@ -83,12 +91,14 @@ while true; do
     if [ -n "$prev_alive" ]; then
         if [ "$should_show" = "1" ] && [ "$prev_alive" != "1" ]; then
             save_center_orig
+            set_center_offset "$CENTER_O_PLAYER"
             set_center_width "$center_width_orig"
             restart_center
             show_player
         elif [ "$should_show" != "1" ] && [ "$prev_alive" = "1" ]; then
             save_center_orig
             hide_player
+            set_center_offset "$center_offset_orig"
             set_center_width "$EXPANDED_W"
             restart_center
         fi
