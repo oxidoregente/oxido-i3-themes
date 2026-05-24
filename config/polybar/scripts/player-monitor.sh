@@ -1,13 +1,10 @@
 #!/bin/bash
-# player-monitor.sh — Mata/relanza la barra player y reajusta anchos
+# player-monitor.sh — Muestra/oculta barra player y reajusta center bar
 # oxido-i3-themes
 #
-# Cuando NO hay reproductor activo:
-#   - Mata polybar player (libera el slot)
-#   - Expande la barra center para ocupar el espacio liberado
-# Cuando SÍ hay reproductor activo:
-#   - Restaura el ancho original de la barra center
-#   - Relanza polybar player en su slot
+# Usa polybar-msg cmd show/hide (override-redirect=true → sin strut).
+# Cuando el player se oculta, expande la barra center para cerrar el hueco.
+# Cuando aparece, restaura el ancho original de center.
 # Lockfile previene múltiples instancias.
 
 LOCKFILE="/tmp/polybar-player-monitor.lock"
@@ -18,6 +15,8 @@ trap 'rm -rf "$LOCKFILE"' EXIT
 
 source "$HOME/.config/polybar/scripts/playerctl-wrapper.sh"
 CONFIG="$HOME/.config/polybar/config.ini"
+
+EXPANDED_W="36%"  # center expandido cuando player está oculto
 
 is_fullscreen() {
     i3-msg -t get_tree 2>/dev/null | python3 -c "
@@ -39,9 +38,14 @@ detect_monitor() {
 
 center_width_orig=""
 
+save_center_orig() {
+    [ -n "$center_width_orig" ] && return
+    center_width_orig=$(sed -n '/^\[bar\/center\]/,/^\[bar\// s/^width = //p' "$CONFIG" | head -1)
+    [ -z "$center_width_orig" ] && center_width_orig="12%"
+}
+
 set_center_width() {
-    local pct="$1"
-    sed -i "/^\[bar\/center\]/,/^\[bar\// s/^width =.*/width = $pct/" "$CONFIG"
+    sed -i "/^\[bar\/center\]/,/^\[bar\// s/^width =.*/width = $1/" "$CONFIG"
 }
 
 restart_center() {
@@ -53,48 +57,21 @@ restart_center() {
     disown 2>/dev/null
 }
 
-kill_player() {
-    pkill -f "^polybar --reload player" 2>/dev/null
+hide_player() {
+    for pid in $(pgrep -f "^polybar --reload player" 2>/dev/null); do
+        polybar-msg -p "$pid" cmd hide 2>/dev/null
+    done
 }
 
-start_player() {
-    local mon
-    mon=$(detect_monitor)
-    if [ -n "$mon" ] && [ -f "$CONFIG" ]; then
-        MONITOR="$mon" polybar --reload player 2>/dev/null &
-        disown
-    fi
-}
-
-adopt_no_player() {
-    local w
-    # Guardar ancho original de center solo una vez
-    if [ -z "$center_width_orig" ]; then
-        center_width_orig=$(sed -n '/^\[bar\/center\]/,/^\[bar\// s/^width = //p' "$CONFIG" | head -1)
-        [ -z "$center_width_orig" ] && center_width_orig="12%"
-    fi
-    # Calcular nuevo ancho: center_actual + player + gaps
-    w=$(python3 -c "
-co = ${center_width_orig%\%}
-w = round(co + 22.0, 1)  # 20 player + 2 gap
-print(f'{w}%')
-" 2>/dev/null)
-    [ -z "$w" ] && w="34%"
-    set_center_width "$w"
-    kill_player
-    restart_center
-}
-
-restore_player_widths() {
-    [ -n "$center_width_orig" ] && set_center_width "$center_width_orig"
-    kill_player
-    sleep 0.15
-    restart_center
-    sleep 0.3
-    start_player
+show_player() {
+    for pid in $(pgrep -f "^polybar --reload player" 2>/dev/null); do
+        polybar-msg -p "$pid" cmd show 2>/dev/null
+    done
 }
 
 sleep 0.5
+
+hide_player
 
 prev_alive=""
 while true; do
@@ -104,12 +81,16 @@ while true; do
     [ -n "$alive" ] && [ "$fs" = "0" ] && should_show=1
 
     if [ -n "$prev_alive" ]; then
-        if [ "$should_show" = "1" ]; then
-            if [ "$prev_alive" != "1" ]; then
-                restore_player_widths
-            fi
-        elif [ "$prev_alive" = "1" ]; then
-            adopt_no_player
+        if [ "$should_show" = "1" ] && [ "$prev_alive" != "1" ]; then
+            save_center_orig
+            set_center_width "$center_width_orig"
+            restart_center
+            show_player
+        elif [ "$should_show" != "1" ] && [ "$prev_alive" = "1" ]; then
+            save_center_orig
+            hide_player
+            set_center_width "$EXPANDED_W"
+            restart_center
         fi
     fi
 
