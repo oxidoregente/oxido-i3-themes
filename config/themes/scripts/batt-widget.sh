@@ -2,6 +2,11 @@
 # batt-widget.sh — Widget Premium para Polybar
 # oxido-i3-themes
 
+# Cargar idioma activo para nombres de perfil
+source "$HOME/.config/themes/lang/active_lang.env" 2>/dev/null
+LANG=${LANG:-es}
+source "$HOME/.config/themes/lang/$LANG.sh" 2>/dev/null
+
 FLAG="/tmp/polybar_batt_extended"
 
 # Detección automática del dispositivo de batería
@@ -36,9 +41,9 @@ if [ -f "$FLAG" ]; then
     
     PROF_RAW=$(powerprofilesctl get 2>/dev/null)
     case "$PROF_RAW" in
-        "performance") PROF="🚀 Rendimiento" ;;
-        "balanced")    PROF="⚖️ Equilibrado" ;;
-        "power-saver") PROF="🍃 Ahorro" ;;
+        "performance") PROF="🚀 ${L_BAT_PERF#*  }" ;;
+        "balanced")    PROF="⚖️ ${L_BAT_BAL#*  }" ;;
+        "power-saver") PROF="🍃 ${L_BAT_SAVE#*  }" ;;
         *)             PROF="" ;;
     esac
 

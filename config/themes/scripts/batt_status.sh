@@ -1,4 +1,9 @@
 #!/bin/bash
+# Cargar idioma activo para nombres de perfil
+source "$HOME/.config/themes/lang/active_lang.env" 2>/dev/null
+LANG=${LANG:-es}
+source "$HOME/.config/themes/lang/$LANG.sh" 2>/dev/null
+
 STATE_FILE="/tmp/polybar_batt_state"
 BAT="/sys/class/power_supply/BAT0"
 
@@ -36,9 +41,9 @@ fi
 if [ -f "$STATE_FILE" ]; then
     PROFILE=$(powerprofilesctl get 2>/dev/null)
     case $PROFILE in
-        "performance") PROFILE="Rendimiento" ;;
-        "balanced")    PROFILE="Equilibrado" ;;
-        "power-saver") PROFILE="Ahorro" ;;
+        "performance") PROFILE="${L_BAT_PERF#*  }" ;;
+        "balanced")    PROFILE="${L_BAT_BAL#*  }" ;;
+        "power-saver") PROFILE="${L_BAT_SAVE#*  }" ;;
         *)             PROFILE="" ;;
     esac
     TIME=$(acpi -b 2>/dev/null | grep -o '[0-9][0-9]:[0-9][0-9]:[0-9][0-9]' | head -1 | sed 's/:[0-9][0-9]$//')

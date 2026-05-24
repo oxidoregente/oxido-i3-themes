@@ -1,20 +1,25 @@
 #!/bin/bash
+# Cargar idioma activo para nombres de perfil
+source "$HOME/.config/themes/lang/active_lang.env" 2>/dev/null
+LANG=${LANG:-es}
+source "$HOME/.config/themes/lang/$LANG.sh" 2>/dev/null
+
 CURRENT=$(powerprofilesctl get)
 case "$CURRENT" in
     "performance")
         powerprofilesctl set balanced
-        PROFILE="Equilibrado"
         ICON=""
+        PROFILE="${L_BAT_BAL#*  }"
         ;;
     "balanced")
         powerprofilesctl set power-saver
-        PROFILE="Ahorro"
         ICON=""
+        PROFILE="${L_BAT_SAVE#*  }"
         ;;
     "power-saver")
         powerprofilesctl set performance
-        PROFILE="Rendimiento"
         ICON=""
+        PROFILE="${L_BAT_PERF#*  }"
         ;;
 esac
 ~/.config/themes/scripts/notify-send.sh "$ICON" "Plan de energía" "$PROFILE" "low"
