@@ -5,9 +5,18 @@
 # Adaptado de arkzuse/polybar-theme
 # https://github.com/arkzuse/polybar-theme — MIT License
 
+# Reutiliza la detección inteligente de reproductor
+source "$HOME/.config/polybar/scripts/playerctl-wrapper.sh"
+
+get_player() {
+    get_active_player
+}
+
 get_info() {
-    local title=$(playerctl metadata title 2>/dev/null)
-    local artist=$(playerctl metadata artist 2>/dev/null)
+    local player=$(get_player)
+    [ -z "$player" ] && { echo ""; return; }
+    local title=$(playerctl -p "$player" metadata title 2>/dev/null)
+    local artist=$(playerctl -p "$player" metadata artist 2>/dev/null)
     if [ -n "$title" ] && [ -n "$artist" ]; then
         echo "$title - $artist"
     elif [ -n "$title" ]; then
@@ -18,7 +27,9 @@ get_info() {
 }
 
 get_symbol() {
-    local status=$(playerctl status 2>/dev/null)
+    local player=$(get_player)
+    [ -z "$player" ] && { echo ""; return; }
+    local status=$(playerctl -p "$player" status 2>/dev/null)
     if [ "$status" = "Playing" ]; then
         echo ""
     elif [ "$status" = "Paused" ]; then
@@ -39,7 +50,8 @@ scroll_text() {
     local symbol=$(get_symbol)
 
     if [ -z "$text" ]; then
-        sleep 1
+        echo ""
+        sleep 2
         return
     fi
 
