@@ -28,5 +28,8 @@ else
 fi
 
 # Monitor de visibilidad de player bar (IPC show/hide)
-rm -f /tmp/polybar-player-monitor.lock
+# Matar monitores anteriores primero
+pkill -f "player-monitor.sh" 2>/dev/null
+sleep 0.3
+rm -rf /tmp/polybar-player-monitor.lock
 ~/.config/polybar/scripts/player-monitor.sh & disown
