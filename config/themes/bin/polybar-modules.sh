@@ -29,7 +29,7 @@ LAYOUT_PATH="$LAYOUTS_DIR/$LAYOUT_NAME.ini"
 [ ! -f "$LAYOUT_PATH" ] && LAYOUT_PATH="$HOME/Documentos/oxido-i3-themes/config/polybar/layouts/$LAYOUT_NAME.ini"
 [ ! -f "$LAYOUT_PATH" ] && { echo "Layout no encontrado"; exit 1; }
 
-FIJOS="ws-start ws-end center-start center-end sys-start sys-end"
+FIJOS="ws-start ws-end center-start center-end sys-start sys-end player-start player-end nowplaying"
 
 _mods_of() {
     case "$1" in L) echo "$MODS_LEFT" ;; C) echo "$MODS_CENTER" ;; R) echo "$MODS_RIGHT" ;; esac
