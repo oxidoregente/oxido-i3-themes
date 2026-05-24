@@ -296,8 +296,8 @@ exec_always --no-startup-id ~/.config/themes/scripts/start-services.sh
 # Polybar (se lanza desde apply-polybar.sh, mantener por si acaso)
 exec_always --no-startup-id ~/.config/polybar/launch.sh
 
-# Fullscreen monitor: oculta polybar cuando una ventana entra en fullscreen
-exec_always --no-startup-id ~/.config/polybar/scripts/fullscreen-monitor.sh
+# Fullscreen monitor: manejado por launch.sh, no lanzar duplicado
+# exec_always --no-startup-id ~/.config/polybar/scripts/fullscreen-monitor.sh
 
 # Forzar esquema oscuro en aplicaciones compatibles
 exec_always --no-startup-id gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
