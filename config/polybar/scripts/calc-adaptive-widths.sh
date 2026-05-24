@@ -35,7 +35,7 @@ left = max(22.0, round($MIN_LEFT / w * 100, 1))
 center = max(12.0, round($MIN_CENTER / w * 100, 1))
 gap = $GAP
 center_o = round(left + gap, 1)
-player_o = round(center_o + center + gap + 5, 1)
+player_o = round(center_o + center + gap + 8, 1)
 # Player termina 10px antes de los módulos derechos (RIGHT_PCT% del ancho)
 right_pct = $RIGHT_PCT
 gap_pct = round($GAP_PX / w * 100, 1)
