@@ -17,11 +17,6 @@ SEC_LABEL() {
     echo "$raw" | sed 's/^[^ ]* //'
 }
 
-# Mapeo sección → nombre de barra en el layout
-SEC_BAR() {
-    case "$1" in L|left) echo "left" ;; C|center) echo "center" ;; R|right) echo "right" ;; esac
-}
-
 LAYOUTS_DIR="$HOME/.config/polybar/layouts"
 CURRENT_LAYOUT_FILE="$HOME/.config/themes/current-layout"
 LAYOUT_NAME=$(cat "$CURRENT_LAYOUT_FILE" 2>/dev/null || echo "bubble")
@@ -29,28 +24,47 @@ LAYOUT_PATH="$LAYOUTS_DIR/$LAYOUT_NAME.ini"
 [ ! -f "$LAYOUT_PATH" ] && LAYOUT_PATH="$HOME/Documentos/oxido-i3-themes/config/polybar/layouts/$LAYOUT_NAME.ini"
 [ ! -f "$LAYOUT_PATH" ] && { echo "Layout no encontrado"; exit 1; }
 
-# Solo compatible con layout bubble (split bars con left/center/right)
-if [ "$LAYOUT_NAME" != "bubble" ]; then
-    rofi -e "El gestor de módulos solo funciona con el layout Bubble.
-Seleccioná otro layout con \$mod+Shift+l" -theme-str 'window {width: 400px; border-radius: 20px;}'
-    exit 0
-fi
+# Detectar tipo de layout: split (bubble) o single-bar
+HAS_SPLIT=$(grep -c "^\[bar/left\]" "$LAYOUT_PATH" 2>/dev/null)
 
-FIJOS="ws-start ws-end center-start center-end sys-start sys-end player-start player-end nowplaying"
+if [ "$HAS_SPLIT" -gt 0 ]; then
+    # Split-bar layout (bubble)
+    SEC_BAR() {
+        case "$1" in L|left) echo "left" ;; C|center) echo "center" ;; R|right) echo "right" ;; esac
+    }
+    FIJOS="ws-start ws-end center-start center-end sys-start sys-end"
+else
+    # Single-bar layout
+    SEC_BAR() {
+        echo "top"
+    }
+    FIJOS=""
+fi
 
 _mods_of() {
     case "$1" in L) echo "$MODS_LEFT" ;; C) echo "$MODS_CENTER" ;; R) echo "$MODS_RIGHT" ;; esac
 }
-DECO_LEFT="ws-start ws-end"
-DECO_CENTER="center-start center-end"
-DECO_RIGHT="sys-start sys-end"
+if [ "$HAS_SPLIT" -gt 0 ]; then
+    DECO_LEFT="ws-start ws-end"
+    DECO_CENTER="center-start center-end"
+    DECO_RIGHT="sys-start sys-end"
+else
+    DECO_LEFT=""
+    DECO_CENTER=""
+    DECO_RIGHT=""
+fi
 
 # Leer módulos de la sección correcta de la barra correspondiente
 leer_modulos() {
     local section="$1"
     local bar=$(SEC_BAR "$section")
-    local key="$section"
-    [ "$section" = "center" ] && key="left"
+    local key
+    if [ "$HAS_SPLIT" -gt 0 ]; then
+        key="$section"
+        [ "$section" = "center" ] && key="left"
+    else
+        key=$(echo "$section" | tr '[:upper:]' '[:lower:]')
+    fi
     sed -n "/^\[bar\/$bar\]/,/^\[/s/^modules-$key *= *//p" "$LAYOUT_PATH" | head -1
 }
 
@@ -58,8 +72,13 @@ leer_modulos() {
 escribir_modulos() {
     local section="$1" modules="$2"
     local bar=$(SEC_BAR "$section")
-    local key="$section"
-    [ "$section" = "center" ] && key="left"
+    local key
+    if [ "$HAS_SPLIT" -gt 0 ]; then
+        key="$section"
+        [ "$section" = "center" ] && key="left"
+    else
+        key=$(echo "$section" | tr '[:upper:]' '[:lower:]')
+    fi
     sed -i "/^\[bar\/$bar\]/,/^\[/s/^modules-$key *=.*/modules-$key = $modules/" "$LAYOUT_PATH"
 }
 
@@ -77,6 +96,10 @@ for m in $MODS_CENTER; do MOD_SECTION["$m"]="C"; done
 for m in $MODS_RIGHT;  do MOD_SECTION["$m"]="R"; done
 
 LISTA_COMPLETA=$(grep "^\[module/" "$LAYOUT_PATH" | sed 's/\[module\///;s/\]//')
+# Excluir módulos de la barra player (no se gestionan desde aquí)
+for pm in player-start player-end nowplaying; do
+    LISTA_COMPLETA=$(echo "$LISTA_COMPLETA" | grep -v "^$pm$")
+done
 
 THEME="window { width: 480px; border-radius: 24px; border-color: $SEL; background-color: $BG; }
 mainbox { children: [ inputbar, listview ]; padding: 20px; }
