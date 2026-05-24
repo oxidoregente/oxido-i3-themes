@@ -269,7 +269,16 @@ exec_always --no-startup-id nitrogen --restore
 # Espaciado entre ventanas
 gaps inner 6
 gaps outer 2
-gaps outer vertical 34
+
+# Barra invisible: reserva 34px arriba para polybar (override-redirect=true)
+bar {
+    position top
+    mode invisible
+    height 34
+    status_command = ""
+    modifier None
+    binding_mode_indicator no
+}
 
 # Opcional: Eliminar bordes de ventana
 default_border pixel 0
