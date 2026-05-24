@@ -269,7 +269,7 @@ exec_always --no-startup-id nitrogen --restore
 # Espaciado entre ventanas
 gaps inner 6
 gaps outer 2
-gaps outer top 34
+gaps outer vertical 34
 
 # Opcional: Eliminar bordes de ventana
 default_border pixel 0
