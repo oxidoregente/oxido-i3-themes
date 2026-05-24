@@ -275,7 +275,6 @@ bar {
     position top
     mode dock
     height 34
-    status_command = ""
     colors {
         background #0c0b0c
     }
