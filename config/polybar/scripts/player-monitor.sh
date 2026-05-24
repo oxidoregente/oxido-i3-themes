@@ -16,7 +16,7 @@ trap 'rm -rf "$LOCKFILE"' EXIT
 source "$HOME/.config/polybar/scripts/playerctl-wrapper.sh"
 CONFIG="$HOME/.config/polybar/config.ini"
 
-EXPANDED_W="40%"  # center expandido cuando player está oculto
+EXPANDED_W="41%"  # center expandido cuando player está oculto
 
 is_fullscreen() {
     i3-msg -t get_tree 2>/dev/null | python3 -c "
