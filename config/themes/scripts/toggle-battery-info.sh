@@ -8,5 +8,7 @@ else
     touch "$FLAG"
 fi
 
+# Pequeña pausa para que el flag se escriba antes del refresco
+sleep 0.05
 # Refrescar solo el módulo battery vía IPC (no afecta al tray)
-polybar-msg action "#battery.module_exec" 2>/dev/null
+polybar-msg action "#battery.module_exec" &>/dev/null &
