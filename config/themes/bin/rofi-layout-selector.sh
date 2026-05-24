@@ -7,7 +7,12 @@ REPO_LAYOUTS="/home/oxido/Documentos/oxido-i3-themes/config/polybar/layouts"
 CURRENT_LAYOUT_FILE="$HOME/.config/themes/current-layout"
 CURRENT=$(cat "$CURRENT_LAYOUT_FILE" 2>/dev/null || echo "bubble")
 
-[ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+if [ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ]; then
+    source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
+fi
+
+: "${BG:=#1e1e2e}" "${FG:=#cdd6f4}" "${SEL:=#89b4fa}" "${BGA:=#313244}"
 
 THEME="window { width: 380px; border-radius: 20px; border-color: $SEL; background-color: $BG; }
 mainbox { children: [ inputbar, listview ]; padding: 16px; }
@@ -35,7 +40,7 @@ fi
 
 [ -z "$items" ] && { rofi -e "No se encontraron layouts en $LAYOUTS_DIR"; exit 1; }
 
-chosen=$(echo -e "$items" | rofi -dmenu -p "Layout" -i -theme-str "$THEME")
+chosen=$(echo -e "$items" | rofi -dmenu -p "Layout" -i -theme-str "$THEME" 2>/dev/null)
 [ -z "$chosen" ] && exit 0
 
 # Extraer nombre (sacar ▶ y (actual))

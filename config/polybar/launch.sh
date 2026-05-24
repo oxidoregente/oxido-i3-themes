@@ -47,7 +47,7 @@ fi
 pkill -f "player-monitor.sh" 2>/dev/null
 pkill -f "fullscreen-monitor.sh" 2>/dev/null
 sleep 0.3
-rm -f /tmp/polybar-player-monitor.lock /tmp/polybar-fullscreen.lock
+rm -rf /tmp/polybar-player-monitor.lock /tmp/polybar-fullscreen.lock 2>/dev/null
 
 # Monitor de visibilidad de player bar (solo si existe [bar/player])
 if grep -q "^\[bar/player\]" "$CONFIG" 2>/dev/null; then
