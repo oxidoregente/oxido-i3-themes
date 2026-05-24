@@ -273,9 +273,12 @@ gaps outer 2
 # Barra invisible: reserva 34px arriba para polybar (override-redirect=true)
 bar {
     position top
-    mode invisible
+    mode dock
     height 34
     status_command = ""
+    colors {
+        background #0c0b0c
+    }
     modifier None
     binding_mode_indicator no
 }
