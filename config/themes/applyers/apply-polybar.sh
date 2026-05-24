@@ -37,9 +37,12 @@ if [ -f "$LAYOUT_FILE" ] && [ -f "$LAYOUTS_DIR/$(cat "$LAYOUT_FILE").ini" ]; the
     else
         cp "$LAYOUTS_DIR/$LAYOUT_NAME.ini" "$CONFIG_DST"
     fi
-    # Inject bottom position after each bar section
+    # Inject bottom position + override-redirect after each bar section
     for bar in left center right player; do
         sed -i "/^\[bar\/$bar\]/a bottom = $BOTTOM" "$CONFIG_DST"
+        if ! sed -n "/^\[bar\/$bar\]/,/^\[bar\//p" "$CONFIG_DST" | grep -q "override-redirect"; then
+            sed -i "/^\[bar\/$bar\]/a override-redirect = true" "$CONFIG_DST"
+        fi
     done
 elif [ -f "$THEME_DIR/polybar/config.ini" ]; then
     cp "$THEME_DIR/polybar/config.ini" "$CONFIG_DST"
