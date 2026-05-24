@@ -14,6 +14,10 @@ else
     if [ -n "$THEME_DIR" ] && [ -f "$THEME_DIR/conky/conky.conf" ]; then
         cp "$THEME_DIR/conky/conky.conf" ~/.config/conky/conky.conf
     fi
+    LANG_FILE="$HOME/.config/themes/lang/active_lang.env"
+    lang=$(grep '^LANG=' "$LANG_FILE" 2>/dev/null | cut -d'"' -f2)
+    [ -z "$lang" ] && lang="es"
+    export LC_TIME=$([ "$lang" = "en" ] && echo "en_US.utf8" || echo "es_VE.utf8")
     conky -c ~/.config/conky/conky.conf &
     disown
     notify-send "Conky" "Activado"
