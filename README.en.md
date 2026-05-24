@@ -117,6 +117,37 @@ Visual panel to rearrange Polybar modules without editing files:
 - **Restore**: One-click reset to the original layout arrangement.
 - **Multi-language**: Fully translated (Spanish/English).
 
+### 🧩 Split-Bar Layout (`bubble`)
+The **bubble** layout splits Polybar into 4 independent bars (left, center, player, right) floating over the desktop with 80% transparency:
+
+| Bar | Width | Position | Function |
+|---|---|---|---|
+| left | 22% | x=0% | Reserved space (visual consistency, no strut) |
+| center | 12% | x=27% | Centered date bubble; expands to 39% when player is hidden |
+| player | 16% | x=48% | Now-playing module, toggles with `polybar-msg cmd hide/show` |
+| right | 100% | x=0% | System modules (battery, network, sound, etc.), fills remaining space |
+
+**Key features:**
+- **Smart player detection** (`playerctl-wrapper.sh`): Prioritizes Spotify (Playing > Paused) over Brave/Chrome (MPRIS). Only one active source at a time.
+- **Dynamic hiding**: When no player is active, the player bar hides and the center bar expands (`polybar-msg cmd hide`), reclaiming visual space without strut residue.
+- **Adaptive width calculation** (`calc-adaptive-widths.sh`): Automatically computes offset-x, width, and right_pct based on monitor resolution, maintaining a 10px gap between bars.
+- **Dynamic center offset**: When the player appears, the center bar shifts from x=27% to x=29% for balanced composition. It returns to x=27% when hidden.
+- **Automatic fullscreen**: All bars hide when a fullscreen window is detected (`fullscreen-monitor.sh` with `i3-msg -t subscribe`), ignoring stale `fullscreen_mode=1` on empty workspaces.
+- **Multi-layout compatibility**: `polybar-modules.sh` shows a graceful message if a non-bubble layout is selected.
+- **Forced transparency**: `apply-polybar.sh` injects alpha `0x33` (80% transparent) across all colors in `[colors]`, compatible with all 23 themes.
+- **Strut-free**: All bars use `override-redirect = true`; the i3bar reserves 34px in dock mode to maintain the top visual gap.
+
+**Scripts:**
+| Script | Function |
+|---|---|
+| `launch.sh` | Dynamic launcher with lockfile cleanup and precise `pkill` |
+| `player-monitor.sh` | Continuous player + fullscreen monitoring, IPC hide/show and center reflow |
+| `fullscreen-monitor.sh` | i3 event subscription to show/hide all bars |
+| `calc-adaptive-widths.sh` | Proportional width/offset calculation per monitor |
+| `center-bubble.sh` | Custom module rendering border+wedges+date with active theme colors |
+| `playerctl-wrapper.sh` | Wrapper with prioritized active player detection |
+| `nowplaying.sh` | Now-playing module sourced from the wrapper |
+
 ### 🕐 Date in Spanish
 The Polybar clock displays days and months in Spanish using `LC_TIME=es_VE.utf8`:
 - **Time**: `%I:%M %p` format (e.g., 02:30 PM)
