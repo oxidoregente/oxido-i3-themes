@@ -2,18 +2,45 @@
 # Lanzador de Polybar — detecta barras dinámicamente desde config.ini
 # oxido-i3-themes
 LOCKFILE="/tmp/polybar-launch.lock"
-if ! mkdir "$LOCKFILE" 2>/dev/null; then
-    exit 0
-fi
+
+lockfile_clean() {
+    if [ -d "$LOCKFILE" ]; then
+        LOCK_PID=$(cat "$LOCKFILE/pid" 2>/dev/null || echo 0)
+        if [ "$LOCK_PID" -gt 0 ] 2>/dev/null && kill -0 "$LOCK_PID" 2>/dev/null; then
+            exit 0
+        fi
+        rm -rf "$LOCKFILE"
+    fi
+}
+
+lockfile_create() {
+    lockfile_clean
+    mkdir "$LOCKFILE" 2>/dev/null || exit 0
+    echo "$$" > "$LOCKFILE/pid"
+}
+
+lockfile_create
 trap 'rm -rf "$LOCKFILE"' EXIT
 
 CONFIG="$HOME/.config/polybar/config.ini"
 
-killall -q polybar 2>/dev/null
-while pgrep -u $UID -x polybar >/dev/null; do sleep 0.3; done
-
 export LANG=es_VE.utf8
 export LC_TIME=es_VE.utf8
+
+# Matar monitores anteriores (primero, para que no revivan barras)
+pkill -f "player-monitor.sh" 2>/dev/null
+pkill -f "fullscreen-monitor.sh" 2>/dev/null
+sleep 0.2
+rm -rf /tmp/polybar-player-monitor.lock /tmp/polybar-fullscreen.lock 2>/dev/null
+
+# Matar barras polybar con timeout y force kill
+pkill -x polybar 2>/dev/null
+TIMEOUT=5
+while [ "$TIMEOUT" -gt 0 ] && pgrep -x polybar >/dev/null; do
+    sleep 0.3
+    TIMEOUT=$((TIMEOUT - 1))
+done
+pgrep -x polybar >/dev/null && pkill -9 -x polybar 2>/dev/null
 
 # Anchos adaptativos solo si existen las barras del layout bubble
 if grep -q "^\[bar/left\]" "$CONFIG" 2>/dev/null; then
@@ -42,12 +69,6 @@ if type "xrandr" > /dev/null; then
 else
     for bar in $BARS; do polybar --reload "$bar" & done
 fi
-
-# Matar monitores anteriores
-pkill -f "player-monitor.sh" 2>/dev/null
-pkill -f "fullscreen-monitor.sh" 2>/dev/null
-sleep 0.3
-rm -rf /tmp/polybar-player-monitor.lock /tmp/polybar-fullscreen.lock 2>/dev/null
 
 # Monitor de visibilidad de player bar (solo si existe [bar/player])
 if grep -q "^\[bar/player\]" "$CONFIG" 2>/dev/null; then

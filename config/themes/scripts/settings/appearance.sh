@@ -40,7 +40,7 @@ EOF
         *"Tema actual"*)
             exec ~/.config/themes/bin/rofi-theme-selector.sh ;;
         *"Diseño Polybar"*)
-            exec "$DIR/polybar-layout.sh" ;;
+            ~/.config/themes/bin/rofi-layout-selector.sh ;;
         *"Conky"*)
             ~/.config/themes/bin/toggle-conky.sh ;;
         *"Gaps interiores"*)

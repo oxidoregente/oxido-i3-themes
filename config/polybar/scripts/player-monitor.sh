@@ -8,9 +8,24 @@
 # Lockfile previene múltiples instancias.
 
 LOCKFILE="/tmp/polybar-player-monitor.lock"
-if ! mkdir "$LOCKFILE" 2>/dev/null; then
-    exit 0
-fi
+
+lockfile_clean() {
+    if [ -d "$LOCKFILE" ]; then
+        LOCK_PID=$(cat "$LOCKFILE/pid" 2>/dev/null || echo 0)
+        if [ "$LOCK_PID" -gt 0 ] 2>/dev/null && kill -0 "$LOCK_PID" 2>/dev/null; then
+            exit 0
+        fi
+        rm -rf "$LOCKFILE"
+    fi
+}
+
+lockfile_create() {
+    lockfile_clean
+    mkdir "$LOCKFILE" 2>/dev/null || exit 0
+    echo "$$" > "$LOCKFILE/pid"
+}
+
+lockfile_create
 trap 'rm -rf "$LOCKFILE"' EXIT
 
 source "$HOME/.config/polybar/scripts/playerctl-wrapper.sh"

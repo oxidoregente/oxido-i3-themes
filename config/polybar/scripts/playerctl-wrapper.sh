@@ -30,7 +30,6 @@ get_active_player() {
     done
 
     [ -n "$playing" ] && echo "$playing" && return
-    [ -n "$paused" ] && echo "$paused" && return
     echo ""
 }
 

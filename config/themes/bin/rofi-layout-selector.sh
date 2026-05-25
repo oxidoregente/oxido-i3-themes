@@ -16,7 +16,7 @@ fi
 
 THEME="window { width: 380px; border-radius: 20px; border-color: $SEL; background-color: $BG; }
 mainbox { children: [ inputbar, listview ]; padding: 16px; }
-inputbar { margin: 0 0 10px 0; padding: 8px 12px; background-color: $BGA; border-radius: 10px; children: [ prompt ]; }
+inputbar { margin: 0 0 10px 0; padding: 8px 12px; background-color: $BGA; border-radius: 10px; children: [ prompt, entry ]; }
 prompt { text-color: $SEL; font: \"JetBrainsMono Nerd Font Mono Bold 13\"; }
 listview { columns: 1; lines: 10; spacing: 4px; dynamic: true; }
 element { padding: 10px 14px; border-radius: 10px; text-color: $FG; }
