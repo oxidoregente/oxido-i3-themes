@@ -8,6 +8,7 @@
 # Lockfile previene múltiples instancias.
 
 LOCKFILE="/tmp/polybar-player-monitor.lock"
+LOG="/tmp/polybar-player-monitor.log"
 
 lockfile_clean() {
     if [ -d "$LOCKFILE" ]; then
@@ -30,6 +31,9 @@ trap 'rm -rf "$LOCKFILE"' EXIT
 
 source "$HOME/.config/polybar/scripts/playerctl-wrapper.sh"
 CONFIG="$HOME/.config/polybar/config.ini"
+
+# Solo ejecutar si existe [bar/player] en la config
+grep -q "^\[bar/player\]" "$CONFIG" 2>/dev/null || exit 0
 
 EXPANDED_W="39%"  # center expandido cuando player está oculto
 CENTER_O_PLAYER="29%"
@@ -81,18 +85,23 @@ restart_center() {
 }
 
 hide_player() {
-    for pid in $(pgrep -f "^polybar --reload player" 2>/dev/null); do
-        polybar-msg -p "$pid" cmd hide 2>/dev/null
-    done
+    echo "[$(date +%H:%M:%S)] hide_player: killing player bar" >> "$LOG"
+    pkill -f "^polybar --reload player" 2>/dev/null
 }
 
 show_player() {
-    for pid in $(pgrep -f "^polybar --reload player" 2>/dev/null); do
-        polybar-msg -p "$pid" cmd show 2>/dev/null
-    done
+    pgrep -f "^polybar --reload player" >/dev/null 2>&1 && {
+        echo "[$(date +%H:%M:%S)] show_player: already running, skipping" >> "$LOG"
+        return 0
+    }
+    local mon
+    mon=$(detect_monitor)
+    echo "[$(date +%H:%M:%S)] show_player: launching on $mon" >> "$LOG"
+    [ -n "$mon" ] && MONITOR="$mon" polybar --reload player 2>/dev/null &
+    disown 2>/dev/null
 }
 
-sleep 0.5
+echo "[$(date +%H:%M:%S)] player-monitor iniciado" >> "$LOG"
 
 hide_player
 
@@ -103,20 +112,33 @@ while true; do
     should_show=0
     [ -n "$alive" ] && [ "$fs" = "0" ] && should_show=1
 
-    if [ -n "$prev_alive" ]; then
-        if [ "$should_show" = "1" ] && [ "$prev_alive" != "1" ]; then
-            save_center_orig
-            set_center_offset "$CENTER_O_PLAYER"
-            set_center_width "$center_width_orig"
-            restart_center
-            show_player
-        elif [ "$should_show" != "1" ] && [ "$prev_alive" = "1" ]; then
-            save_center_orig
-            hide_player
-            set_center_offset "$center_offset_orig"
-            set_center_width "$EXPANDED_W"
-            restart_center
-        fi
+    echo "[$(date +%H:%M:%S)] loop: alive='$alive' fs=$fs should_show=$should_show prev=$prev_alive" >> "$LOG"
+
+    # Sincronizar estado real de la barra con el estado deseado
+    if pgrep -f "^polybar --reload player" >/dev/null 2>&1; then
+        bar_running=true
+    else
+        bar_running=false
+    fi
+
+    if [ "$should_show" = "1" ] && ! $bar_running; then
+        echo "[$(date +%H:%M:%S)] SHOW: barra caida, levantando ($alive)" >> "$LOG"
+        save_center_orig
+        set_center_offset "$CENTER_O_PLAYER"
+        set_center_width "$center_width_orig"
+        restart_center
+        show_player
+        prev_alive=1
+    elif [ "$should_show" != "1" ] && $bar_running; then
+        echo "[$(date +%H:%M:%S)] HIDE: sin player, matando barra" >> "$LOG"
+        save_center_orig
+        hide_player
+        set_center_offset "$center_offset_orig"
+        set_center_width "$EXPANDED_W"
+        restart_center
+        prev_alive=0
+    else
+        prev_alive="$should_show"
     fi
 
     prev_alive="$should_show"

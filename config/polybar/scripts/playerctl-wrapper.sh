@@ -7,30 +7,48 @@
 #   click-left = ~/.config/polybar/scripts/playerctl-wrapper.sh play-pause
 
 get_active_player() {
-    local playing=""
+    local native_playing=""
+    local native_paused=""
+    local browser_playing=""
+    local browser_paused=""
 
     for player in $(playerctl -l 2>/dev/null); do
         status=$(playerctl -p "$player" status 2>/dev/null)
-        [ "$status" != "Playing" ] && continue
-        # Solo si tiene metadata real — ignora browsers sin contenido activo
+        [ "$status" != "Playing" ] && [ "$status" != "Paused" ] && continue
         title=$(playerctl -p "$player" metadata title 2>/dev/null)
         [ -z "$title" ] && continue
-        # Preferir reproductores nativos sobre browsers
+        length=$(playerctl -p "$player" metadata mpris:length 2>/dev/null)
+        [ -z "$length" ] && continue
+
         case "$player" in
             spotify*|mpd|rhythmbox|vlc|audacious|clementine|strawberry|deadbeef|pragha|qmmp)
-                echo "$player"
-                return
+                if [ "$status" = "Playing" ]; then
+                    [ -z "$native_playing" ] && native_playing="$player"
+                else
+                    [ -z "$native_paused" ] && native_paused="$player"
+                fi
+                ;;
+            *)
+                if [ "$status" = "Playing" ]; then
+                    [ -z "$browser_playing" ] && browser_playing="$player"
+                else
+                    [ -z "$browser_paused" ] && browser_paused="$player"
+                fi
                 ;;
         esac
-        [ -z "$playing" ] && playing="$player"
     done
 
-    [ -n "$playing" ] && echo "$playing" && return
+    # Prioridad: native Playing > browser Playing > native Paused > browser Paused
+    [ -n "$native_playing" ] && echo "$native_playing" && return
+    [ -n "$browser_playing" ] && echo "$browser_playing" && return
+    [ -n "$native_paused" ] && echo "$native_paused" && return
+    [ -n "$browser_paused" ] && echo "$browser_paused" && return
     echo ""
 }
 
 main() {
     player=$(get_active_player)
+    echo "[$(date +%H:%M:%S)] wrapper args=$* player='$player'" >> /tmp/polybar-click-debug.log
     if [ -n "$player" ]; then
         exec playerctl -p "$player" "$@"
     else
