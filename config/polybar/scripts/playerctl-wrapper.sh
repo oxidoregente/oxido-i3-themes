@@ -8,25 +8,21 @@
 
 get_active_player() {
     local playing=""
-    local paused=""
 
     for player in $(playerctl -l 2>/dev/null); do
         status=$(playerctl -p "$player" status 2>/dev/null)
-        case "$status" in
-            Playing)
-                # Preferir reproductores nativos sobre browsers
-                case "$player" in
-                    spotify*|mpd|rhythmbox|vlc|audacious|clementine|strawberry|deadbeef|pragha|qmmp)
-                        echo "$player"
-                        return
-                        ;;
-                esac
-                [ -z "$playing" ] && playing="$player"
-                ;;
-            Paused)
-                [ -z "$paused" ] && paused="$player"
+        [ "$status" != "Playing" ] && continue
+        # Solo si tiene metadata real — ignora browsers sin contenido activo
+        title=$(playerctl -p "$player" metadata title 2>/dev/null)
+        [ -z "$title" ] && continue
+        # Preferir reproductores nativos sobre browsers
+        case "$player" in
+            spotify*|mpd|rhythmbox|vlc|audacious|clementine|strawberry|deadbeef|pragha|qmmp)
+                echo "$player"
+                return
                 ;;
         esac
+        [ -z "$playing" ] && playing="$player"
     done
 
     [ -n "$playing" ] && echo "$playing" && return
