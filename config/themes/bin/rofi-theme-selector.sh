@@ -116,6 +116,7 @@ class ThemeSelector(Gtk.Window):
         self.treeview = Gtk.TreeView(model=self.liststore, headers_visible=False)
         self.treeview.append_column(Gtk.TreeViewColumn("", Gtk.CellRendererText(font="JetBrainsMono NF 11"), text=0))
         self.treeview.connect("cursor-changed", lambda w: self.update_preview())
+        self.treeview.connect("row-activated", lambda w, path, col: self.on_apply(None))
         
         sw = Gtk.ScrolledWindow()
         sw.add(self.treeview)
