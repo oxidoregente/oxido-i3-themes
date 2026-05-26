@@ -80,7 +80,6 @@
     frame_color = "#3C486D"
     highlight = "#3C486D"
     timeout = 4
-    icon = dialog-information-symbolic
 
 [urgency_normal]
     background = "#060B1E"
@@ -88,7 +87,6 @@
     frame_color = "#7d82d9"
     highlight = "#7d82d9"
     timeout = 6
-    icon = dialog-information-symbolic
 
 [urgency_critical]
     background = "#ED5B5A"
