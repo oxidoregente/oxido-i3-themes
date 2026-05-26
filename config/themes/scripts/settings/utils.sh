@@ -1,32 +1,27 @@
 #!/bin/bash
 # 📋  Utilities: screenshots, WiFi, Bluetooth, color picker, clipboard
-DIR=~/.config/themes/scripts/settings
-BASE_THEME=$(cat "$DIR/.rasi-base" 2>/dev/null || echo '* { font: "FiraCode Nerd Font 10"; }
-window { width: 420; border-radius: 16px; background-color: #1e1e2e; }
-mainbox { children: [listview]; spacing: 4px; padding: 8px; }
-listview { spacing: 4px; dynamic: true; }
-element { border-radius: 10px; padding: 10px 14px; background-color: #313244; text-color: #cdd6f4; }
-element selected { background-color: #89b4fa; text-color: #1e1e2e; }
-element-icon { size: 1.2em; }
-element-text { horizontal-align: 0.5; }')
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DIR="$SCRIPT_DIR"
+[ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
+[ -f "$SCRIPT_DIR/../../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../../scripts/rofi-builder.sh"
 
 while true; do
-    choice=$(cat <<EOF | rofi -dmenu -p "  📋  Utilidades" -theme-str "$BASE_THEME" -i
-📸  Captura de pantalla ▸
-🌐  Red WiFi ▸
-🔵  Bluetooth ▸
-🎨  Color picker
-📋  Portapapeles ▸
-⬅️  Volver
+    choice=$(cat <<EOF | rofi -dmenu -p "  $L_UTILS" -theme-str "$ROFI_THEME_MAIN" -i
+$L_SSHOT  ▸
+$L_WIFI  ▸
+$L_BT  ▸
+$L_CPICKER
+$L_CLIP  ▸
+$L_BACK
 EOF
     )
     case "$choice" in
-        *"Captura"*) exec "$DIR/screenshot.sh" ;;
-        *"WiFi"*) exec "$DIR/wifi.sh" ;;
-        *"Bluetooth"*) exec "$DIR/bluetooth.sh" ;;
-        *"Color"*) exec "$DIR/colorpicker.sh" ;;
-        *"Portapapeles"*) exec "$DIR/clipboard.sh" ;;
-        *"Volver"*) exec ~/.config/themes/bin/rofi-settings.sh ;;
-        *) exit 0 ;;
+        *"$L_SSHOT"*) exec "$DIR/screenshot.sh" "$DIR/utils.sh" ;;
+        *"$L_WIFI"*) exec "$DIR/wifi.sh" "$DIR/utils.sh" ;;
+        *"$L_BT"*) exec "$DIR/bluetooth.sh" "$DIR/utils.sh" ;;
+        *"$L_CPICKER"*) exec "$DIR/colorpicker.sh" ;;
+        *"$L_CLIP"*) exec "$DIR/clipboard.sh" "$DIR/utils.sh" ;;
+        *"$L_BACK"*) exec ~/.config/themes/bin/rofi-settings.sh ;;
+        *) exec ~/.config/themes/bin/rofi-settings.sh ;;
     esac
 done

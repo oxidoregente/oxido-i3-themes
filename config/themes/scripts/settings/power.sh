@@ -1,9 +1,11 @@
 #!/bin/bash
 # ⚡  Power settings: PowerSaver, DPMS, autolock, lid
-REPO_DIR="/home/oxido/Documentos/oxido-i3-themes"
-source "$REPO_DIR/config/themes/scripts/rofi-builder.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DIR="$SCRIPT_DIR"
+[ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
+[ -f "$SCRIPT_DIR/../../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../../scripts/rofi-builder.sh"
 
-DIR="$REPO_DIR/config/themes/scripts/settings"
+THEMES_BIN="$(cd "$DIR/../bin" 2>/dev/null && pwd || echo "$HOME/.config/themes/bin")"
 
 PW_SAVER=/tmp/powersaver_active
 CURRENT_LID=$(grep "^HandleLidSwitch" /etc/systemd/logind.conf.d/lid-override.conf 2>/dev/null | cut -d= -f2)
@@ -19,7 +21,7 @@ while true; do
 $L_PS: $(ps_status)
 💤  DPMS: 5 min ▸
 $L_AUTOLOCK: 8 min ▸
-󰤁  $L_LID: ${CURRENT_LID} ▸
+$L_LID: ${CURRENT_LID} ▸
 $L_BACK
 EOF
     )
@@ -27,13 +29,13 @@ EOF
         *"$L_PS"*)
             ~/.config/themes/scripts/toggle-powersaver.sh ;;
         *"DPMS"*)
-            exec "$DIR/dpms.sh" ;;
+            exec "$DIR/dpms.sh" "$DIR/power.sh" ;;
         *"$L_AUTOLOCK"*)
-            exec "$DIR/autolock.sh" ;;
+            exec "$DIR/autolock.sh" "$DIR/power.sh" ;;
         *"$L_LID"*)
-            exec "$DIR/lid.sh" ;;
+            exec "$DIR/lid.sh" "$DIR/power.sh" ;;
         *"$L_BACK"*)
-            exec "$REPO_DIR/config/themes/bin/rofi-settings.sh" ;;
-        *) exit 0 ;;
+            exec "$THEMES_BIN/rofi-settings.sh" ;;
+        *) exec ~/.config/themes/bin/rofi-settings.sh ;;
     esac
 done

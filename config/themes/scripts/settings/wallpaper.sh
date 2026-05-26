@@ -1,5 +1,9 @@
 #!/bin/bash
 # 🖼️  Wallpaper selector: browse wallpapers in current theme
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
+[ -f "$SCRIPT_DIR/../../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../../scripts/rofi-builder.sh"
+
 THEME_DIR=$(readlink -f ~/.config/themes/current/theme 2>/dev/null)
 [ -z "$THEME_DIR" ] && THEME_DIR=~/.config/themes/themes/dracula
 WALL_DIR="$THEME_DIR/backgrounds"
@@ -8,36 +12,44 @@ mkdir -p "$CACHE_DIR"
 
 current_wall() { grep "file=" ~/.config/nitrogen/bg-saved.cfg 2>/dev/null | head -1 | sed 's/.*file=//'; }
 
-# generate thumbs for wallpapers
 shopt -s nullglob
-entries=""
+entries="$L_BACK\0icon\x1fgo-previous\n"
+files=()
 for img in "$WALL_DIR"/*.{jpg,png,jpeg,webp,bmp}; do
     [ ! -f "$img" ] && continue
     name=$(basename "$img")
     thumb="$CACHE_DIR/$name"
     [ ! -f "$thumb" ] && convert "$img" -resize "240x135^" -gravity center -extent 240x135 "$thumb" 2>/dev/null
-    CURRENT=""
-    [ "$img" = "$(current_wall)" ] && CURRENT="▶"
-    entries+="$CURRENT $name\0icon\x1f$thumb\n"
+    files+=("$name")
+    if [ "$img" = "$(current_wall)" ]; then
+        entries+="▶ $name\0icon\x1f$thumb\n"
+    else
+        entries+="$name\0icon\x1f$thumb\n"
+    fi
 done
 
-[ -z "$entries" ] && {
-    dunstify -u critical "🖼️  Wallpapers" "No hay wallpapers en $WALL_DIR"
-    exit 0
+[ "${#files[@]}" -eq 0 ] && {
+    dunstify -u critical "🖼️  $L_WALLPAPER" "$L_NO_IMAGES"
+    exec "$SCRIPT_DIR/appearance.sh"
 }
 
-chosen=$(printf "%b" "$entries" | rofi -dmenu -p "  🖼️  Wallpaper" -show-icons -i \
-    -theme-str 'window { width: 600; border-radius: 16px; background-color: #1e1e2e; }
-    mainbox { children: [inputbar, listview]; spacing: 8px; padding: 12px; }
-    inputbar { background-color: transparent; border-radius: 8px; padding: 8px 12px; text-color: #cdd6f4; }
-    listview { columns: 3; lines: 4; spacing: 8px; dynamic: false; }
-    element { orientation: vertical; border-radius: 12px; padding: 8px; background-color: #313244; text-color: #cdd6f4; }
-    element selected { background-color: #89b4fa; text-color: #1e1e2e; }
-    element-icon { size: 4em; border-radius: 6px; }
-    element-text { horizontal-align: 0.5; vertical-align: 0.5; font: "FiraCode Nerd Font 9"; }')
+ROFI_THEME_WALL="window { width: ${W_WIDE:-750}px; border-radius: ${ROFI_RADIUS:-16}px; border: ${ROFI_BORDER:-2}px solid; border-color: $SEL; background-color: $BG; }
+mainbox { children: [inputbar, listview]; spacing: 12px; padding: 15px; }
+inputbar { background-color: $BGA; border-radius: 12px; padding: 10px 15px; text-color: $FG; margin: 0px 0px 5px 0px; children: [prompt]; }
+prompt { text-color: $SEL; }
+listview { columns: 3; lines: 4; spacing: 10px; dynamic: false; }
+element { orientation: vertical; border-radius: 14px; padding: 10px; background-color: $BGA; text-color: $FG; }
+element selected { background-color: $SEL; text-color: $BG; }
+element-icon { size: 5em; border-radius: 8px; }
+element-text { horizontal-align: 0.5; vertical-align: 0.5; font: \"JetBrainsMono Nerd Font Mono ${ROFI_FONT_SIZE_SUB:-10}\"; }"
 
-[ -z "$chosen" ] && exit 0
-chosen=$(echo "$chosen" | sed 's/^▶ //; s/^ *//')
-wall_path="$WALL_DIR/$chosen"
+choice=$(printf "%b" "$entries" | rofi -dmenu -p "  🖼️  $L_WALLPAPER" -show-icons -i -no-custom -theme-str "$ROFI_THEME_WALL" -format s)
+
+[ -z "$choice" ] && exec "$SCRIPT_DIR/appearance.sh"
+[[ "$choice" == *"$L_BACK"* ]] && exec "$SCRIPT_DIR/appearance.sh"
+
+selected=$(echo "$choice" | sed 's/^▶ //')
+wall_path="$WALL_DIR/$selected"
 [ -f "$wall_path" ] && nitrogen --set-zoom-fill "$wall_path" 2>/dev/null
-dunstify -u low "🖼️  Wallpaper" "Cambiado a: $chosen"
+dunstify -u low "🖼️  $L_WALLPAPER" "$L_SET_AS_WALL: $chosen"
+exec "$SCRIPT_DIR/appearance.sh"
