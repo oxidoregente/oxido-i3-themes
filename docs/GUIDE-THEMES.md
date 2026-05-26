@@ -666,7 +666,140 @@ tar -xzf ~/Backups/oxido-i3-themes-backup-20250521-*.tar.gz -C ~/
 
 ---
 
-## 17. Change History
+## 17. Customizing Wallpaper & Lock Screen
+
+You can change both the desktop wallpaper and the lock screen background in
+two ways: via terminal (quick) or visually (recommended).
+
+### 📸 Visual method (recommended)
+
+1. Press **`$mod+Shift+s`** → Appearance
+2. Select **"🖼️  Wallpaper"** or **"🔒  Lock screen background"**
+3. A visual grid opens showing all images available in the current theme
+4. Thumbnails are auto-generated with ImageMagick
+5. Click the image you want — it applies instantly
+
+The **lock screen** selector also lets you use any image from the theme's
+`backgrounds/` folder as a lock screen. When selected, it's automatically
+copied as `unlock.png` and applied via `apply-lockscreen.sh`.
+
+### ⌨️ Terminal method
+
+```bash
+# Change desktop wallpaper:
+nitrogen --set-zoom-fill ~/.config/themes/themes/<theme>/backgrounds/my-image.jpg --save
+
+# Or using feh:
+feh --bg-fill ~/.config/themes/themes/<theme>/backgrounds/my-image.jpg
+
+# Change lock screen background:
+cp ~/my-image.png ~/.config/themes/themes/<theme>/unlock.png
+~/.config/themes/applyers/apply-lockscreen.sh ~/.config/themes/themes/<theme>
+
+# Lock images can also go here:
+cp ~/my-image.png ~/.config/themes/current/theme/unlock.png
+```
+
+### 📂 File locations
+
+| What | Path |
+|---|---|
+| Current theme wallpapers | `~/.config/themes/current/theme/backgrounds/` |
+| Theme lock image | `~/.config/themes/themes/<theme>/unlock.png` |
+| All themes wallpapers | `~/.config/themes/themes/*/backgrounds/` |
+| Wallpaper thumbnails | `~/.cache/wallpaper-thumbs/` |
+| Lock screen thumbnails | `~/.cache/lock-thumbs/` |
+
+> **Note:** Images in `backgrounds/` must be `.jpg`, `.png`, `.jpeg`,
+> `.webp` or `.bmp`. The `unlock.png` is automatically scaled with `--fill`
+> in i3lock-color.
+
+---
+
+## 18. Polybar Modularity
+
+Polybar in oxido-i3-themes uses a **layout system** that defines which modules
+appear and in what order. You can customize it without fear of breaking things.
+
+### 🎮 Visual module manager
+
+Press **`$mod+Shift+m`** to open the Polybar Module Manager. From there you can:
+
+- **Reorder** modules within a section (Left/Center/Right)
+- **Move** modules between sections
+- **Hide/Show** individual modules
+- **Swap** the position of two modules
+- **Restore** the default layout configuration
+
+### 📝 Manual layout editing
+
+Layouts are INI files in `~/.config/polybar/layouts/`:
+
+```bash
+ls ~/.config/polybar/layouts/
+# → bubble.ini  minimal.ini  blocks.ini  material.ini  ...
+```
+
+Each layout defines one or more bars with their modules. Example (Bubble layout):
+
+```ini
+[bar/left]
+modules-left = ws-start xworkspaces ws-end
+
+[module/xworkspaces]
+type = internal/xworkspaces
+label-active = %name%
+label-active-foreground = ${colors.background}
+```
+
+### ➕ Adding a new module
+
+1. Open the active layout:
+   ```bash
+   nano ~/.config/polybar/layouts/$(cat ~/.config/themes/current-layout).ini
+   ```
+2. Add the module definition at the end:
+   ```ini
+   [module/network-speed]
+   type = internal/network
+   interface = wlan0
+   format-connected = <label-connected>
+   label-connected = "  %downspeed% / %upspeed%"
+   ```
+3. Add it to the desired bar (e.g., `modules-right`):
+   ```ini
+   modules-right = sys-start dnd network-speed cpu tray powermenu sys-end
+   ```
+4. Restart polybar:
+   ```bash
+   ~/.config/polybar/launch.sh
+   ```
+
+### ❌ Removing a module
+
+- From the Module Manager: select the module and choose "Hide"
+- Manual: just remove the module name from the `modules-*` line
+
+> **Safety:** If a module doesn't exist or has errors, polybar simply ignores
+> it. It won't crash or break. It's safe to experiment with different configs.
+
+### 🌐 Useful module examples
+
+| Module | Purpose | Polybar type |
+|--------|---------|-------------|
+| `internal/network` | Network speed, SSID | `internal` |
+| `internal/cpu` | CPU usage | `internal` |
+| `internal/memory` | RAM usage | `internal` |
+| `internal/date` | Date and time | `internal` |
+| `custom/script` | Custom scripts (battery, weather, etc.) | `custom` |
+| `internal/pulseaudio` | Volume control | `internal` |
+| `internal/temperature` | CPU temperature | `internal` |
+| `internal/filesystem` | Disk space | `internal` |
+| `internal/i3` | i3 workspaces (alternative to xworkspaces) | `internal` |
+
+---
+
+## 19. Change History
 
 | Date | Version | Changes |
 |------|---------|---------|

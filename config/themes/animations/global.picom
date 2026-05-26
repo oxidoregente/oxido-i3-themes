@@ -2,33 +2,23 @@ animations = ({
     triggers = ["open"];
     preset = "appear";
     scale = 0.90;
-    duration = 0.30;
+    duration = 0.3;
 }, {
     triggers = ["close"];
     preset = "fly-out";
-    direction = "down";
-    duration = 0.20;
+    direction = "left";
+    duration = 0.25;
 }, {
     # Show — cascading fly-in, cada ventana desde su propia altura sin superposicion
     triggers = ["show"];
-    offset-y = {
-        curve = "cubic-bezier(0.17, 0.67, 0.68, 1.03)";
-        duration = 0.30;
-        start = "-window-height";
-        end = "0";
-    };
-    opacity = {
-        curve = "linear";
-        duration = 0.25;
-        start = "0";
-        end = "window-raw-opacity";
-    };
-    shadow-offset-y = "offset-y";
+    preset = "fly-in";
+    direction = "up";
+    duration = 0.2;
 }, {
     triggers = ["hide"];
     preset = "fly-out";
     direction = "down";
-    duration = 0.25;
+    duration = 0.15;
 }, {
     # Workspace-in — slide desde la derecha, cada ventana su propio ancho sin superposicion
     triggers = ["workspace-in"];
@@ -122,3 +112,30 @@ animations = ({
     preset = "geometry-change";
     duration = 0.35;
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

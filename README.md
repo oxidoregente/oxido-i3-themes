@@ -108,6 +108,37 @@ Panel visual para reorganizar los módulos de la Polybar sin editar archivos:
 - **Restaurar**: Volvé a la disposición original del layout con un clic.
 - **Multi-idioma**: Totalmente traducido (Español/Inglés).
 
+### 🧩 Split-Bar Layout (`bubble`)
+El layout **bubble** divide la Polybar en 4 barras independientes (left, center, player, right) que flotan sobre el escritorio con 80% de transparencia:
+
+| Barra | Ancho | Posición | Función |
+|---|---|---|---|
+| left | 22% | x=0% | Espacio reservado (consistencia visual, sin strut) |
+| center | 12% | x=27% | Burbuja con fecha centrada, se expande a 39% cuando player está oculto |
+| player | 16% | x=48% | Módulo nowplaying, aparece/desaparece con `polybar-msg cmd hide/show` |
+| right | 100% | x=0% | Módulos del sistema (batería, red, sonido, etc.), ocupa el resto del espacio |
+
+**Características clave:**
+- **Detección inteligente de reproductor** (`playerctl-wrapper.sh`): Prioriza Spotify (Playing > Paused) sobre Brave/Chrome (MPRIS). Solo una fuente activa por vez.
+- **Ocultamiento dinámico**: Cuando no hay reproductor activo, la barra player se oculta y la barra center se expande (`polybar-msg cmd hide`) recuperando el espacio visual sin strut residual.
+- **Ajuste adaptativo de anchos** (`calc-adaptive-widths.sh`): Calcula automáticamente offset-x, width y right_pct según la resolución del monitor, manteniendo un gap de 10px entre barras.
+- **Offset dinámico del center**: Al aparecer el reproductor, el center se desplaza de x=27% a x=29% para equilibrar la composición visual. Al ocultarse, vuelve a su posición original.
+- **Fullscreen automático**: Todas las barras se ocultan al detectar una ventana en pantalla completa (`fullscreen-monitor.sh` con `i3-msg -t subscribe`), ignorando falsos positivos de `fullscreen_mode=1` en workspaces vacíos.
+- **Compatibilidad multi-layout**: `polybar-modules.sh` muestra un mensaje graceful si se selecciona un layout que no sea bubble.
+- **Transparencia forzada**: `apply-polybar.sh` inyecta alpha `0x33` (80% transparente) a todos los colores en `[colors]`, compatible con 23 temas.
+- **Sin strut**: Todas las barras usan `override-redirect = true`; la i3bar reserva 34px en modo dock para mantener el gap visual superior.
+
+**Scripts del sistema:**
+| Script | Función |
+|---|---|
+| `launch.sh` | Lanzador dinámico con limpieza de lockfiles y `pkill` preciso |
+| `player-monitor.sh` | Monitoreo continuo de player + fullscreen, IPC hide/show y reflow del center |
+| `fullscreen-monitor.sh` | Suscripción a eventos i3 para ocultar/mostrar todas las barras |
+| `calc-adaptive-widths.sh` | Cálculo de anchos y offsets proporcionales al monitor |
+| `center-bubble.sh` | Módulo custom que renderiza borde+wedges+fecha con colores del tema activo |
+| `playerctl-wrapper.sh` | Wrapper con detección prioritaria de reproductor activo |
+| `nowplaying.sh` | Módulo nowplaying sourced desde el wrapper |
+
 ### 🕐 Reloj en Español
 La fecha en la Polybar muestra los días y meses en español usando `LC_TIME=es_VE.utf8`:
 - **Hora**: Formato `%I:%M %p` (ej: 02:30 PM)

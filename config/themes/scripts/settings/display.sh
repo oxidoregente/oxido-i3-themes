@@ -1,9 +1,11 @@
 #!/bin/bash
 # ☀️  Display settings: brightness + wallpaper
-REPO_DIR="/home/oxido/Documentos/oxido-i3-themes"
-source "$REPO_DIR/config/themes/scripts/rofi-builder.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DIR="$SCRIPT_DIR"
+[ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
+[ -f "$SCRIPT_DIR/../../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../../scripts/rofi-builder.sh"
 
-DIR="$REPO_DIR/config/themes/scripts/settings"
+THEMES_BIN="$(cd "$DIR/../bin" 2>/dev/null && pwd || echo "$HOME/.config/themes/bin")"
 
 bright() { brightnessctl -m | cut -d',' -f4 | tr -d '%'; }
 
@@ -27,9 +29,9 @@ EOF
         *"$L_DPMS"*)
             xset dpms force off
             dunstify -u low "$L_DISPLAY" "$L_NOT_DND_ON"
-            exit 0 ;;
+            exec "$THEMES_BIN/rofi-settings.sh" ;;
         *"$L_BACK"*)
-            exec "$REPO_DIR/config/themes/bin/rofi-settings.sh" ;;
-        *) exit 0 ;;
+            exec "$THEMES_BIN/rofi-settings.sh" ;;
+        *) exec "$THEMES_BIN/rofi-settings.sh" ;;
     esac
 done

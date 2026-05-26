@@ -1,14 +1,9 @@
 #!/bin/bash
-# 🎨  Appearance settings: theme, conky, gaps, borders
-DIR=~/.config/themes/scripts/settings
-BASE_THEME=$(cat "$DIR/.rasi-base" 2>/dev/null || echo '* { font: "FiraCode Nerd Font 10"; }
-window { width: 420; border-radius: 16px; background-color: #1e1e2e; }
-mainbox { children: [listview]; spacing: 4px; padding: 8px; }
-listview { spacing: 4px; dynamic: true; }
-element { border-radius: 10px; padding: 10px 14px; background-color: #313244; text-color: #cdd6f4; }
-element selected { background-color: #89b4fa; text-color: #1e1e2e; }
-element-icon { size: 1.2em; }
-element-text { horizontal-align: 0.5; }')
+# 🎨  Appearance settings: theme, conky, gaps, borders, wallpaper, lockscreen
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DIR="$SCRIPT_DIR"
+[ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
+[ -f "$SCRIPT_DIR/../../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../../scripts/rofi-builder.sh"
 
 CURRENT_THEME=$(basename "$(readlink ~/.config/themes/current/theme)" 2>/dev/null)
 CONKY_FILE=~/.config/themes/conky-enabled
@@ -18,7 +13,7 @@ GAPS_OUTER=$(grep "^gaps outer" ~/.config/i3/config 2>/dev/null | awk '{print $3
 [ -z "$GAPS_OUTER" ] && GAPS_OUTER=2
 
 conky_status() {
-    if [ -f "$CONKY_FILE" ]; then echo "  Activado"; else echo "  Desactivado"; fi
+    if [ -f "$CONKY_FILE" ]; then echo "󰄧  ON"; else echo "󰄧  OFF"; fi
 }
 
 current_layout() {
@@ -27,27 +22,33 @@ current_layout() {
 }
 
 while true; do
-    choice=$(cat <<EOF | rofi -dmenu -p "  🎨  Apariencia" -theme-str "$BASE_THEME" -i
-🎨  Tema actual: ${CURRENT_THEME:-ninguno}  ▶
-📐  Diseño Polybar: $(current_layout)  ▸
-󰄧  Conky: $(conky_status)
-▦  Gaps interiores: ${GAPS_INNER}px  ▸
-▤  Gaps exteriores: ${GAPS_OUTER}px  ▸
-⬅️  Volver
+    choice=$(cat <<EOF | rofi -dmenu -p "  $L_APPEAR" -theme-str "$ROFI_THEME_MAIN" -i
+$L_CUR_THEME: ${CURRENT_THEME:-ninguno}  ▶
+$L_WALLPAPER  ▸
+$L_LOCKSCREEN  ▸
+$L_POLY_LAYOUT: $(current_layout)  ▸
+$L_CONKY_TOG: $(conky_status)
+$L_GAPS_IN: ${GAPS_INNER}px  ▸
+$L_GAPS_OUT: ${GAPS_OUTER}px  ▸
+$L_BACK
 EOF
     )
     case "$choice" in
-        *"Tema actual"*)
+        *"$L_CUR_THEME"*)
             exec ~/.config/themes/bin/rofi-theme-selector.sh ;;
-        *"Diseño Polybar"*)
-            exec "$DIR/polybar-layout.sh" ;;
-        *"Conky"*)
+        *"$L_WALLPAPER"*)
+            exec "$DIR/wallpaper.sh" ;;
+        *"$L_LOCKSCREEN"*)
+            exec "$DIR/lockscreen.sh" ;;
+        *"$L_POLY_LAYOUT"*)
+            ~/.config/themes/bin/rofi-layout-selector.sh ;;
+        *"$L_CONKY_TOG"*)
             ~/.config/themes/bin/toggle-conky.sh ;;
-        *"Gaps interiores"*)
-            exec "$DIR/gaps.sh" inner ;;
-        *"Gaps exteriores"*)
-            exec "$DIR/gaps.sh" outer ;;
-        *"Volver"*) exec ~/.config/themes/bin/rofi-settings.sh ;;
-        *) exit 0 ;;
+        *"$L_GAPS_IN"*)
+            exec "$DIR/gaps.sh" inner "$DIR/appearance.sh" ;;
+        *"$L_GAPS_OUT"*)
+            exec "$DIR/gaps.sh" outer "$DIR/appearance.sh" ;;
+        *"$L_BACK"*) exec ~/.config/themes/bin/rofi-settings.sh ;;
+        *) exec ~/.config/themes/bin/rofi-settings.sh ;;
     esac
 done

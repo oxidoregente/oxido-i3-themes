@@ -1,14 +1,11 @@
 #!/bin/bash
 # 📱  Aplicaciones predeterminadas
-DIR=~/.config/themes/scripts/settings
-BASE_THEME=$(cat "$DIR/.rasi-base" 2>/dev/null || echo '* { font: "FiraCode Nerd Font 10"; }
-window { width: 400; border-radius: 16px; background-color: #1e1e2e; }
-mainbox { children: [listview]; spacing: 4px; padding: 8px; }
-listview { spacing: 4px; dynamic: true; }
-element { border-radius: 10px; padding: 10px 14px; background-color: #313244; text-color: #cdd6f4; }
-element selected { background-color: #89b4fa; text-color: #1e1e2e; }
-element-icon { size: 1.2em; }
-element-text { horizontal-align: 0.5; }')
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DIR="$SCRIPT_DIR"
+[ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
+[ -f "$SCRIPT_DIR/../../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../../scripts/rofi-builder.sh"
+
+ROFI_APPS="$ROFI_THEME_SUB"
 
 CONF="$HOME/.config/themes/defaults.conf"
 PROFILES_DIR="$HOME/.config/themes/profiles"
@@ -56,23 +53,23 @@ pick_app() {
     # Add custom option
     choices="$choices\n✏️  Otra..."
 
-    selected=$(printf "%s" "$choices" | rofi -dmenu -p "  $desc" -theme-str "$BASE_THEME" -i -selected-row 0)
+    selected=$(printf "%s" "$choices" | rofi -dmenu -p "  $desc" -theme-str "$ROFI_APPS" -i -selected-row 0)
     if [ "$selected" = "✏️  Otra..." ]; then
-        selected=$(echo "" | rofi -dmenu -p "  Escribe el comando" -theme-str "$BASE_THEME")
+        selected=$(echo "" | rofi -dmenu -p "  Escribe el comando" -theme-str "$ROFI_APPS")
     fi
     echo "$selected"
 }
 
 while true; do
     load_config
-    choice=$(cat <<EOF | rofi -dmenu -p "  📱  Aplicaciones" -theme-str "$BASE_THEME" -i
+    choice=$(cat <<EOF | rofi -dmenu -p "  📱  Aplicaciones" -theme-str "$ROFI_APPS" -i
   Terminal        |  $TERMINAL
   Navegador       |  $BROWSER
   Archivos (GUI)  |  $FILE_MANAGER
   Archivos (CLI)  |  $TERMINAL_FILE_MANAGER
   Guardar perfil
   Cargar perfil
-⬅️  Volver
+$L_BACK
 EOF
     )
     action=$(echo "$choice" | sed 's/  |.*//')
@@ -90,7 +87,7 @@ EOF
             result=$(pick_app terminal_fm "    Archivos CLI" "$TERMINAL_FILE_MANAGER")
             [ -n "$result" ] && { TERMINAL_FILE_MANAGER="$result"; save_config; } ;;
         *"Guardar perfil"*)
-            name=$(echo "" | rofi -dmenu -p "  Nombre del perfil" -theme-str "$BASE_THEME")
+            name=$(echo "" | rofi -dmenu -p "  Nombre del perfil" -theme-str "$ROFI_APPS")
             if [ -n "$name" ]; then
                 cp "$CONF" "$PROFILES_DIR/$name.conf"
                 dunstify -u low "  Perfil guardado" "$name"
@@ -101,13 +98,13 @@ EOF
                 dunstify -u low "📭  Perfiles" "No hay perfiles guardados"
                 continue
             fi
-            selected=$(printf "%s" "$profile" | rofi -dmenu -p "    Cargar perfil" -theme-str "$BASE_THEME" -i)
+            selected=$(printf "%s" "$profile" | rofi -dmenu -p "    Cargar perfil" -theme-str "$ROFI_APPS" -i)
             if [ -n "$selected" ] && [ -f "$PROFILES_DIR/$selected.conf" ]; then
                 cp "$PROFILES_DIR/$selected.conf" "$CONF"
                 dunstify -u low "  Perfil cargado" "$selected"
             fi ;;
-        *"Volver"*)
+        *"$L_BACK"*)
             exec ~/.config/themes/bin/rofi-settings.sh ;;
-        *) exit 0 ;;
+        *) exec ~/.config/themes/bin/rofi-settings.sh ;;
     esac
 done

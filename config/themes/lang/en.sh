@@ -32,6 +32,7 @@ L_DPMS="💡  Turn off screen (DPMS)"
 L_DND="Do Not Disturb"
 L_CLEAR="󰆴  Clear notifications"
 L_HIST="󰋗  Notification history"
+L_NOT_DURATION="⏱  Notification duration"
 
 # --- Animations Menu ---
 L_GLOBAL="Global (all windows)"
@@ -48,6 +49,15 @@ L_POLY_LAYOUT="📐  Polybar layout"
 L_CONKY_TOG="󰄧  Conky"
 L_GAPS_IN="▦  Inner gaps"
 L_GAPS_OUT="▤  Outer gaps"
+L_WALLPAPER="🖼️  Wallpaper"
+L_LOCKSCREEN="🔒  Lock screen background"
+L_SET_AS_WALL="Set as wallpaper"
+L_SET_AS_LOCK="Set as lock screen"
+L_COPY_CUSTOM="📂  Copy custom image..."
+L_CURRENT="Current"
+L_SELECT_IMAGE="Select an image to use as"
+L_CANCEL_OP="Cancel"
+L_NO_IMAGES="No images in backgrounds/ folder"
 
 # --- Power Menu ---
 L_PS="🌙  PowerSaver"

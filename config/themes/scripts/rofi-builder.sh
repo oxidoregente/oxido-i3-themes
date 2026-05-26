@@ -31,7 +31,9 @@ get_color() {
     local key="$1" fallback="$2"
     local val=$(grep "^$key\s*=" "$TDIR/polybar/colors.ini" 2>/dev/null | cut -d= -f2 | tr -d ' "')
     [ -z "$val" ] && val=$(grep "^$key\s*=" "$TDIR/polybar/config.ini" 2>/dev/null | cut -d= -f2 | tr -d ' "')
-    echo "${val:-$fallback}"
+    # Strip alpha channel (8-digit hex → 6-digit) for GTK CSS compatibility
+    val=$(echo "${val:-$fallback}" | sed 's/^\(#[0-9a-fA-F]\{6\}\)[0-9a-fA-F]\{2\}$/\1/')
+    echo "$val"
 }
 
 BG=$(get_color "background" "#1e1e2e")

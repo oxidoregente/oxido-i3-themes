@@ -1550,6 +1550,141 @@ Cada tema en `~/.config/themes/themes/<nombre>/` tiene:
 
 ---
 
+---
+
+## 19. Personalizar Wallpaper y Fondo de Bloqueo
+
+Puedes cambiar tanto el wallpaper general como la imagen de la pantalla de bloqueo
+de dos formas: por terminal (rápido) o visual (recomendado).
+
+### 📸 Método visual (recomendado)
+
+1. Presiona **`$mod+Shift+s`** → Apariencia
+2. Selecciona **"🖼️  Wallpaper"** o **"🔒  Fondo de bloqueo"**
+3. Se abrirá un grid visual con todas las imágenes disponibles en el tema actual
+4. Los thumbnails se generan automáticamente con ImageMagick
+5. Haz clic en la imagen que quieras → se aplica al instante
+
+El selector de **lock screen** también permite usar cualquier imagen de la
+carpeta `backgrounds/` del tema como fondo de bloqueo. Al seleccionarla, se
+copia automáticamente como `unlock.png` y se aplica con `apply-lockscreen.sh`.
+
+### ⌨️ Método por terminal
+
+```bash
+# Cambiar wallpaper general:
+nitrogen --set-zoom-fill ~/.config/themes/themes/<tema>/backgrounds/mi-imagen.jpg --save
+
+# O usando feh:
+feh --bg-fill ~/.config/themes/themes/<tema>/backgrounds/mi-imagen.jpg
+
+# Cambiar fondo de bloqueo:
+cp ~/mi-imagen.png ~/.config/themes/themes/<tema>/unlock.png
+~/.config/themes/applyers/apply-lockscreen.sh ~/.config/themes/themes/<tema>
+
+# Las imágenes de bloqueo también pueden ir en:
+cp ~/mi-imagen.png ~/.config/themes/current/theme/unlock.png
+```
+
+### 📂 Ubicación de los archivos
+
+| Qué | Ruta |
+|---|---|
+| Wallpapers del tema actual | `~/.config/themes/current/theme/backgrounds/` |
+| Imagen de bloqueo del tema | `~/.config/themes/themes/<tema>/unlock.png` |
+| Wallpaper de todos los temas | `~/.config/themes/themes/*/backgrounds/` |
+| Previews para el selector | `~/.cache/wallpaper-thumbs/` |
+| Previews de lock screen | `~/.cache/lock-thumbs/` |
+
+> **Importante:** Las imágenes en `backgrounds/` deben ser `.jpg`, `.png`, `.jpeg`,
+> `.webp` o `.bmp`. El `unlock.png` se redimensiona automáticamente con `--fill`
+> en i3lock-color.
+
+---
+
+## 20. Modularidad de Polybar
+
+Polybar en oxido-i3-themes usa un sistema de **layouts** que definen qué módulos
+aparecen y en qué orden. Puedes personalizarlo sin miedo a romper nada.
+
+### 🎮 Gestor visual de módulos
+
+Presiona **`$mod+Shift+m`** para abrir el Gestor de Módulos Polybar. Desde ahí
+puedes:
+
+- **Reordenar** módulos dentro de una sección (Left/Center/Right)
+- **Mover** módulos entre secciones
+- **Ocultar/Mostrar** módulos individualmente
+- **Intercambiar** la posición de dos módulos
+- **Restaurar** la configuración por defecto del layout
+
+### 📝 Edición manual de layouts
+
+Los layouts son archivos INI en `~/.config/polybar/layouts/`:
+
+```bash
+ls ~/.config/polybar/layouts/
+# → bubble.ini  minimal.ini  blocks.ini  material.ini  ...
+```
+
+Cada layout define una o más barras con sus módulos. Ejemplo de layout Bubble:
+
+```ini
+[bar/left]
+modules-left = ws-start xworkspaces ws-end
+
+[module/xworkspaces]
+type = internal/xworkspaces
+label-active = %name%
+label-active-foreground = ${colors.background}
+```
+
+### ➕ Agregar un módulo nuevo
+
+1. Abrí el layout activo:
+   ```bash
+   nano ~/.config/polybar/layouts/$(cat ~/.config/themes/current-layout).ini
+   ```
+2. Agregá la definición del módulo al final del archivo:
+   ```ini
+   [module/network-speed]
+   type = internal/network
+   interface = wlan0
+   format-connected = <label-connected>
+   label-connected = "  %downspeed% / %upspeed%"
+   ```
+3. Agregalo a la barra deseada (ej: `modules-right`):
+   ```ini
+   modules-right = sys-start dnd network-speed cpu tray powermenu sys-end
+   ```
+4. Reiniciá polybar:
+   ```bash
+   ~/.config/polybar/launch.sh
+   ```
+
+### ❌ Quitar un módulo
+
+- Desde el Gestor Visual: seleccioná el módulo y elegí "Ocultar"
+- Manual: simplemente eliminá el nombre del módulo de la línea `modules-*`
+
+> **Seguridad:** Si un módulo no existe o tiene errores, polybar simplemente
+> lo ignora. No se cuelga ni se rompe. Es seguro experimentar con diferentes
+> configuraciones.
+
+### 🌐 Ejemplos de módulos útiles
+
+| Módulo | Propósito | Tipo polybar |
+|--------|-----------|-------------|
+| `internal/network` | Velocidad de red, SSID | `internal` |
+| `internal/cpu` | Uso de CPU | `internal` |
+| `internal/memory` | Uso de RAM | `internal` |
+| `internal/date` | Fecha y hora | `internal` |
+| `custom/script` | Scripts personalizados (batería, clima, etc.) | `custom` |
+| `internal/pulseaudio` | Control de volumen | `internal` |
+| `internal/temperature` | Temperatura del CPU | `internal` |
+| `internal/filesystem` | Espacio en disco | `internal` |
+| `internal/i3` | Workspaces de i3 (alternativa a xworkspaces) | `internal` |
+
 > **Nota final:** Este sistema está diseñado para ser modular. Cada componente
 > es independiente y puede modificarse sin afectar a los demás. Si algo falla,
-> siempre puedes recargar i3 con `$mod+Shift+c` o reiniciar la sesión.
+> siempre puedes recargar i3 con `$mod+Shift+r` (no `c`) o reiniciar la sesión.

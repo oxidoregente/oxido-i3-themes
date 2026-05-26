@@ -1,42 +1,59 @@
 #!/bin/bash
-# 🔔  Notification settings: DND, position, clear, history
-DIR=~/.config/themes/scripts/settings
-BASE_THEME=$(cat "$DIR/.rasi-base" 2>/dev/null || echo '* { font: "FiraCode Nerd Font 10"; }
-window { width: 400; border-radius: 16px; background-color: #1e1e2e; }
-mainbox { children: [listview]; spacing: 4px; padding: 8px; }
-listview { spacing: 4px; dynamic: true; }
-element { border-radius: 10px; padding: 10px 14px; background-color: #313244; text-color: #cdd6f4; }
-element selected { background-color: #89b4fa; text-color: #1e1e2e; }
-element-icon { size: 1.2em; }
-element-text { horizontal-align: 0.5; }')
+# 🔔  Notification settings: DND, clear, history, duration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DIR="$SCRIPT_DIR"
+[ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
+[ -f "$SCRIPT_DIR/../../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../../scripts/rofi-builder.sh"
 
 DND_FILE=~/.cache/dunst-dnd
+DUNSTRC=~/.config/dunst/dunstrc
 
 dnd_status() {
-    if [ -f "$DND_FILE" ]; then echo "  No Molestar:  ACTIVO  |  Click para desactivar"
-    else echo "  No Molestar:  INACTIVO  |  Click para activar"; fi
+    if [ -f "$DND_FILE" ]; then echo "🔇  $L_DND:  ON  |  Click to toggle"
+    else echo "🔊  $L_DND:  OFF  |  Click to toggle"; fi
+}
+
+current_duration() {
+    local t=$(grep "^ *timeout" "$DUNSTRC" 2>/dev/null | head -1 | awk '{print $3}')
+    echo "${t:-8}s"
 }
 
 while true; do
-    choice=$(cat <<EOF | rofi -dmenu -p "  🔔  Notificaciones" -theme-str "$BASE_THEME" -i
+    choice=$(cat <<EOF | rofi -dmenu -p "  $L_NOTIFY" -theme-str "$ROFI_THEME_MAIN" -i
 $(dnd_status)
-󰆴  Limpiar notificaciones
-󰋗  Historial de notificaciones
-⬅️  Volver
+$L_CLEAR
+$L_HIST
+$L_NOT_DURATION: $(current_duration) ▸
+$L_BACK
 EOF
     )
     case "$choice" in
-        *"No Molestar"*)
-            ~/.config/themes/scripts/toggle-dnd.sh
-            ;;
-        *"Limpiar"*)
+        *"$L_DND"*)
+            ~/.config/themes/scripts/toggle-dnd.sh ;;
+        *"$L_CLEAR"*)
             dunstctl close-all
-            dunstify -u low "󰆴  Notificaciones" "Todas las notis fueron cerradas"
-            ;;
-        *"Historial"*)
-            dunstctl history-pop
-            ;;
-        *"Volver"*) exec ~/.config/themes/bin/rofi-settings.sh ;;
-        *) exit 0 ;;
+            dunstify -u low "$L_CLEAR" "All done" ;;
+        *"$L_HIST"*)
+            dunstctl history-pop ;;
+        *"$L_NOT_DURATION"*)
+            dur=$(printf "3 segundos\n5 segundos\n8 segundos\n15 segundos\n30 segundos\n∞  (fijo)" | \
+                rofi -dmenu -p "  ⏱  $L_NOT_DURATION" -theme-str "$ROFI_THEME_SUB" -i)
+            [ -z "$dur" ] && continue
+            case "$dur" in
+                *3*) VAL=3 ;;
+                *5*) VAL=5 ;;
+                *8*) VAL=8 ;;
+                *15*) VAL=15 ;;
+                *30*) VAL=30 ;;
+                *∞*) VAL=0 ;;
+                *) continue ;;
+            esac
+            sed -i "s/^    timeout = .*/    timeout = $VAL/" "$DUNSTRC"
+            killall -q dunst 2>/dev/null; sleep 0.3
+            dunst 2>/dev/null & disown
+            dunstify -u low "⏱  $L_NOT_DURATION" "${VAL}s — aplicado" ;;
+        *"$L_BACK"*)
+            exec ~/.config/themes/bin/rofi-settings.sh ;;
+        *) exec ~/.config/themes/bin/rofi-settings.sh ;;
     esac
 done

@@ -12,6 +12,7 @@ rules: ({
     match = "class_g = 'Polybar' || class_g = 'polybar'";
     shadow = false;
     corner-radius = 0;
+    blur-background = false;
 }, {
     match = "name = 'Notification' || class_g ?= 'Notify-osd'";
     shadow = false;
@@ -25,53 +26,165 @@ rules: ({
         triggers = ["open"];
         preset = "appear";
         scale = 0.90;
-        duration = 0.20;
+        duration = 0.3;
     }, {
         triggers = ["close"];
         preset = "fly-out";
-        direction = "down";
-        duration = 0.18;
+        direction = "left";
+        duration = 0.25;
     });
 }, {
-    # Firefox: slide from bottom
-    match = "class_g = 'Firefox' || class_g = 'firefox'";
+    # Polybar: opaco, sin sombra, sin animaciones open/close
+    match = "class_g = 'Polybar' || class_g = 'polybar'";
+    opacity = 1.0;
+    # Sin animaciones open/close (aparece/desaparece sin transición)
     animations = ({
         triggers = ["open"];
-        preset = "fly-in";
-        direction = "up";
-        duration = 0.25;
+        duration = 0.001;
     }, {
         triggers = ["close"];
-        preset = "fly-out";
-        direction = "down";
-        duration = 0.22;
+        duration = 0.001;
     });
 }, {
     # Rofi: snappy (sin workspace — lo maneja global)
     match = "class_g = 'rofi'";
     animations = ({
-        triggers = ["open", "show"];
-        preset = "appear";
-        scale = 0.92;
-        duration = 0.15;
+        triggers = ["show"];
+        preset = "fly-in";
+        direction = "up";
+        duration = 0.2;
     }, {
-        triggers = ["close", "hide"];
-        preset = "disappear";
-        scale = 1.08;
-        duration = 0.12;
+        triggers = ["hide"];
+        preset = "fly-out";
+        direction = "down";
+        duration = 0.15;
     });
 }, {
     # Dunst: slide from right (sin workspace — lo maneja global)
     match = "class_g = 'Dunst'";
     animations = ({
-        triggers = ["open", "show"];
-        preset = "slide-in";
-        direction = "right";
-        duration = 0.25;
+        triggers = ["open"];
+        preset = "appear";
+        scale = 0.90;
+        duration = 0.3;
     }, {
-        triggers = ["close", "hide"];
-        preset = "slide-out";
-        direction = "right";
-        duration = 0.20;
+        triggers = ["close"];
+        preset = "fly-out";
+        direction = "left";
+        duration = 0.25;
     });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

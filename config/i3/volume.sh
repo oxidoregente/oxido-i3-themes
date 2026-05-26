@@ -1,7 +1,7 @@
 #!/bin/bash
 # 🔊  Manejo de volumen y notificaciones para i3
-REPO_DIR="/home/oxido/Documentos/oxido-i3-themes"
-source "$REPO_DIR/config/themes/scripts/lang-builder.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../themes/scripts/lang-builder.sh"
 
 case $1 in
     up) 

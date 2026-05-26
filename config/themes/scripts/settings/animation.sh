@@ -2,15 +2,12 @@
 # 🎬  Animation settings — menú jerárquico con sub-menús
 # Global, Por aplicación, Preestablecidos
 
-DIR=$(dirname "$0")
-BASE_THEME=$(cat "$DIR/.rasi-base" 2>/dev/null || echo '* { font: "FiraCode Nerd Font 10"; }
-window { width: 500; border-radius: 16px; background-color: #1e1e2e; }
-mainbox { children: [listview]; spacing: 4px; padding: 8px; }
-listview { spacing: 4px; dynamic: true; }
-element { border-radius: 10px; padding: 10px 14px; background-color: #313244; text-color: #cdd6f4; }
-element selected { background-color: #89b4fa; text-color: #1e1e2e; }
-element-icon { size: 1.2em; }
-element-text { horizontal-align: 0.5; }')
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DIR="$SCRIPT_DIR"
+[ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
+[ -f "$SCRIPT_DIR/../../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../../scripts/rofi-builder.sh"
+
+ROFI_ANIM="$ROFI_THEME_SUB"
 
 ANIM_PICKER="$DIR/../../bin/animation-picker.sh"
 
@@ -74,7 +71,7 @@ pick_preset() {
     esac
 
     local choice=$(echo -e "Aparecer (zoom)\nDesaparecer\nEntrar volando\nSalir volando\nEntrar deslizando\nSalir deslizando\nSin animación" | \
-        rofi -dmenu -p "Al $trigger_es" -theme-str "$BASE_THEME" -i)
+        rofi -dmenu -p "Al $trigger_es" -theme-str "$ROFI_ANIM" -i)
 
     case "$choice" in
         *Aparecer*)           echo "appear" ;;
@@ -89,7 +86,7 @@ pick_preset() {
 
 pick_direction() {
     local choice=$(echo -e "↑ Arriba\n↓ Abajo\n← Izquierda\n→ Derecha" | \
-        rofi -dmenu -p "Dirección" -theme-str "$BASE_THEME" -i)
+        rofi -dmenu -p "Dirección" -theme-str "$ROFI_ANIM" -i)
 
     case "$choice" in
         *Arriba*)     echo "up" ;;
@@ -101,7 +98,7 @@ pick_direction() {
 
 pick_duration() {
     local choice=$(echo -e "0.10s — Muy rápido\n0.15s — Rápido\n0.20s — Normal\n0.25s — Suave\n0.30s — Lento\n0.50s — Muy lento" | \
-        rofi -dmenu -p "Velocidad" -theme-str "$BASE_THEME" -i -selected-row 2)
+        rofi -dmenu -p "Velocidad" -theme-str "$ROFI_ANIM" -i -selected-row 2)
 
     echo "$choice" | cut -d's' -f1
 }
@@ -147,21 +144,21 @@ pick_animation() {
 global_menu() {
     while true; do
         local cur=$(read_anim_state)
-        local choice=$(cat << EOF | rofi -dmenu -p "  🎬  Global" -theme-str "$BASE_THEME" -i -selected-row 1
-Actual: $cur
-▸  Abrir ventana
-▸  Cerrar ventana
-▸  Show — al cambiar workspace
-▸  Hide — al salir workspace
-← Volver
+        local choice=$(cat << EOF | rofi -dmenu -p "  🎬  $L_GLOBAL" -theme-str "$ROFI_ANIM" -i -selected-row 1
+$L_CURRENT: $cur
+▸  $L_OPEN
+▸  $L_CLOSE
+▸  $L_SHOW
+▸  $L_HIDE
+$L_BACK
 EOF
         )
         case "$choice" in
-            *"Abrir"*)  pick_animation "open" ;;
-            *"Cerrar"*) pick_animation "close" ;;
-            *"Show"*)   pick_animation "show" ;;
-            *"Hide"*)   pick_animation "hide" ;;
-            *"Volver"*) return ;;
+            *"$L_OPEN"*)  pick_animation "open" ;;
+            *"$L_CLOSE"*) pick_animation "close" ;;
+            *"$L_SHOW"*)  pick_animation "show" ;;
+            *"$L_HIDE"*)  pick_animation "hide" ;;
+            *"$L_BACK"*)  return ;;
             *) return ;;
         esac
     done
@@ -170,12 +167,12 @@ EOF
 # ─── Sub-menú Por aplicación ───
 per_app_menu() {
     while true; do
-        local choice=$(cat << EOF | rofi -dmenu -p "  🎬  Por aplicación" -theme-str "$BASE_THEME" -i
+        local choice=$(cat << EOF | rofi -dmenu -p "  🎬  $L_PER_APP" -theme-str "$ROFI_ANIM" -i
 ▸  Alacritty — terminal
 ▸  Firefox — navegador
 ▸  Rofi — lanzador/menús
 ▸  Dunst — notificaciones
-← Volver
+$L_BACK
 EOF
         )
         case "$choice" in
@@ -183,7 +180,7 @@ EOF
             *Firefox*)   per_app_trigger "Firefox" ;;
             *Rofi*)      per_app_trigger "Rofi" ;;
             *Dunst*)     per_app_trigger "Dunst" ;;
-            *Volver*)    return ;;
+            *"$L_BACK"*) return ;;
             *) return ;;
         esac
     done
@@ -192,20 +189,20 @@ EOF
 per_app_trigger() {
     local app="$1"
     while true; do
-        local choice=$(cat << EOF | rofi -dmenu -p "  🎬  $app" -theme-str "$BASE_THEME" -i
-▸  Abrir
-▸  Cerrar
-▸  Show — al cambiar workspace
-▸  Hide — al salir workspace
-← Volver
+        local choice=$(cat << EOF | rofi -dmenu -p "  🎬  $app" -theme-str "$ROFI_ANIM" -i
+▸  $L_OPEN
+▸  $L_CLOSE
+▸  $L_SHOW
+▸  $L_HIDE
+$L_BACK
 EOF
         )
         case "$choice" in
-            *"Abrir"*)  pick_animation "open" "$app" ;;
-            *"Cerrar"*) pick_animation "close" "$app" ;;
-            *"Show"*)   pick_animation "show" "$app" ;;
-            *"Hide"*)   pick_animation "hide" "$app" ;;
-            *"Volver"*) return ;;
+            *"$L_OPEN"*)  pick_animation "open" "$app" ;;
+            *"$L_CLOSE"*) pick_animation "close" "$app" ;;
+            *"$L_SHOW"*)  pick_animation "show" "$app" ;;
+            *"$L_HIDE"*)  pick_animation "hide" "$app" ;;
+            *"$L_BACK"*)  return ;;
             *) return ;;
         esac
     done
@@ -214,13 +211,13 @@ EOF
 # ─── Sub-menú Preestablecidos ───
 presets_menu() {
     while true; do
-        local choice=$(cat << EOF | rofi -dmenu -p "  🎬  Preestablecidos" -theme-str "$BASE_THEME" -i -selected-row 0
+        local choice=$(cat << EOF | rofi -dmenu -p "  🎬  $L_PRESETS" -theme-str "$ROFI_ANIM" -i -selected-row 0
 ◉  Clásico — Aparecer / Desaparecer (estándar)
 ○  GNOME — Entrar volando ↑ / Salir volando ↓
 ○  macOS — Aparecer / Salir volando ←
 ○  Windows 11 — Entrar volando ↑ / Salir volando →
 ○  Snap — ultra rápido (0.10s)
-← Volver
+$L_BACK
 EOF
         )
         case "$choice" in
@@ -229,7 +226,7 @@ EOF
             *macOS*)    "$ANIM_PICKER" preset "macos" ;;
             *Windows*)  "$ANIM_PICKER" preset "win11" ;;
             *Snap*)     "$ANIM_PICKER" preset "snap" ;;
-            *Volver*)   return ;;
+            *"$L_BACK"*) return ;;
             *)          return ;;
         esac
     done
@@ -238,19 +235,19 @@ EOF
 # ─── Menú principal ───
 while true; do
     cur=$(read_anim_state)
-    choice=$(cat << EOF | rofi -dmenu -p "  🎬  Animaciones" -theme-str "$BASE_THEME" -i -selected-row 1
+    choice=$(cat << EOF | rofi -dmenu -p "  🎬  $L_ANIM" -theme-str "$ROFI_ANIM" -i -selected-row 1
 $cur
-▸  Global (todas las ventanas)
-▸  Por aplicación
-▸  Preestablecidos
-← Volver
+▸  $L_GLOBAL
+▸  $L_PER_APP
+▸  $L_PRESETS
+$L_BACK
 EOF
     )
     case "$choice" in
-        *Global*)        global_menu ;;
-        *aplicación*)    per_app_menu ;;
-        *Preestablecidos*) presets_menu ;;
-        *Volver*)        exec "$DIR/../../bin/rofi-settings.sh" ;;
-        *)               exit 0 ;;
+        *"$L_GLOBAL"*)   global_menu ;;
+        *"$L_PER_APP"*)  per_app_menu ;;
+        *"$L_PRESETS"*)  presets_menu ;;
+        *"$L_BACK"*)     exec ~/.config/themes/bin/rofi-settings.sh ;;
+        *)               exec ~/.config/themes/bin/rofi-settings.sh ;;
     esac
 done

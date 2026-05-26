@@ -1,8 +1,17 @@
 #!/usr/bin/env bash
 # verify-themes.sh - Checks all 23 themes for integrity and consistency
+# Works both from repo (./bin/verify-themes.sh) and from installed location
 set -e
 
-THEMES_DIR="$HOME/.config/themes/themes"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -d "$SCRIPT_DIR/../themes" ]; then
+    THEMES_DIR="$(cd "$SCRIPT_DIR/../themes" && pwd)"
+elif [ -d "$HOME/.config/themes/themes" ]; then
+    THEMES_DIR="$HOME/.config/themes/themes"
+else
+    echo "ERROR: Cannot find themes directory"
+    exit 1
+fi
 ERRORS=0
 WARNS=0
 
@@ -211,12 +220,68 @@ for theme in "${EXPECTED_THEMES[@]}"; do
       warn "$theme/i3: MISSING $var"
     fi
   done
+
+  # Check that i3 comment header matches theme name (no stale "Tokyo Night" placeholders)
+  header=$(head -1 "$ic" 2>/dev/null || echo "")
+  if [[ "$header" == "# Tokyo Night - i3 Colors" ]] && [[ "$theme" != "tokyo-night" ]]; then
+    fail "$theme/i3: WRONG comment header (still says 'Tokyo Night')"
+  fi
+done
+echo ""
+
+# Check i3 colors match polybar colors (cross-validation)
+echo -e "${cyan}--- i3 ↔ Polybar Color Sync ---${nc}"
+for theme in "${EXPECTED_THEMES[@]}"; do
+  ic="$THEMES_DIR/$theme/i3/colors.conf"
+  pc="$THEMES_DIR/$theme/polybar/colors.ini"
+  [[ ! -f "$ic" ]] && continue
+  [[ ! -f "$pc" ]] && continue
+
+  # Extract colors from both files
+  i3_bg=$(grep '\$bg' "$ic" | head -1 | sed 's/.*#//; s/ *$//')
+  poly_bg=$(grep '^background ' "$pc" | sed 's/.*#//; s/ *$//')
+  i3_fg=$(grep '\$fg' "$ic" | head -1 | sed 's/.*#//; s/ *$//')
+  poly_fg=$(grep '^foreground ' "$pc" | sed 's/.*#//; s/ *$//')
+  i3_primary=$(grep '\$primary' "$ic" | head -1 | sed 's/.*#//; s/ *$//')
+  poly_primary=$(grep '^primary ' "$pc" | sed 's/.*#//; s/ *$//')
+  i3_alert=$(grep '\$alert' "$ic" | head -1 | sed 's/.*#//; s/ *$//')
+  poly_alert=$(grep '^alert ' "$pc" | sed 's/.*#//; s/ *$//')
+
+  mismatches=""
+  [[ "$i3_bg" != "$poly_bg" ]] && mismatches+=" bg($i3_bg≠$poly_bg)"
+  [[ "$i3_fg" != "$poly_fg" ]] && mismatches+=" fg($i3_fg≠$poly_fg)"
+  [[ "$i3_primary" != "$poly_primary" ]] && mismatches+=" primary($i3_primary≠$poly_primary)"
+  [[ "$i3_alert" != "$poly_alert" ]] && mismatches+=" alert($i3_alert≠$poly_alert)"
+
+  if [[ -n "$mismatches" ]]; then
+    fail "$theme: i3/polybar color mismatch:$mismatches"
+  fi
+done
+echo ""
+
+# Check: no duplicate foreground/background-alt in i3 (like white theme had)
+echo -e "${cyan}--- i3 Foreground/Background Sanity ---${nc}"
+for theme in "${EXPECTED_THEMES[@]}"; do
+  ic="$THEMES_DIR/$theme/i3/colors.conf"
+  [[ ! -f "$ic" ]] && continue
+
+  i3_fg=$(grep '\$fg' "$ic" | head -1 | sed 's/.*#//; s/ *$//')
+  i3_bg_alt=$(grep '\$bg-alt' "$ic" | head -1 | sed 's/.*#//; s/ *$//')
+  i3_disabled=$(grep '\$disabled' "$ic" | head -1 | sed 's/.*#//; s/ *$//')
+
+  if [[ "$i3_fg" == "$i3_bg_alt" ]]; then
+    fail "$theme: \$fg (#$i3_fg) == \$bg-alt (#$i3_bg_alt) → invisible unfocused text"
+  fi
+  if [[ "$i3_fg" == "$i3_disabled" ]]; then
+    warn "$theme: \$fg (#$i3_fg) == \$disabled (#$i3_disabled) → low contrast"
+  fi
 done
 echo ""
 
 # Check applyers exist and are executable
 echo -e "${cyan}--- Applyers ---${nc}"
-APPLYERS_DIR="$HOME/.config/themes/applyers"
+APPLYERS_DIR="$SCRIPT_DIR/../applyers"
+[ ! -d "$APPLYERS_DIR" ] && APPLYERS_DIR="$HOME/.config/themes/applyers"
 for app in apply-polybar.sh apply-rofi.sh apply-dunst.sh apply-i3.sh \
            apply-alacritty.sh apply-conky.sh apply-wallpaper.sh \
            apply-btop.sh apply-cava.sh apply-gtk.sh; do
@@ -232,10 +297,14 @@ echo ""
 
 # Check theme-switch.sh
 echo -e "${cyan}--- Theme Switch Script ---${nc}"
-if [[ -x "$HOME/.config/themes/bin/theme-switch.sh" ]]; then
+TS="$SCRIPT_DIR/theme-switch.sh"
+[ ! -f "$TS" ] && TS="$HOME/.config/themes/bin/theme-switch.sh"
+if [[ -x "$TS" ]]; then
   ok "theme-switch.sh is executable"
+elif [[ -f "$TS" ]]; then
+  warn "theme-switch.sh exists but NOT executable"
 else
-  fail "theme-switch.sh NOT executable"
+  fail "theme-switch.sh NOT found"
 fi
 echo ""
 

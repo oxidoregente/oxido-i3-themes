@@ -46,7 +46,7 @@ export THEMES_DIR CACHE_DIR CURRENT_THEME SEL BG BGA FG
 export L_SELECT L_CANCEL L_RANDOM L_ACT_THEME L_CUR_THEME
 
 python3 << 'PYEOF'
-import os, sys, json
+import os, sys, json, subprocess
 try:
     import gi
     gi.require_version('Gtk', '3.0')
@@ -116,6 +116,7 @@ class ThemeSelector(Gtk.Window):
         self.treeview = Gtk.TreeView(model=self.liststore, headers_visible=False)
         self.treeview.append_column(Gtk.TreeViewColumn("", Gtk.CellRendererText(font="JetBrainsMono NF 11"), text=0))
         self.treeview.connect("cursor-changed", lambda w: self.update_preview())
+        self.treeview.connect("row-activated", lambda w, path, col: self.on_apply(None))
         
         sw = Gtk.ScrolledWindow()
         sw.add(self.treeview)
@@ -190,7 +191,9 @@ class ThemeSelector(Gtk.Window):
             if theme == "__random__":
                 import random
                 theme = random.choice([t for t in theme_dirs])
-            os.system(f"~/.config/themes/bin/theme-switch.sh '{theme}' &")
+            subprocess.Popen(["nohup", os.path.expanduser("~/.config/themes/bin/theme-switch.sh"), theme],
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                             start_new_session=True)
             self.destroy()
 
     def on_random(self, btn):

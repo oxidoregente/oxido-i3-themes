@@ -1,27 +1,22 @@
 #!/bin/bash
 # 🔧  System settings: service status, restart, system info
-DIR=~/.config/themes/scripts/settings
-BASE_THEME=$(cat "$DIR/.rasi-base" 2>/dev/null || echo '* { font: "FiraCode Nerd Font 10"; }
-window { width: 420; border-radius: 16px; background-color: #1e1e2e; }
-mainbox { children: [listview]; spacing: 4px; padding: 8px; }
-listview { spacing: 4px; dynamic: true; }
-element { border-radius: 10px; padding: 10px 14px; background-color: #313244; text-color: #cdd6f4; }
-element selected { background-color: #89b4fa; text-color: #1e1e2e; }
-element-icon { size: 1.2em; }
-element-text { horizontal-align: 0.5; }')
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DIR="$SCRIPT_DIR"
+[ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
+[ -f "$SCRIPT_DIR/../../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../../scripts/rofi-builder.sh"
 
 status_icon() { pgrep -x "$1" >/dev/null 2>&1 && echo "" || echo ""; }
 
 while true; do
-    choice=$(cat <<EOF | rofi -dmenu -p "  🔧  Sistema" -theme-str "$BASE_THEME" -i
-$(status_icon picom)  Picom — compositor  [reiniciar]
-$(status_icon polybar)  Polybar — barra  [reiniciar]
-$(status_icon dunst)  Dunst — notificaciones  [reiniciar]
-$(status_icon conky)  Conky — widget escritorio  [reiniciar]
+    choice=$(cat <<EOF | rofi -dmenu -p "  $L_SYSTEM" -theme-str "$ROFI_THEME_MAIN" -i
+$(status_icon picom)  Picom — compositor  [$L_SERVICE]
+$(status_icon polybar)  Polybar — barra  [$L_SERVICE]
+$(status_icon dunst)  Dunst — notificaciones  [$L_SERVICE]
+$(status_icon conky)  Conky — widget escritorio  [$L_SERVICE]
 $(status_icon xss-lock)  xss-lock — bloqueo por suspensión
 $(status_icon xautolock)  xautolock — bloqueo por inactividad
-󰍹  Información del sistema ▸
-⬅️  Volver
+$L_SYSINFO ▸
+$L_BACK
 EOF
     )
     case "$choice" in
@@ -47,9 +42,9 @@ EOF
                 disown
             }
             dunstify -u low "🔧  Conky" "Reiniciado" ;;
-        *"Información"*)
+        *"$L_SYSINFO"*)
             exec "$DIR/sysinfo.sh" ;;
-        *"Volver"*) exec ~/.config/themes/bin/rofi-settings.sh ;;
-        *) exit 0 ;;
+        *"$L_BACK"*) exec ~/.config/themes/bin/rofi-settings.sh ;;
+        *) exec ~/.config/themes/bin/rofi-settings.sh ;;
     esac
 done
