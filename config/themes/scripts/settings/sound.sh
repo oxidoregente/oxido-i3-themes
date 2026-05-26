@@ -1,9 +1,9 @@
 #!/bin/bash
 # 🔊  Sound settings
-REPO_DIR="/home/oxido/Documentos/oxido-i3-themes"
-source "$REPO_DIR/config/themes/scripts/rofi-builder.sh"
-
-DIR="$REPO_DIR/config/themes/scripts/settings"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DIR="$SCRIPT_DIR"
+[ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
+[ -f "$SCRIPT_DIR/../../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../../scripts/rofi-builder.sh"
 
 vol() { pactl get-sink-volume @DEFAULT_SINK@ | sed 's/.* \([0-9]*\)%.*/\1/' | head -1; }
 mute() { pactl get-sink-mute @DEFAULT_SINK@ | grep -q yes && echo "🔇" || echo "🔊"; }
@@ -43,9 +43,9 @@ EOF
         *"$L_MIC_MUTE"*)
             pactl set-source-mute @DEFAULT_SOURCE@ toggle ;;
         *"$L_SINK"*)
-            exec "$DIR/sound-sink.sh" ;;
+            exec "$DIR/sound-sink.sh" "$DIR/sound.sh" ;;
         *"$L_BACK"*)
-            exec "$REPO_DIR/config/themes/bin/rofi-settings.sh" ;;
-        *) exit 0 ;;
+            exec ~/.config/themes/bin/rofi-settings.sh ;;
+        *) exec ~/.config/themes/bin/rofi-settings.sh ;;
     esac
 done

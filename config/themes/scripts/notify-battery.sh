@@ -1,7 +1,7 @@
 #!/bin/bash
 # 🔋  Notificación de batería i18n
-REPO_DIR="/home/oxido/Documentos/oxido-i3-themes"
-source "$REPO_DIR/config/themes/scripts/lang-builder.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lang-builder.sh"
 
 CAP=$(cat /sys/class/power_supply/BAT0/capacity 2>/dev/null || echo "0")
 STATUS=$(cat /sys/class/power_supply/BAT0/status 2>/dev/null || echo "Unknown")

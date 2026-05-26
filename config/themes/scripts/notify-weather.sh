@@ -1,7 +1,7 @@
 #!/bin/bash
 # 󰖐  Muestra el clima vía wttr.in i18n
-REPO_DIR="/home/oxido/Documentos/oxido-i3-themes"
-source "$REPO_DIR/config/themes/scripts/lang-builder.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lang-builder.sh"
 
 # wttr.in soporta parámetros de idioma
 W_LANG=$([ "$LANG" = "es" ] && echo "es" || echo "en")

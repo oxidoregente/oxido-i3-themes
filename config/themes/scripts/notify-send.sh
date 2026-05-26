@@ -10,8 +10,8 @@ URGENCY="${4:-normal}"
 STACK_TAG="${5:-}"
 
 # Cargar traducciones si están disponibles
-REPO_DIR="/home/oxido/Documentos/oxido-i3-themes"
-[ -f "$REPO_DIR/config/themes/scripts/lang-builder.sh" ] && source "$REPO_DIR/config/themes/scripts/lang-builder.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[ -f "$SCRIPT_DIR/lang-builder.sh" ] && source "$SCRIPT_DIR/lang-builder.sh"
 
 # Construir comando dunstify
 CMD="dunstify -a 'oxido_system' -u '$URGENCY'"

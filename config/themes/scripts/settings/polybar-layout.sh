@@ -15,7 +15,7 @@ CURRENT_FILE="$HOME/.config/themes/current-layout"
 mkdir -p "$LAYOUTS_DIR"
 
 # Sync layouts from repo if missing
-REPO_LAYOUTS="/home/oxido/Documentos/oxido-i3-themes/config/polybar/layouts"
+REPO_LAYOUTS="$HOME/Documentos/oxido-i3-themes/config/polybar/layouts"
 if [ -d "$REPO_LAYOUTS" ]; then
     cp -n "$REPO_LAYOUTS"/*.ini "$LAYOUTS_DIR/" 2>/dev/null
 fi

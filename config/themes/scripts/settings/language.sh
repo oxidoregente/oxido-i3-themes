@@ -1,7 +1,7 @@
 #!/bin/bash
 # 🌍  Language selector for oxido-i3-themes
-DIR=$(dirname "$0")
-REPO_DIR="/home/oxido/Documentos/oxido-i3-themes"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$SCRIPT_DIR/../../../.."
 THEMES_DIR="$HOME/.config/themes"
 
 # Cargar builder de Rofi (colores, escalas e idioma actual)

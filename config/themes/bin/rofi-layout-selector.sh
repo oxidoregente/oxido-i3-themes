@@ -3,7 +3,7 @@
 # oxido-i3-themes — $mod+Shift+l
 
 LAYOUTS_DIR="$HOME/.config/polybar/layouts"
-REPO_LAYOUTS="/home/oxido/Documentos/oxido-i3-themes/config/polybar/layouts"
+REPO_LAYOUTS="$HOME/Documentos/oxido-i3-themes/config/polybar/layouts"
 CURRENT_LAYOUT_FILE="$HOME/.config/themes/current-layout"
 CURRENT=$(cat "$CURRENT_LAYOUT_FILE" 2>/dev/null || echo "bubble")
 
@@ -12,16 +12,11 @@ if [ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ]; then
     source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
 fi
 
-: "${BG:=#1e1e2e}" "${FG:=#cdd6f4}" "${SEL:=#89b4fa}" "${BGA:=#313244}"
-
-THEME="window { width: 380px; border-radius: 20px; border-color: $SEL; background-color: $BG; }
-mainbox { children: [ inputbar, listview ]; padding: 16px; }
-inputbar { margin: 0 0 10px 0; padding: 8px 12px; background-color: $BGA; border-radius: 10px; children: [ prompt, entry ]; }
-prompt { text-color: $SEL; font: \"JetBrainsMono Nerd Font Mono Bold 13\"; }
-listview { columns: 1; lines: 10; spacing: 4px; dynamic: true; }
-element { padding: 10px 14px; border-radius: 10px; text-color: $FG; }
-element selected { background-color: $SEL; text-color: $BG; }
-element-text { vertical-align: 0.5; font: \"JetBrainsMono Nerd Font Mono 11\"; }"
+[ -z "$ROFI_THEME_SUB" ] && ROFI_THEME_SUB='window { width: 380px; border-radius: 16px; background-color: #1e1e2e; }
+mainbox { children: [ listview ]; spacing: 4px; padding: 8px; }
+listview { spacing: 4px; dynamic: true; }
+element { border-radius: 10px; padding: 10px 14px; background-color: #313244; text-color: #cdd6f4; }
+element selected { background-color: #89b4fa; text-color: #1e1e2e; }'
 
 items=""
 for f in "$LAYOUTS_DIR"/*.ini; do
@@ -40,7 +35,7 @@ fi
 
 [ -z "$items" ] && { rofi -e "No se encontraron layouts en $LAYOUTS_DIR"; exit 1; }
 
-chosen=$(echo -e "$items" | rofi -dmenu -p "Layout" -i -theme-str "$THEME" 2>/dev/null)
+chosen=$(echo -e "$items" | rofi -dmenu -p "Layout" -i -theme-str "$ROFI_THEME_SUB" 2>/dev/null)
 [ -z "$chosen" ] && exit 0
 
 # Extraer nombre (sacar ▶ y (actual))

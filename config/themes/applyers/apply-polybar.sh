@@ -6,16 +6,20 @@ LAYOUT_FILE="$HOME/.config/themes/current-layout"
 POSITION_FILE="$HOME/.config/themes/polybar-position"
 CONFIG_DST="$HOME/.config/polybar/config.ini"
 
+# Detect repo root from script location (applyers/ → themes/ → config/ → repo root)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+
 # Sync layouts from repo if runtime directory missing layouts
 LAYOUTS_DIR="$HOME/.config/polybar/layouts"
-REPO_LAYOUTS="/home/oxido/Documentos/oxido-i3-themes/config/polybar/layouts"
+REPO_LAYOUTS="$REPO_ROOT/config/polybar/layouts"
 if [ -d "$REPO_LAYOUTS" ]; then
     mkdir -p "$LAYOUTS_DIR"
     cp --update "$REPO_LAYOUTS"/*.ini "$LAYOUTS_DIR/"
 fi
 
 # Sync polybar scripts from repo
-REPO_SCRIPTS="/home/oxido/Documentos/oxido-i3-themes/config/polybar/scripts"
+REPO_SCRIPTS="$REPO_ROOT/config/polybar/scripts"
 SCRIPTS_DST="$HOME/.config/polybar/scripts"
 if [ -d "$REPO_SCRIPTS" ]; then
     mkdir -p "$SCRIPTS_DST"
@@ -37,10 +41,10 @@ if [ -f "$LAYOUT_FILE" ] && [ -f "$LAYOUTS_DIR/$(cat "$LAYOUT_FILE").ini" ]; the
     else
         cp "$LAYOUTS_DIR/$LAYOUT_NAME.ini" "$CONFIG_DST"
     fi
-    # Add 80% transparencia (alpha=33) al background en la sección [colors]
-    # para que se adapte al color de cada tema con transparencia uniforme.
-    # Elimina cualquier alpha existente (temas como last-horizon ya traen AA)
-    # y fuerza 33 (20% opacidad = 80% transparente).
+    # Añade alpha=99 (~60% opaco) al background en la sección [colors]
+    # para que el fondo de la barra sea semi-opaco pero las burbujas
+    # (que usan bubble-ws/center/sys, no ${colors.background}) conserven
+    # su color sólido. Elimina cualquier alpha existente y fuerza 99.
     # SED LIMITADO a [colors] — NO inlinea en las barras.
     bg_line=$(sed -n '/^\[colors\]/,/^\[/{/^background *=/p}' "$CONFIG_DST" | head -1)
     if [ -n "$bg_line" ]; then
@@ -48,7 +52,7 @@ if [ -f "$LAYOUT_FILE" ] && [ -f "$LAYOUTS_DIR/$(cat "$LAYOUT_FILE").ini" ]; the
         # Strip any existing alpha (8 hex chars) to get base 6-char color
         base_color=$(echo "$bg_val" | sed -n 's/^\(#[0-9a-fA-F]\{6\}\).*/\1/p')
         if [ -n "$base_color" ]; then
-            sed -i "/^\[colors\]/,/^\[/{s/^background *=.*/background = ${base_color}33/}" "$CONFIG_DST"
+            sed -i "/^\[colors\]/,/^\[/{s/^background *=.*/background = ${base_color}99/}" "$CONFIG_DST"
         fi
     fi
 
@@ -69,8 +73,52 @@ if [ -f "$LAYOUT_FILE" ] && [ -f "$LAYOUTS_DIR/$(cat "$LAYOUT_FILE").ini" ]; the
     done
 elif [ -f "$THEME_DIR/polybar/config.ini" ]; then
     cp "$THEME_DIR/polybar/config.ini" "$CONFIG_DST"
-else
+elif [ -f "$THEME_DIR/polybar/colors.ini" ]; then
     cp "$THEME_DIR/polybar/colors.ini" "$CONFIG_DST"
+fi
+
+# Ensure config has at least one bar section, otherwise create a minimal default
+if ! grep -q "^\[bar/" "$CONFIG_DST" 2>/dev/null; then
+    cat >> "$CONFIG_DST" << 'DEFAULTBAR'
+
+[bar/top]
+width = 100%
+height = 34
+dpi = 96
+background = ${colors.background}
+foreground = ${colors.foreground}
+font-0 = "JetBrainsMono Nerd Font Mono:size=11;3"
+modules-left = xworkspaces
+modules-center = date
+modules-right = pulseaudio battery tray
+
+[module/xworkspaces]
+type = internal/xworkspaces
+pin-workspaces = true
+label-active = %name%
+label-occupied = %name%
+label-empty = %name%
+
+[module/date]
+type = internal/date
+interval = 1
+date = %H:%M
+date-alt = %A, %d %B %Y
+
+[module/pulseaudio]
+type = internal/pulseaudio
+
+[module/battery]
+type = internal/battery
+battery = BAT0
+adapter = AC0
+full-at = 98
+format-charging = <animation-charging> %percentage%
+format-discharging = <animation-discharging> %percentage%
+
+[module/tray]
+type = internal/tray
+DEFAULTBAR
 fi
 
 ~/.config/polybar/launch.sh
