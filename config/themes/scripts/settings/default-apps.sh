@@ -54,16 +54,38 @@ pick_app() {
     esac
 
     choices=""
+    _has_app() { echo "$choices" | grep -qw "$1"; }
+
     # Current app first if installed
     if [ -n "$current" ] && command -v "$current" &>/dev/null; then
-        choices+="$current (actual)\n"
+        choices+="$current\n"
     fi
-    # Detect installed apps (skip current to avoid duplicate)
+    # Detect installed apps via PATH (multi-distro)
     for app in "${known_apps[@]}"; do
-        [ "$app" = "$current" ] && continue
+        _has_app "$app" && continue
         command -v "$app" &>/dev/null && choices+="$app\n"
     done
-    [ -n "$choices" ] && choices+="───\n"
+    # Fallback: check flatpak
+    if type flatpak &>/dev/null; then
+        for app in "${known_apps[@]}"; do
+            _has_app "$app" && continue
+            flatpak list --app 2>/dev/null | grep -qi "$app" && choices+="$app\n"
+        done
+    fi
+    # Fallback: check snap
+    if type snap &>/dev/null; then
+        for app in "${known_apps[@]}"; do
+            _has_app "$app" && continue
+            snap list 2>/dev/null | grep -qi "$app" && choices+="$app\n"
+        done
+    fi
+    # If nothing detected, prompt directly for custom command
+    if [ -z "$choices" ]; then
+        selected=$(echo "" | rofi -dmenu -p "  $desc (escribe el comando)" -theme-str "$ROFI_APPS")
+        [ -z "$selected" ] && return 1
+        echo "$selected"
+        return
+    fi
     choices+="✏️  Otra..."
 
     selected=$(printf "%s" "$choices" | rofi -dmenu -p "  $desc" -theme-str "$ROFI_APPS" -i -selected-row 0)
@@ -71,7 +93,7 @@ pick_app() {
     if [ "$selected" = "✏️  Otra..." ]; then
         selected=$(echo "" | rofi -dmenu -p "  Escribe el comando" -theme-str "$ROFI_APPS")
     fi
-    echo "$selected" | sed 's/ (actual)//'
+    echo "$selected"
 }
 
 while true; do

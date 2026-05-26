@@ -38,7 +38,7 @@ fi
 
 [ -z "$items" ] && { rofi -e "No se encontraron layouts en $LAYOUTS_DIR"; exit 1; }
 
-items+="$L_BACK\n"
+items+="$L_BACK"
 
 chosen=$(echo -e "$items" | rofi -dmenu -p "Layout" -i -theme-str "$ROFI_THEME_MAIN" 2>/dev/null)
 [ -z "$chosen" ] && exit 0
