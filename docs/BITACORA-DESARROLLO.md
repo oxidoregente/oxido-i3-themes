@@ -564,3 +564,114 @@ btn.connect("clicked", lambda w: self.destroy())
 
 ### Archivos afectados
 - `config/themes/bin/rofi-theme-selector.sh`
+
+---
+
+## 18. i3/colors.conf: 9 temas con paleta incorrecta (Tokyo Night placeholder)
+
+### Problema
+Nueve temas tenían el archivo `i3/colors.conf` con los colores de **Tokyo Night**
+en lugar de su propia paleta cromática. Esto ocurría porque al crear los temas
+se copió la plantilla de Tokyo Night como base y nunca se actualizaron los
+valores hexadecimales. El resultado era una **inconsistencia visual**: los
+bordes de ventanas de i3 mostraban Tokyo Night mientras polybar, dunst y
+alacritty sí tenían los colores correctos del tema.
+
+### Temas afectados (colores incorrectos)
+| Tema | Color i3 (erróneo) | Color polybar (correcto) |
+|------|-------------------|-------------------------|
+| catppuccin-latte | `#1a1b26` `#c0caf5` (Tokyo) | `#1e1e2e` `#cdd6f4` (Latte) |
+| everforest | `#1a1b26` (Tokyo) | `#2d353b` `#d3c6aa` (Everforest) |
+| flexoki-light | `#1a1b26` (Tokyo) | `#1c1c1c` `#dad8ce` (Flexoki) |
+| rose-pine | `#1a1b26` (Tokyo) | `#232136` `#e0def4` (Rosé Pine) |
+| osaka-jade | `#1a1b26` (Tokyo) | `#111c18` `#C1C497` (Osaka Jade) |
+| kanagawa | `#1a1b26` (Tokyo) | `#1f1f28` `#dcd7ba` (Kanagawa) |
+| matte-black | `#1a1b26` (Tokyo) | `#121212` `#bebebe` (Matte Black) |
+| ristretto | `#1a1b26` (Tokyo) | `#2c2525` `#e6d9db` (Ristretto) |
+| white | `#c0c0c0` (gris repetido) | `#1a1a24` `#cdd6e8` (White) |
+
+### Temas con comentario incorrecto (colores correctos)
+8 temas adicionales tenían los colores correctos pero el comentario `# Tokyo Night`
+no se había actualizado al nombre real del tema: solitude, vantablack, retro-82,
+hackerman, ethereal, last-horizon, lumon, miasma.
+
+### Solución
+Se regeneró `i3/colors.conf` para los 9 temas con colores incorrectos
+extrayendo los valores desde `polybar/colors.ini` (que sí tenía la paleta
+correcta) y mapeándolos a las variables de i3 (`$bg`, `$fg`, `$primary`, etc.).
+Para los 8 temas con solo comentario erróneo, se corrigió únicamente la
+primera línea.
+
+La regla de mapeo es: cada valor de i3 debe coincidir con su equivalente en
+polybar (bg↔background, fg↔foreground, primary↔primary, alert↔alert, etc.)
+para garantizar coherencia visual entre bordes de ventana y barra.
+
+### Verificación
+Se añadieron tres nuevas comprobaciones a `verify-themes.sh`:
+1. Verificación de cabecera: detecta comentarios "Tokyo Night" en temas que no lo son
+2. Validación cruzada i3↔polybar: compara bg, fg, primary, alert entre ambos archivos
+3. Sanidad de contraste: alerta si `$fg` == `$bg-alt` (texto invisible)
+
+### Archivos afectados
+- 17 archivos `config/themes/themes/*/i3/colors.conf`
+- `config/themes/bin/verify-themes.sh`
+
+---
+
+## 19. apply-polybar.sh: rutas absolutas hardcodeadas
+
+### Problema
+El script `apply-polybar.sh` contenía rutas absolutas al directorio del repo:
+```bash
+REPO_LAYOUTS="/home/oxido/Documentos/oxido-i3-themes/config/polybar/layouts"
+```
+Si el repositorio se movía de ubicación, el script dejaba de sincronizar
+layouts y scripts de polybar.
+
+### Solución
+Se reemplazaron las rutas absolutas por detección dinámica desde la ubicación
+del script:
+```bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+```
+Esto permite que el script funcione sin importar dónde esté clonado el repo.
+
+### Fallback seguro para polybar sin barras
+Además, se detectó que cuando no existía ni layout guardado ni `config.ini`
+en el tema, se copiaba `colors.ini` (solo sección `[colors]`) como único
+contenido — dejando a polybar sin definiciones de barras y provocando que
+no arrancara.
+
+Se añadió un bloque que inyecta una barra `[bar/top]` mínima funcional con
+módulos esenciales si el archivo resultante no contiene ninguna sección `[bar/`.
+
+### Archivos afectados
+- `config/themes/applyers/apply-polybar.sh`
+
+---
+
+## 20. Transparencia del fondo de polybar (alpha 33 → 99)
+
+### Problema
+El script `apply-polybar.sh` forzaba `alpha=33` (20% opacidad = 80% transparente)
+en el color `background` de la sección `[colors]` de polybar. Esto hacía que el
+fondo de la barra (los espacios entre burbujas y las cuñas `ws-start/end`)
+fuera casi invisible contra el escritorio.
+
+Las burbujas en sí no se veían afectadas porque usan colores propios
+(`bubble-ws`, `bubble-center`, `bubble-sys`) sin canal alpha.
+
+### Solución
+Se cambió el alpha de `33` a `99` (~60% opacidad = 40% transparente). Esto
+permite que el fondo de la barra sea visible y mantenga coherencia cromática
+con el tema, mientras las burbujas conservan su color sólido original.
+
+El cambio está en la línea que inyecta el alpha en `apply-polybar.sh`:
+```bash
+sed -i "s/^background *=.*/background = ${base_color}99/"
+```
+
+### Archivos afectados
+- `config/themes/applyers/apply-polybar.sh`
+- `~/.config/polybar/config.ini` (configuración activa del sistema)
