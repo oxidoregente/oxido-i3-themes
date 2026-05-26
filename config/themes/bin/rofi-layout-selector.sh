@@ -12,8 +12,11 @@ if [ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ]; then
     source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
 fi
 
-[ -z "$ROFI_THEME_SUB" ] && ROFI_THEME_SUB='window { width: 380px; border-radius: 16px; background-color: #1e1e2e; }
-mainbox { children: [ listview ]; spacing: 4px; padding: 8px; }
+[ -z "$ROFI_THEME_MAIN" ] && ROFI_THEME_MAIN='window { width: 420px; border-radius: 16px; background-color: #1e1e2e; }
+mainbox { children: [ inputbar, listview ]; padding: 16px; }
+inputbar { margin: 0px 0px 12px 0px; padding: 10px; background-color: #313244; border-radius: 12px; children: [ prompt, entry ]; }
+prompt { text-color: #89b4fa; font: "JetBrainsMono Nerd Font Mono Bold 12"; }
+entry { text-color: #cdd6f4; font: "JetBrainsMono Nerd Font Mono 12"; }
 listview { spacing: 4px; dynamic: true; }
 element { border-radius: 10px; padding: 10px 14px; background-color: #313244; text-color: #cdd6f4; }
 element selected { background-color: #89b4fa; text-color: #1e1e2e; }'
@@ -35,7 +38,7 @@ fi
 
 [ -z "$items" ] && { rofi -e "No se encontraron layouts en $LAYOUTS_DIR"; exit 1; }
 
-chosen=$(echo -e "$items" | rofi -dmenu -p "Layout" -i -theme-str "$ROFI_THEME_SUB" 2>/dev/null)
+chosen=$(echo -e "$items" | rofi -dmenu -p "Layout" -i -theme-str "$ROFI_THEME_MAIN" 2>/dev/null)
 [ -z "$chosen" ] && exit 0
 
 # Extraer nombre (sacar ▶ y (actual))

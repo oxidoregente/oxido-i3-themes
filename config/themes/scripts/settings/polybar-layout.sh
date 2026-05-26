@@ -1,14 +1,19 @@
 #!/bin/bash
 # 📐  Polybar Layout Selector — cambia el diseño independientemente del tema
 DIR=~/.config/themes/scripts/settings
-BASE_THEME=$(cat "$DIR/.rasi-base" 2>/dev/null || echo '* { font: "FiraCode Nerd Font 10"; }
-window { width: 420; border-radius: 16px; background-color: #1e1e2e; }
-mainbox { children: [listview]; spacing: 4px; padding: 8px; }
+
+# Tema dinámico con barra de búsqueda (como mod+d)
+SCRIPT_DIR="$(cd "$(dirname "$DIR")" && pwd)"
+[ -f "$SCRIPT_DIR/rofi-builder.sh" ] && source "$SCRIPT_DIR/rofi-builder.sh"
+[ -z "$ROFI_THEME_MAIN" ] && ROFI_THEME_MAIN='window { width: 420px; border-radius: 16px; background-color: #1e1e2e; }
+mainbox { children: [ inputbar, listview ]; padding: 16px; }
+inputbar { margin: 0px 0px 12px 0px; padding: 10px; background-color: #313244; border-radius: 12px; children: [ prompt, entry ]; }
+prompt { text-color: #89b4fa; font: "JetBrainsMono Nerd Font Mono Bold 12"; }
+entry { text-color: #cdd6f4; font: "JetBrainsMono Nerd Font Mono 12"; }
 listview { spacing: 4px; dynamic: true; }
 element { border-radius: 10px; padding: 10px 14px; background-color: #313244; text-color: #cdd6f4; }
 element selected { background-color: #89b4fa; text-color: #1e1e2e; }
-element-icon { size: 1.2em; }
-element-text { horizontal-align: 0.5; }')
+element-text { horizontal-align: 0.5; }'
 
 LAYOUTS_DIR="$HOME/.config/polybar/layouts"
 CURRENT_FILE="$HOME/.config/themes/current-layout"
@@ -40,7 +45,7 @@ apply_layout() {
 }
 
 while true; do
-    choice=$(cat <<EOF | rofi -dmenu -p "  📐  Diseño Polybar" -theme-str "$BASE_THEME" -i
+    choice=$(cat <<EOF | rofi -dmenu -p "  📐  Diseño Polybar" -theme-str "$ROFI_THEME_MAIN" -i
 ◉  bubble$([ "$CURRENT" = "bubble" ] && echo "  ✓")
 ○  minimal$([ "$CURRENT" = "minimal" ] && echo "  ✓")
 ○  blocks$([ "$CURRENT" = "blocks" ] && echo "  ✓")

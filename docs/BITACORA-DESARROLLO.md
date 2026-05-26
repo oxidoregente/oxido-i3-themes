@@ -1,5 +1,220 @@
 # 📓 Bitácora de Desarrollo
 
+---
+
+## 21. Contraste de workspaces Polybar: active sin pill, empty-ws contra bubble-ws
+
+### Problema
+Los workspaces activos en Polybar usaban `label-active-background = ${colors.primary}`
+con `label-active-foreground = ${colors.background}`, creando un "pill" de color
+primary. En temas con primary pálido (como el rosa palo `#b59790` de last-horizon),
+el texto background (`#0c0b0c`) sobre primary tenía solo 4.2:1 de contraste —
+visible pero muy pobre.
+
+Además, el color `empty-ws` (workspace vacío) se calculaba originalmente contra
+`background`, pero los módulos `xworkspaces` no tienen fondo propio — heredan el
+fondo del segmento de la barra donde están. En layouts con barras segmentadas
+(bubble, cynthia, floating), el fondo es `bubble-ws`, no `background`. El empty-ws
+quedaba invisible sobre `bubble-ws` en varios temas (contraste < 2:1).
+
+### Solución
+1. **Activo sin pill**: Eliminar `label-active-background`. Usar
+   `label-active-foreground = ${colors.primary}` con
+   `label-active-underline = ${colors.primary}` — texto primary + subrayado en vez
+   de fondo sólido. Esto funciona en todos los temas porque el contraste de
+   primary contra el fondo de la barra siempre es bueno (primary está diseñado
+   para eso).
+
+2. **empty-ws contra bubble-ws**: Recalcular `empty-ws` para cada uno de los 23
+   temas, esta vez buscando 5.0:1 de contraste contra `bubble-ws` (en vez de
+   `background`). Para temas sin bubble-ws definido previamente, se usó el mismo
+   valor que `background-alt`.
+
+3. **Layouts con format-background=primary**: colorblocks, cynthia y dual usaban
+   `format-background = ${colors.primary}` en xworkspaces, lo que hacía que el
+   contraste de empty-ws contra primary fuera pésimo (1.0-2.7:1). Se eliminó ese
+   format-background, dejando los workspaces sobre el fondo natural de la barra.
+
+### Archivos afectados
+- 11 layouts: active sin pill
+- 3 layouts (colorblocks, cynthia, dual): format-background=primary eliminado
+- 23 temas: empty-ws recalculado
+- 15 layouts: label-empty-foreground = ${colors.empty-ws}
+
+---
+
+## 22. colorblocks: bloques de color inconsistentes entre temas
+
+### Problema
+El layout colorblocks de Polybar usaba colores temáticos como fondos de módulos
+individuales: `${colors.green}` para CPU, `${colors.yellow}` para memory,
+`${colors.secondary}` para date, `${colors.pink}` para pulseaudio. Estos colores
+son semánticos (no visuales) y varían drásticamente entre temas.
+
+En last-horizon, `yellow = #6B5E73` es un púrpura oscuro, no amarillo. El texto
+`${colors.background}` (negro) sobre ese fondo tenía solo 2.9:1 de contraste.
+El resultado visual era un mosaico de colores sin coherencia, con módulos
+ilegibles en varios temas.
+
+### Causa raíz
+El original de adi1090x (polybar-themes/simple/colorblocks) usa 8 tonos de
+naranja (`shade1`-`shade8`) como fondos de módulos, con texto negro fijo
+(`#0a0a0a`). Nuestra adaptación reemplazó los shades por colores semánticos
+del tema, que no están diseñados para ser fondos de bloque sino acentos.
+
+### Solución
+Eliminar los `format-background` de colores temáticos en CPU, memory, date y
+pulseaudio. Reemplazar por `format-background = ${colors.background-alt}` (fondo
+consistente como los demás layouts). Los íconos/prefixos conservan su color de
+acento (green para CPU, yellow para memory) mediante `format-prefix-foreground`.
+
+El diseño "colorblocks" se conserva en la disposición de módulos con separadores
+(`colorblocks-sep`) entre cada bloque, creando el efecto de módulos aislados.
+Pero ahora todos los bloques comparten el mismo fondo `background-alt`, con
+acentos de color solo en los íconos.
+
+### Archivos afectados
+- `config/polybar/layouts/colorblocks.ini`
+
+---
+
+## 23. `inputbar` en Rofi necesitaba `entry` para búsqueda textual
+
+### Problema
+Al agregar `inputbar` a los temas de Rofi para tener barra de búsqueda, se
+usó `children: [ prompt ]` que solo muestra la etiqueta (ej. "Layout") pero
+no el campo de texto. Los usuarios veían el cuadro de búsqueda visualmente pero
+no podían tipear — el widget `entry` (el campo de entrada de texto) faltaba.
+
+### Causa
+En Rofi, `inputbar` es un contenedor que puede tener varios hijos:
+- `prompt`: la etiqueta descriptiva (ej. "🔍 Buscar", "Layout")
+- `entry`: el campo de texto donde el usuario escribe
+- `case-indicator`: indicador de mayúsculas/minúsculas
+
+Si se redefine `children:` explícitamente sin incluir `entry`, el campo de
+texto desaparece. La mayoría de temas de Rofi usan `children: [ prompt, entry ]`
+para soportar búsqueda.
+
+### Solución
+Cambiar `children: [ prompt ]` a `children: [ prompt, entry ]` en:
+1. `rofi-builder.sh` → `ROFI_THEME_MAIN` (tema principal con búsqueda)
+2. `rofi-layout-selector.sh` → fallback de `ROFI_THEME_MAIN`
+3. `polybar-layout.sh` → fallback de `ROFI_THEME_MAIN`
+
+Además se agregó estilo para `entry { text-color; font; }`.
+
+### Archivos afectados
+- `config/themes/scripts/rofi-builder.sh`
+- `config/themes/bin/rofi-layout-selector.sh`
+- `config/themes/scripts/settings/polybar-layout.sh`
+
+---
+
+## 24. Wrapper `rofi-drun.sh` para themar mod+d con ROFI_THEME_MAIN
+
+### Problema
+El lanzador de aplicaciones `mod+d` usaba `rofi -show drun` sin `-theme-str`,
+por lo que no heredaba el theme visual del proyecto (colores, bordes, inputbar).
+Se veía con el tema por defecto de Rofi, inconsistente con el resto de menús.
+
+### Solución
+Crear `config/themes/bin/rofi-drun.sh` que:
+1. Fuentea `rofi-builder.sh` para obtener colores dinámicos del tema activo
+2. Lanza `rofi -show drun` con `-theme-str "$ROFI_THEME_MAIN"`
+
+El `i3/config` se actualiza de `exec "rofi -show drun -show-icons ..."` a
+`exec ~/.config/themes/bin/rofi-drun.sh`.
+
+### Archivos afectados
+- `config/themes/bin/rofi-drun.sh` (nuevo)
+- `config/i3/config`
+
+---
+
+## 25. Barra de búsqueda en el selector visual de temas (GTK3)
+
+### Problema
+El selector de temas (`mod+Shift+t`) mostraba una lista plana de 23+ temas sin
+forma de filtrarlos. Con tantos temas, encontrar uno específico requería
+desplazamiento manual. El selector usa GTK3 Python, no Rofi.
+
+### Solución
+Agregar un `Gtk.SearchEntry` en la parte superior del panel izquierdo, con:
+- Placeholder "🔍 Temas" (según el locale activo vía `L_CUR_THEME`)
+- Filtrado en tiempo real vía `Gtk.TreeModelFilter`
+- El filtro busca por nombre de tema (insensible a mayúsculas)
+- El botón "Aleatorio" busca en el modelo filtrado
+
+Técnicamente:
+1. CSS: se agregó estilo `entry {}` con colores del tema
+2. Se creó `self.search_entry` con `Gtk.SearchEntry()`
+3. Se conectó `search-changed` a `_on_search_changed` que llama `self.theme_filter.refilter()`
+4. `_filter_func` retorna True si el nombre del tema contiene el texto buscado
+5. Se usó `hasattr` para evitar refilter antes de que exista `theme_filter`
+
+### Archivos afectados
+- `config/themes/bin/rofi-theme-selector.sh`
+
+---
+
+## 26. docky, floating, rounded: width parcial dejaba hueco visual
+
+### Problema
+Los layouts docky (96%), floating (90%) y rounded (92%) usaban `width < 100%`
+con `offset-x` para centrar la barra. Aunque la intención estética era crear
+una barra "flotante" visualmente, en la práctica se veía un espacio vacío en el
+extremo derecho del monitor que parecía un error de configuración.
+
+### Solución
+Cambiar `width` a `100%` y eliminar `offset-x` en los tres layouts. La barra
+ocupa todo el ancho del monitor. El efecto "flotante" se conserva mediante
+otros mecanismos:
+- docky: `bar-bg = bg-alt` (fondo distinto al escritorio)
+- floating: `border-size=2` + `radius=16` (borde redondeado visible)
+- rounded: `bar-bg = bg-alt` + `radius=18` (forma de píldora)
+
+### Archivos afectados
+- `config/polybar/layouts/docky.ini`
+- `config/polybar/layouts/floating.ini`
+- `config/polybar/layouts/rounded.ini`
+
+---
+
+## 27. nowplaying: format-background reemplazado por label-background
+
+### Problema
+El módulo `nowplaying` en los 15 layouts usaba `format-background` para el
+fondo del widget. Polybar no soporta `format-background` en módulos de tipo
+`custom/script` con `format = <label>`. La propiedad correcta es
+`label-background`. Aunque polybar no daba error explícito, el fondo no se
+aplicaba correctamente en ciertas condiciones.
+
+### Solución
+Cambiar `format-background = ${colors.background-alt}` por
+`label-background = ${colors.background-alt}` en los 15 layouts.
+
+### Archivos afectados
+- Todos los 15 layouts `config/polybar/layouts/*.ini`
+
+---
+
+## 28. player-monitor.sh: expandir center bar al iniciar sin player
+
+### Problema
+El script `player-monitor.sh` que controla la visibilidad de la barra de
+reproducción no expandía la barra center al iniciar si no había un player
+activo. Esto dejaba la barra center oculta o parcialmente expandida hasta que
+el usuario iniciara manualmente una reproducción.
+
+### Solución
+Agregar llamada a `center-bubble.sh expand` al inicio del script, antes del
+loop principal de monitoreo. Esto asegura que al arrancar polybar (o al
+reiniciar el script), la barra center esté expandida inmediatamente.
+
+### Archivos afectados
+- `config/polybar/scripts/player-monitor.sh`
+
 Problemas encontrados durante la creación y refactorización de oxido-i3-themes,
 y cómo se resolvieron. Útil para futuras contribuciones y para entender
 decisiones técnicas.

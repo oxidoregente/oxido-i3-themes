@@ -92,6 +92,7 @@ class ThemeSelector(Gtk.Window):
         button {{ background-color: {BGA}; color: {FG}; border-radius: 12px; padding: 10px 25px; border: 0; font-size: 12pt; font-weight: bold; }}
         button:hover {{ background-color: {SEL}; color: {BG}; }}
         label {{ color: {FG}; font-size: 14pt; }}
+        entry {{ background-color: {BGA}; color: {FG}; border-radius: 10px; padding: 8px 12px; font-size: 12pt; border: 1px solid {SEL}; }}
         scrolledwindow {{ border-radius: 12px; }}
         """.encode()
         
@@ -107,13 +108,23 @@ class ThemeSelector(Gtk.Window):
         lbl_list = Gtk.Label(label=f"<b>{L_CUR_THEME}</b>", use_markup=True, xalign=0)
         left_box.pack_start(lbl_list, False, False, 0)
 
+        # Barra de búsqueda
+        self.search_entry = Gtk.SearchEntry()
+        self.search_entry.set_placeholder_text("🔍 " + L_CUR_THEME)
+        self.search_entry.connect("search-changed", self._on_search_changed)
+        left_box.pack_start(self.search_entry, False, False, 0)
+
         self.liststore = Gtk.ListStore(str, str)
         self.liststore.append(["🎲 " + L_RANDOM, "__random__"])
         for t in theme_dirs:
             display = "▶ " + t if t == CURRENT_THEME else t
             self.liststore.append([display, t])
 
-        self.treeview = Gtk.TreeView(model=self.liststore, headers_visible=False)
+        # Filtro para búsqueda
+        self.theme_filter = self.liststore.filter_new()
+        self.theme_filter.set_visible_func(self._filter_func)
+
+        self.treeview = Gtk.TreeView(model=self.theme_filter, headers_visible=False)
         self.treeview.append_column(Gtk.TreeViewColumn("", Gtk.CellRendererText(font="JetBrainsMono NF 11"), text=0))
         self.treeview.connect("cursor-changed", lambda w: self.update_preview())
         self.treeview.connect("row-activated", lambda w, path, col: self.on_apply(None))
@@ -196,11 +207,24 @@ class ThemeSelector(Gtk.Window):
                              start_new_session=True)
             self.destroy()
 
+    def _filter_func(self, model, treeiter, data):
+        text = self.search_entry.get_text().lower()
+        if not text:
+            return True
+        name = model[treeiter][1].lower()
+        return text in name
+
+    def _on_search_changed(self, entry):
+        if hasattr(self, 'theme_filter'):
+            self.theme_filter.refilter()
+
     def on_random(self, btn):
         import random
         if not theme_dirs: return
         theme = random.choice(theme_dirs)
-        for i, row in enumerate(self.liststore):
+        # Buscar en el modelo filtrado (o liststore directo)
+        model = self.treeview.get_model()
+        for i, row in enumerate(model):
             if row[1] == theme:
                 self.treeview.set_cursor(Gtk.TreePath(i))
                 self.treeview.scroll_to_cell(Gtk.TreePath(i), None, True, 0.5, 0.5)
