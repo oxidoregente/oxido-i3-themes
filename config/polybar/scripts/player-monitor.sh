@@ -103,9 +103,13 @@ show_player() {
 
 echo "[$(date +%H:%M:%S)] player-monitor iniciado" >> "$LOG"
 
+# Initial hide: expand center bar to fill the gap
+save_center_orig
 hide_player
-
-prev_alive=""
+set_center_offset "$center_offset_orig"
+set_center_width "$EXPANDED_W"
+restart_center
+prev_alive=0
 while true; do
     alive=$(get_active_player)
     fs=$(is_fullscreen)
