@@ -124,7 +124,7 @@ count_sec() {
 }
 
 restaurar_default() {
-    opts="${L_MOD_RESTORE_CONFIRM:-¿Restaurar todos los módulos a su posición original?}\n\n${L_MOD_RESTORE_YES:-Sí, restaurar}\n${L_MOD_RESTORE_NO:-No, cancelar}"
+    opts="${L_MOD_RESTORE_CONFIRM:-¿Restaurar todos los módulos a su posición original?}\n───\n${L_MOD_RESTORE_YES:-Sí, restaurar}\n${L_MOD_RESTORE_NO:-No, cancelar}"
     r=$(echo -e "$opts" | rofi -dmenu -p "↻ ${L_MOD_RESTORE:-Restaurar}" -i -theme-str "
 window { width: 480px; border-radius: 24px; border-color: $SEL; background-color: $BG; }
 mainbox { children: [ listview ]; padding: 20px; }
@@ -155,7 +155,7 @@ mostrar_ocultos() {
         [ -z "${MOD_SECTION[$m]}" ] && items+="$m\n" && ((count++))
     done
     [ "$count" -eq 0 ] && items="${L_MOD_NONE_HIDDEN:-(No hay módulos ocultos)}\n"
-    items+="\n${L_MOD_BACK:-◀  Volver}"
+    items+="───\n${L_MOD_BACK:-◀  Volver}"
 
     chosen=$(echo -e "$items" | rofi -dmenu -p "$(SEC_L H)" -i -theme-str "$THEME_SUB")
     [ -z "$chosen" ] || echo "$chosen" | grep -qE "Volver|Back" && return
@@ -177,7 +177,7 @@ seccion_menu() {
             echo "$FIJOS" | grep -qw "$m" && continue
             items+="$m\n"
         done
-        items+="\n${L_MOD_REORDER:-↻  Reordenar sección}\n${L_MOD_HIDE_ALL:-⤴  Ocultar todos}\n${L_MOD_BACK:-◀  Volver}"
+        items+="───\n${L_MOD_REORDER:-↻  Reordenar sección}\n${L_MOD_HIDE_ALL:-⤴  Ocultar todos}\n${L_MOD_BACK:-◀  Volver}"
 
         chosen=$(echo -e "$items" | rofi -dmenu -p "$(SEC_L $sec)" -i -theme-str "$THEME_SUB")
         [ -z "$chosen" ] && return
@@ -326,7 +326,7 @@ swap_with_seleccion() {
     done
     [ -z "$items" ] && return
 
-    items+="\n${L_MOD_BACK:-◀  Volver}"
+    items+="───\n${L_MOD_BACK:-◀  Volver}"
 
     chosen=$(echo -e "$items" | rofi -dmenu -p "${L_MOD_SWAP:-↔  Intercambiar con...}" -i -theme-str "$THEME_SUB")
     [ -z "$chosen" ] && return
@@ -409,7 +409,7 @@ while true; do
     s_restore="${L_MOD_RESTORE:-↻  Restaurar valores por defecto}"
     s_close="${L_MOD_CLOSE:-✕  Cerrar}"
 
-    items="$s_left   ($c_l)\n$s_center  ($c_c)\n$s_right     ($c_r)\n$s_hidden     ($c_h)\n\n$s_restore\n$s_close"
+    items="$s_left   ($c_l)\n$s_center  ($c_c)\n$s_right     ($c_r)\n$s_hidden     ($c_h)\n───\n$s_restore\n$s_close"
 
     pick=$(echo -e "$items" | rofi -dmenu -p "${L_MOD_TITLE:-📦  GESTOR DE MÓDULOS}" -i -theme-str "$THEME")
     [ -z "$pick" ] && exit 0

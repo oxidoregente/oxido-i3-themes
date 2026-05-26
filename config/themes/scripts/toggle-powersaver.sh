@@ -4,28 +4,36 @@ STATE_FILE="/tmp/powersaver_active"
 CURRENT_LINK="$HOME/.config/themes/current/theme"
 
 if [ -f "$STATE_FILE" ]; then
-    # SALIR DEL MODO AHORRO → restaurar tema actual
+    # SALIR DEL MODO AHORRO → restaurar tema original
     rm -f "$STATE_FILE"
     
-    # Restaurar picom
-    if command -v picom &>/dev/null; then
-        picom --config "$HOME/.config/picom/picom.conf" -b 2>/dev/null &
-        disown
+    if [ -f /tmp/powersaver_prev_theme ]; then
+        ORIG_THEME=$(cat /tmp/powersaver_prev_theme)
+        rm -f /tmp/powersaver_prev_theme
+        bash "$HOME/.config/themes/bin/theme-switch.sh" "$ORIG_THEME"
+    else
+        # Fallback si no hay tema guardado
+        if command -v picom &>/dev/null; then
+            picom --config "$HOME/.config/picom/picom.conf" -b 2>/dev/null &
+            disown
+        fi
+        if [ -f "$HOME/.config/themes/conky-enabled" ]; then
+            conky -c "$HOME/.config/conky/conky.conf" 2>/dev/null &
+            disown
+        fi
+        ~/.config/polybar/launch.sh 2>/dev/null || polybar-msg cmd restart
     fi
-    
-    # Restaurar conky si estaba activo
-    if [ -f "$HOME/.config/themes/conky-enabled" ]; then
-        conky -c "$HOME/.config/conky/conky.conf" 2>/dev/null &
-        disown
-    fi
-    
-    # Recargar polybar con el tema actual
-    ~/.config/polybar/launch.sh 2>/dev/null || polybar-msg cmd restart
     
     notify-send "PowerSaver" "☀ Modo normal restaurado"
 else
     # ENTRAR EN MODO AHORRO
     touch "$STATE_FILE"
+    
+    # Guardar tema actual antes de cambiarlo
+    if [ -L "$CURRENT_LINK" ]; then
+        ORIG_THEME_DIR=$(readlink -f "$CURRENT_LINK")
+        basename "$ORIG_THEME_DIR" > /tmp/powersaver_prev_theme
+    fi
     
     # Matar picom y conky
     killall -q picom conky 2>/dev/null

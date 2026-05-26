@@ -35,29 +35,43 @@ CONFEOF
 
 pick_app() {
     local role="$1" desc="$2" current="$3"
-    local choices
+    local -a known_apps
+    local choices app
+
     case "$role" in
         terminal)
-            choices="alacritty\nkitty\nurxvt\nst\ntermite\ngnome-terminal\nxterm\nwezterm\nfoot"
+            known_apps=(alacritty kitty wezterm foot gnome-terminal konsole xterm urxvt st termite blackbox tilix sakura lxterminal qterminal ptyxis kgx deepin-terminal warp-terminal)
             ;;
         browser)
-            choices="firefox\nchromium\nbrave\ngoogle-chrome\nvivaldi\nedge\nlibrewolf\nzen"
+            known_apps=(firefox firefox-esr brave brave-browser google-chrome google-chrome-stable chromium chromium-browser vivaldi vivaldi-stable microsoft-edge microsoft-edge-stable librewolf zen-browser tor-browser tor-browser-en opera waterfox waterfox-classic palemoon falkon epiphany midori nyxt)
             ;;
         file_manager)
-            choices="nemo\nthunar\nnautilus\npcmanfm\ndolphin\ncaja"
+            known_apps=(nemo thunar nautilus pcmanfm pcmanfm-qt dolphin caja doublecmd doublecmd-qt krusader spacefm xfe)
             ;;
         terminal_fm)
-            choices="ranger\nlf\nnnn\nvifm\nmc"
+            known_apps=(ranger lf nnn vifm mc yazi xplr broot joshuto fm clifm)
             ;;
     esac
-    # Add custom option
-    choices="$choices\n✏️  Otra..."
+
+    choices=""
+    # Current app first if installed
+    if [ -n "$current" ] && command -v "$current" &>/dev/null; then
+        choices+="$current (actual)\n"
+    fi
+    # Detect installed apps (skip current to avoid duplicate)
+    for app in "${known_apps[@]}"; do
+        [ "$app" = "$current" ] && continue
+        command -v "$app" &>/dev/null && choices+="$app\n"
+    done
+    [ -n "$choices" ] && choices+="───\n"
+    choices+="✏️  Otra..."
 
     selected=$(printf "%s" "$choices" | rofi -dmenu -p "  $desc" -theme-str "$ROFI_APPS" -i -selected-row 0)
+    [ -z "$selected" ] && return 1
     if [ "$selected" = "✏️  Otra..." ]; then
         selected=$(echo "" | rofi -dmenu -p "  Escribe el comando" -theme-str "$ROFI_APPS")
     fi
-    echo "$selected"
+    echo "$selected" | sed 's/ (actual)//'
 }
 
 while true; do

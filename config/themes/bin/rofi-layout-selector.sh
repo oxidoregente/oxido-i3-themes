@@ -38,8 +38,11 @@ fi
 
 [ -z "$items" ] && { rofi -e "No se encontraron layouts en $LAYOUTS_DIR"; exit 1; }
 
+items+="$L_BACK\n"
+
 chosen=$(echo -e "$items" | rofi -dmenu -p "Layout" -i -theme-str "$ROFI_THEME_MAIN" 2>/dev/null)
 [ -z "$chosen" ] && exit 0
+[[ "$chosen" == *"$L_BACK"* ]] && exit 0
 
 # Extraer nombre (sacar ▶ y (actual))
 name=$(echo "$chosen" | sed 's/^▶ //; s/ (actual)//')

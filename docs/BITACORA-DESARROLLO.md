@@ -890,3 +890,130 @@ sed -i "s/^background *=.*/background = ${base_color}99/"
 ### Archivos afectados
 - `config/themes/applyers/apply-polybar.sh`
 - `~/.config/polybar/config.ini` (configuración activa del sistema)
+
+---
+
+## 29. rofi-layout-selector: faltaba botón Volver
+
+### Problema
+El selector de layouts (`rofi-layout-selector.sh`) no tenía opción de retroceder.
+Al abrirlo desde Apariencia → Diseño Polybar, el usuario no podía volver al menú
+anterior — solo quedaba seleccionar un layout o presionar Escape.
+
+### Causa
+El script construía la lista de items solo con los nombres de layouts, sin
+incluir `$L_BACK`. No había manejo de "Volver".
+
+### Solución
+Agregar `items+="$L_BACK\n"` después de enumerar los layouts, y detectar la
+selección con `[[ "$chosen" == *"$L_BACK"* ]] && exit 0`. Como `appearance.sh`
+lo llama sin `exec` (línea 44: `~/.config/themes/bin/rofi-layout-selector.sh`),
+al salir retorna naturalmente al menú de Apariencia.
+
+### Archivos afectados
+- `config/themes/bin/rofi-layout-selector.sh`
+
+---
+
+## 30. default-apps: listas hardcodeadas → detección dinámica
+
+### Problema
+El submenú de Aplicaciones Predeterminadas (`default-apps.sh`) mostraba listas
+fijas de aplicaciones para cada rol: terminal, navegador, gestor de archivos.
+Firefox aparecía aunque el usuario usara Brave, Alacritty aunque usara Kitty.
+
+El proyecto es multi-distribución, así que una lista fija no podía cubrir
+todas las variantes de nombres de paquetes (ej. `firefox-esr` en Debian,
+`google-chrome-stable` en Fedora, `brave-browser` en algunos repos).
+
+### Solución
+Reemplazar las listas hardcodeadas por detección dinámica con `command -v`:
+- Se define un array amplio de `known_apps` para cada rol (terminal, browser,
+  file_manager, terminal_fm) con TODAS las variantes de nombres conocidas
+  a través de distintas distribuciones.
+- Para cada app conocida, se verifica `command -v <app>` — si está instalada,
+  se agrega a las opciones del menú.
+- La app actual (guardada en `defaults.conf`) aparece primero con `(actual)`.
+- Si no hay apps detectadas, se muestra directamente "✏️  Otra...".
+- El sufijo `(actual)` se elimina con `sed` antes de guardar.
+
+Esto funciona en cualquier distro: Debian, Arch, Fedora, NixOS, etc. porque
+`command -v` verifica el PATH del usuario, que es donde residen los binarios
+instalados por el gestor de paquetes nativo.
+
+### Listas de detección
+| Rol | Apps buscadas |
+|-----|--------------|
+| terminal | alacritty, kitty, wezterm, foot, gnome-terminal, konsole, xterm, urxvt, st, termite, blackbox, tilix, sakura, lxterminal, qterminal, ptyxis, kgx, deepin-terminal, warp-terminal |
+| browser | firefox, firefox-esr, brave, brave-browser, google-chrome, google-chrome-stable, chromium, chromium-browser, vivaldi, vivaldi-stable, microsoft-edge, microsoft-edge-stable, librewolf, zen-browser, tor-browser, tor-browser-en, opera, waterfox, waterfox-classic, palemoon, falkon, epiphany, midori, nyxt |
+| file_manager | nemo, thunar, nautilus, pcmanfm, pcmanfm-qt, dolphin, caja, doublecmd, doublecmd-qt, krusader, spacefm, xfe |
+| terminal_fm | ranger, lf, nnn, vifm, mc, yazi, xplr, broot, joshuto, fm, clifm |
+
+### Archivos afectados
+- `config/themes/scripts/settings/default-apps.sh`
+
+---
+
+## 31. toggle-powersaver: desactivación no restauraba el tema original
+
+### Problema
+Al activar el modo ahorro (`mod+Shift+p`), el script:
+1. Cambiaba el symlink `current/theme` a `dracula-powersaver`
+2. Copiaba configs de polybar, i3, dunst, rofi
+3. Mataba picom y conky
+
+Al desactivar, solo:
+1. Borraba el flag `/tmp/powersaver_active`
+2. Reiniciaba picom, conky y polybar
+
+Pero **no restauraba el symlink ni las configs originales**. El polybar seguía
+usando los colores de dracula-powersaver, i3 y dunst también. El único cambio
+visible era que picom volvía a funcionar.
+
+### Solución
+1. **Al activar**: antes de cambiar el symlink, guardar el nombre del tema
+   original en `/tmp/powersaver_prev_theme`:
+   ```bash
+   ORIG_THEME_DIR=$(readlink -f "$CURRENT_LINK")
+   basename "$ORIG_THEME_DIR" > /tmp/powersaver_prev_theme
+   ```
+
+2. **Al desactivar**: si existe el archivo de tema previo, ejecutar
+   `theme-switch.sh <nombre>` que restaura el symlink, corre todos los
+   applyers (polybar, i3, dunst, rofi, picom, conky, wallpaper, etc.) y
+   notifica el cambio:
+   ```bash
+   bash "$HOME/.config/themes/bin/theme-switch.sh" "$ORIG_THEME"
+   ```
+
+### Archivos afectados
+- `config/themes/scripts/toggle-powersaver.sh`
+
+---
+
+## 32. polybar-modules: opciones en blanco que actuaban como "volver"
+
+### Problema
+El gestor de módulos (`polybar-modules.sh`) y sus submenús tenían líneas en
+blanco seleccionables. En rofi, los `\n\n` consecutivos en la cadena de items
+crean una entrada vacía en el menú que el usuario puede seleccionar. Al
+pincharla, el script la interpretaba como selección vacía y ejecutaba `exit 0`
+o `return`, lo que se sentía como un "volver" fantasma.
+
+Causas puntuales:
+- Menú principal (línea 412): `\n\n` entre `$s_hidden` y `$s_restore` creaba
+  línea en blanco → seleccionable → `exit 0`
+- `seccion_menu` (línea 180): `\n` al inicio de `items+="\n${L_MOD_REORDER}..."`
+  después de que items ya terminaba en `\n`, creando `\n\n` → `return`
+- `mostrar_ocultos` (línea 158): mismo patrón con `\n${L_MOD_BACK}`
+- `swap_with_seleccion` (línea 329): mismo patrón con `\n${L_MOD_BACK}`
+- `restaurar_default` (línea 127): `\n\n` entre pregunta y opciones
+
+### Solución
+Reemplazar todos los `\n\n` y `\n` duplicados por `───\n` (separador visual
+con línea de em dash). Rofi renderiza `───` como un elemento visible, no
+seleccionable como opción de menú (aunque se puede seleccionar, no coincide
+con ningún case, por lo que el script lo ignora y continúa).
+
+### Archivos afectados
+- `config/themes/bin/polybar-modules.sh`
