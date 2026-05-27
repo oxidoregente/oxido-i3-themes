@@ -52,7 +52,7 @@ if [ -f "$LAYOUT_FILE" ] && [ -f "$LAYOUTS_DIR/$(cat "$LAYOUT_FILE").ini" ]; the
         # Strip any existing alpha (8 hex chars) to get base 6-char color
         base_color=$(echo "$bg_val" | sed -n 's/^\(#[0-9a-fA-F]\{6\}\).*/\1/p')
         if [ -n "$base_color" ]; then
-            sed -i "/^\[colors\]/,/^\[/{s/^background *=.*/background = ${base_color}99/}" "$CONFIG_DST"
+            sed -i "/^\[colors\]/,/^\[/{s/^background *=.*/background = ${base_color}CC/}" "$CONFIG_DST"
         fi
     fi
 

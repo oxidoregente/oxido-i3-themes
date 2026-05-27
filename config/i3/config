@@ -236,10 +236,10 @@ bindsym $mod+r mode "resize"
 bindsym Print exec flameshot gui
 
 # Zoom de Pantalla 
-exec_always --no-startup-id xrdb -merge ~/.Xresources
+exec --no-startup-id xrdb -merge ~/.Xresources
 
 # Cerrar el dock al iniciar i3
-exec_always --no-startup-id killall -9 plank
+exec --no-startup-id killall -9 plank
 
 # Control de Brillo con Notificaciones
 bindsym XF86MonBrightnessUp exec --no-startup-id ~/.config/i3/brightness.sh +5%
@@ -267,7 +267,7 @@ bindsym XF86MonBrightnessDown exec --no-startup-id ~/.config/i3/brightness.sh 5%
 # assign [class="steam_app_2379780"] $ws5
 
 # Configuración de Nitrogen
-exec_always --no-startup-id nitrogen --restore
+exec --no-startup-id nitrogen --restore
 
 # Espaciado entre ventanas
 gaps inner 6
@@ -294,7 +294,7 @@ default_floating_border pixel 0
 exec_always --no-startup-id ~/.config/themes/scripts/start-services.sh
 
 # Polybar (se lanza desde apply-polybar.sh, mantener por si acaso)
-exec_always --no-startup-id ~/.config/polybar/launch.sh
+exec --no-startup-id ~/.config/polybar/launch.sh
 
 # Fullscreen monitor: manejado por launch.sh, no lanzar duplicado
 # exec_always --no-startup-id ~/.config/polybar/scripts/fullscreen-monitor.sh
