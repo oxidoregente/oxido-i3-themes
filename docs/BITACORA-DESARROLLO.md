@@ -1081,6 +1081,133 @@ diseño visual.
 
 **Pendiente:** Decidir si se reescribe `config.rasi` para integrar el tema
 standalone de drun, o se acepta que el prompt muestre "drun:".
-
 ### Archivos afectados
 - `config/themes/bin/rofi-drun.sh` (sin cambios funcionales netos)
+
+---
+
+## 35. Contraste de fondo de Polybar: alpha 99 → CC
+
+### Problema
+La Polybar usaba `alpha=99` (60% opaco, 40% transparente) en el color `background`.
+Al ser semi-transparente, el contenido del wallpaper se filtraba y el contraste
+con los textos/iconos era pobre. En wallpapers claros o con patrones, la barra
+se volvía difícil de leer.
+
+### Causa raíz
+`apply-polybar.sh` inyectaba `alpha=99` en la sección `[colors]` para lograr un
+efecto de transparencia. El valor `0x99 = 153 decimal` (60% de 255) dejaba pasar
+demasiado wallpaper.
+
+### Solución
+Cambiar a `alpha=CC` (0xCC = 204 decimal = 80% opaco). La barra sigue siendo
+semi-transparente pero con suficiente solidez para que el texto siempre sea
+legible. El 20% de transparencia restante permite que se integre visualmente
+con el escritorio sin perder legibilidad.
+
+### Archivos afectados
+- `config/themes/applyers/apply-polybar.sh`
+
+---
+
+## 36. Consolidación de layouts Polybar: 15 → 7
+
+### Problema
+Existían 15 layouts de Polybar, muchos de ellos estructuralmente idénticos
+con diferencias mínimas (cambio de nombre de wedges, variaciones de fuente).
+Esto generaba confusión y mantenimiento innecesario.
+
+### Layouts eliminados (archivados en `layouts-archive/`)
+| Layout | Motivo | Absorbido por |
+|--------|--------|---------------|
+| colorblocks | Mismo concepto que blocks | blocks |
+| cynthia | Misma estructura que floating | floating |
+| default | Misma función que minimal | minimal |
+| docky | Mismo concepto que rounded | rounded |
+| dual | Mismo concepto que blocks | blocks |
+| material | Misma estructura que floating | floating |
+| panel | Mismo concepto que blocks | blocks |
+| sharp | Mismo concepto que powerline | powerline |
+
+### Layouts conservados (7)
+| Layout | Señal visual única |
+|--------|-------------------|
+| bubble | Split bars (4 independientes) |
+| floating | Caps en 3 secciones + radius + border + offset |
+| blocks | Bloques con bg-alt, separadores |
+| rounded | Forma de píldora, bar-bg = bg-alt |
+| hack | Brackets ❰❱, estética retro |
+| minimal | Ultra compacto, sin decoraciones |
+| powerline | Wedges / en ws con Iosevka |
+
+### Enriquecimiento de módulos
+Cada layout ahora define TODOS los módulos disponibles del sistema:
+- `dnd`, `network-info`, `cpu`, `cpu-temp`, `memory`, `pulseaudio`,
+  `battery`, `tray`, `powermenu`, `nowplaying`
+
+Los módulos que no están activos por defecto en un layout aparecen como
+"ocultos" en el Gestor de Módulos (`$mod+Shift+m`) y pueden activarse
+desde allí. Esto permite que cualquier usuario personalice su barra sin
+editar archivos de configuración.
+
+### Archivos afectados
+- `config/polybar/layouts/` (7 archivos enriquecidos, 8 archivados)
+- `README.md`, `README.en.md` (documentación actualizada)
+
+---
+
+## 37. Fix i3: exec_always redundantes
+
+### Problema
+Cuatro líneas en i3/config usaban `exec_always` cuando deberían ser `exec`:
+1. `xrdb -merge ~/.Xresources` — no necesita re-ejecutarse en reload
+2. `killall -9 plank` — solo necesario al iniciar sesión
+3. `nitrogen --restore` — el wallpaper no cambia en reload
+4. `launch.sh` — polybar ya es gestionado por apply-polybar.sh,
+   lanzarlo de nuevo en reload causaba un restart innecesario de la barra
+
+### Solución
+Cambiar las 4 líneas de `exec_always` a `exec`. Esto reduce la carga en
+`$mod+Shift+r` (reload) y evita que polybar se reinicie dos veces.
+
+### Archivos afectados
+- `config/i3/config`
+
+---
+
+## 38. Contraste de ventanas i3: bg-alt == bg en solitude
+
+### Problema
+El tema Solitude tenía `$bg-alt = #101315`, idéntico a `$bg`. Esto significaba
+que las ventanas no enfocadas usaban el mismo color de fondo que el workspace
+vacío, haciendo imposible distinguir visualmente si había una ventana presente
+o no — especialmente con `default_border pixel 0`.
+
+### Solución
+Cambiar `$bg-alt` a `#1a1c1f` (un tono ligeramente más claro que `#101315`).
+Ahora las ventanas no enfocadas tienen un fondo sutilmente distinto al del
+workspace, permitiendo identificar visualmente su presencia.
+
+Además, se sincronizó `$primary` con el valor de `colors.ini` (#798186 → #7880a0).
+
+### Archivos afectados
+- `config/themes/themes/solitude/i3/colors.conf`
+
+---
+
+## 39. vsync forzado en todos los temas (picom)
+
+### Problema
+Todos los 23 temas tenían `vsync = false` en picom.conf. En una GPU Intel
+UHD 620 (i915 driver), esto causaba tearing visible en videos, scrolling
+y animaciones. El backend `glx` de picom funciona correctamente con
+`vsync = true` en hardware Intel.
+
+### Solución
+Cambiar `vsync = false` a `vsync = true` en los 23 picom.conf de temas y
+en el picom.conf central. En GPUs NVIDIA con drivers propietarios, puede
+ser necesario revertir este cambio y usar `xrender` backend.
+
+### Archivos afectados
+- 23 archivos `config/themes/themes/*/picom/picom.conf`
+- `config/picom/picom.conf`

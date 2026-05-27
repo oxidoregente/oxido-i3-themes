@@ -34,6 +34,19 @@ A complete desktop customization system for **i3wm** that unifies themes, animat
 
 Each theme includes consistent colors across all desktop components: i3 · picom · polybar · dunst · rofi · alacritty · btop · cava · conky · lockscreen · **nemo (Files)**
 
+### 🧩 7 Polybar Layouts
+| Layout | Style | Height | Visual Signature |
+|--------|-------|--------|-----------------|
+| **bubble** | 4 independent bars | 34px | Split into 3+1 floating segments with per-bubble colors |
+| **floating** | Single bar with caps | 32px | Wedges in all 3 sections (float/center/sys), rounded corners, 1% offset |
+| **blocks** | Block modules | 28px | Each module with `bg-alt` background, visually separated groups |
+| **rounded** | Pill shape | 24px | `bg-alt` background, radius 18px, clean compact look |
+| **hack** | Retro brackets | 24px | ❰❱ decoration, terminal/hacker aesthetic |
+| **minimal** | Ultra compact | 22px | No decorations, small font, maximum content space |
+| **powerline** | WS caps | 30px | / wedges on workspace edges, Iosevka font |
+
+Each layout defines **all available modules** (dnd, network, cpu, cpu-temp, memory, pulseaudio, battery, tray, powermenu, nowplaying). Inactive ones appear as "hidden" in the **Module Manager** (`$mod+Shift+m`) — enable them with a click.
+
 ### ⚙️ Control Center (`$mod+Shift+s`)
 Unified panel with Rofi to manage the entire system:
 
@@ -134,7 +147,7 @@ The **bubble** layout splits Polybar into 4 independent bars (left, center, play
 - **Dynamic center offset**: When the player appears, the center bar shifts from x=27% to x=29% for balanced composition. It returns to x=27% when hidden.
 - **Automatic fullscreen**: All bars hide when a fullscreen window is detected (`fullscreen-monitor.sh` with `i3-msg -t subscribe`), ignoring stale `fullscreen_mode=1` on empty workspaces.
 - **Multi-layout compatibility**: `polybar-modules.sh` shows a graceful message if a non-bubble layout is selected.
-- **Forced transparency**: `apply-polybar.sh` injects alpha `0x33` (80% transparent) across all colors in `[colors]`, compatible with all 23 themes.
+- **Forced contrast**: `apply-polybar.sh` injects alpha `CC` (80% opaque) so the bar stays solid and readable against any wallpaper.
 - **Strut-free**: All bars use `override-redirect = true`; the i3bar reserves 34px in dock mode to maintain the top visual gap.
 
 **Scripts:**

@@ -34,6 +34,19 @@ Un sistema completo de personalización visual para **i3wm** que unifica temas, 
 
 Cada tema incluye colores coherentes para todos los componentes del escritorio: i3 · picom · polybar · dunst · rofi · alacritty · btop · cava · conky · lockscreen · **nemo (Archivos)**
 
+### 🧩 7 Layouts de Polybar
+| Layout | Estilo | Altura | Señal visual |
+|--------|--------|--------|-------------|
+| **bubble** | 4 barras independientes | 34px | Dividido en 3+1 segmentos flotantes, cada uno con su color de burbuja |
+| **floating** | Barra única con caps | 32px | Wedges en las 3 secciones (float/center/sys), bordes redondeados, offset 1% |
+| **blocks** | Módulos bloque | 28px | Cada módulo con fondo `bg-alt`, separados visualmente en grupos |
+| **rounded** | Forma de píldora | 24px | Fondo `bg-alt`, radio 18px, apariencia compacta y limpia |
+| **hack** | Brackets retro | 24px | Decoración ❰❱, estética terminal/hacker |
+| **minimal** | Ultra compacto | 22px | Sin decoraciones, fuente pequeña, máximo espacio para contenido |
+| **powerline** | Caps en workspaces | 30px | Wedges / en los bordes de workspaces, fuente Iosevka |
+
+Cada layout tiene **todos los módulos disponibles** definidos (dnd, network, cpu, cpu-temp, memory, pulseaudio, battery, tray, powermenu, nowplaying). Los que no están activos por defecto aparecen como "ocultos" en el **Gestor de Módulos** (`$mod+Shift+m`) y podés activarlos con un clic.
+
 ### ⚙️ Centro de Control (`$mod+Shift+s`)
 Panel unificado con Rofi para gestionar todo el sistema:
 
@@ -125,7 +138,7 @@ El layout **bubble** divide la Polybar en 4 barras independientes (left, center,
 - **Offset dinámico del center**: Al aparecer el reproductor, el center se desplaza de x=27% a x=29% para equilibrar la composición visual. Al ocultarse, vuelve a su posición original.
 - **Fullscreen automático**: Todas las barras se ocultan al detectar una ventana en pantalla completa (`fullscreen-monitor.sh` con `i3-msg -t subscribe`), ignorando falsos positivos de `fullscreen_mode=1` en workspaces vacíos.
 - **Compatibilidad multi-layout**: `polybar-modules.sh` muestra un mensaje graceful si se selecciona un layout que no sea bubble.
-- **Transparencia forzada**: `apply-polybar.sh` inyecta alpha `0x33` (80% transparente) a todos los colores en `[colors]`, compatible con 23 temas.
+- **Transparencia forzada**: `apply-polybar.sh` inyecta alpha `CC` (80% opaco) para que la barra se vea sólida y contrastada contra cualquier wallpaper.
 - **Sin strut**: Todas las barras usan `override-redirect = true`; la i3bar reserva 34px en modo dock para mantener el gap visual superior.
 
 **Scripts del sistema:**
