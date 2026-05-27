@@ -29,20 +29,30 @@ element-text { vertical-align: 0.5; font: \"JetBrainsMono Nerd Font Mono 12\"; }
 [ -z "$choices" ] && exec "$BACK_TO"
 [[ "$choices" == *"$L_BACK"* ]] && exec "$BACK_TO"
 
+CHANGED=0
 if [[ "$choices" == *"12h"* ]] && [ "$current" != "12h" ]; then
     echo "12h" > "$FMT_FILE"
+    CHANGED=1
     if [ -f "$HOME/.config/polybar/config.ini" ]; then
         sed -i "/^\[module\/date\]/,/^\[module\//{s/^date *=.*/date = %I:%M %p/}" "$HOME/.config/polybar/config.ini"
     fi
 elif [[ "$choices" == *"24h"* ]] && [ "$current" != "24h" ]; then
     echo "24h" > "$FMT_FILE"
+    CHANGED=1
     if [ -f "$HOME/.config/polybar/config.ini" ]; then
         sed -i "/^\[module\/date\]/,/^\[module\//{s/^date *=.*/date = %H:%M/}" "$HOME/.config/polybar/config.ini"
     fi
 fi
 
-polybar-msg action "#date.hook.0" 2>/dev/null
-polybar-msg action "#center-bubble.hook.0" 2>/dev/null
-polybar-msg cmd restart 2>/dev/null
+if [ "$CHANGED" = 1 ]; then
+    # Refresh custom/script modules (bubble) via IPC hooks
+    polybar-msg action "#date.hook.0" 2>/dev/null
+    polybar-msg action "#center-bubble.hook.0" 2>/dev/null
+
+    # Internal/date modules read config only at startup → restart needed
+    if sed -n "/^\[module\/date\]/,/^\[module\//p" "$HOME/.config/polybar/config.ini" 2>/dev/null | grep -q "^type = internal/date"; then
+        polybar-msg cmd restart 2>/dev/null
+    fi
+fi
 
 exec "$BACK_TO"

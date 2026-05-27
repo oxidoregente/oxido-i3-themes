@@ -1395,3 +1395,41 @@ la polybar.
 ### Archivos afectados
 - `config/polybar/launch.sh`
 - `config/polybar/scripts/calc-adaptive-widths.sh`
+
+---
+
+## 48. clock-format.sh: evitar restart innecesario de polybar
+
+### Problema
+`clock-format.sh` ejecutaba `polybar-msg cmd restart` después de cambiar el
+formato de hora, incluso cuando el layout activo no lo necesitaba. En layouts
+que usan `custom/script` (bubble con `date-wrapper.sh` y `center-bubble.sh`),
+los scripts leen directamente el archivo de estado `~/.config/themes/date-format`,
+por lo que el restart era redundante. El restart causaba un flicker visible
+en todas las barras de polybar al cambiar de formato.
+
+### Solución
+Reemplazar el restart incondicional por un enfoque de dos pasos:
+1. **IPC hooks**: Enviar `polybar-msg action "#date.hook.0"` y
+   `#center-bubble.hook.0` para refrescar los módulos `custom/script` al
+   instante, sin restart.
+2. **Detección de `internal/date`**: Solo ejecutar `polybar-msg cmd restart`
+   si el módulo `[module/date]` en el `config.ini` activo es de tipo
+   `internal/date` (estos módulos leen el formato solo al iniciar).
+
+Además se agregó la variable guarda `CHANGED` para evitar enviar mensajes IPC
+si el usuario seleccionó el mismo formato que ya estaba activo.
+
+### Detalle técnico
+Polybar (v3.7.1):
+- `custom/script` con `exec =` expone un handler `hook` nativo que re-ejecuta
+  el script al recibir `polybar-msg action "#module.hook.0"`. Esto funciona
+  incluso si no hay `click-*` definidos.
+- `internal/date` no tiene handler `hook`. El formato `date =` se parsea una
+  sola vez al arrancar el módulo. Para cambiarlo en runtime, polybar necesita
+  reiniciarse completamente.
+- `polybar-msg action` contra un módulo inexistente o sin handler falla
+  silenciosamente (exit 0), por lo que es seguro enviarlos siempre.
+
+### Archivos afectados
+- `config/themes/scripts/settings/clock-format.sh`
