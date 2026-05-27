@@ -78,7 +78,7 @@ bindsym $mod+Shift+p exec ~/.config/themes/scripts/toggle-powersaver.sh
 bindsym $mod+Shift+q kill
 
 # start dmenu (a program launcher)
-bindsym $mod+d exec ~/.config/themes/bin/rofi-drun.sh
+bindsym $mod+d exec --no-startup-id ~/.config/themes/bin/rofi-drun.sh
 
 # A more modern dmenu replacement is rofi:
 # bindcode $mod+40 exec "rofi -modi drun,run -show drun"

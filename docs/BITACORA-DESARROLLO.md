@@ -1435,3 +1435,49 @@ Polybar (v3.7.1):
 
 ### Archivos afectados
 - `config/themes/scripts/settings/clock-format.sh`
+
+---
+
+## 49. Startup Notification roto en rofi-drun (mod+d)
+
+### Problema
+Al abrir aplicaciones con `mod+d` (rofi drun), a veces aparecían en el workspace 1
+en lugar del workspace actual (2, 3, etc.). El comportamiento era intermitente.
+
+### Causa raíz
+El bindsym `$mod+d` en i3/config no tenía `--no-startup-id`:
+```
+bindsym $mod+d exec ~/.config/themes/bin/rofi-drun.sh
+```
+
+Sin ese flag, i3 inicia el protocolo de startup notification:
+1. Crea un contexto con `DESKTOP_STARTUP_ID`
+2. Lo pasa al wrapper `rofi-drun.sh`
+3. Rofi debería propagarlo a la aplicación lanzada (Brave, Firefox, etc.)
+
+La cadena se rompe porque el wrapper `rofi-drun.sh` termina antes de que la
+aplicación termine de inicializarse, y rofi no siempre propaga correctamente
+el startup ID en modo drun. Cuando la notificación falla, i3 no sabe en qué
+workspace poner la ventana y la envía al workspace 1 por defecto.
+
+El comportamiento es intermitente porque depende del timing exacto entre la
+terminación de rofi y el inicio de la aplicación (race condition típica de
+startup notification encadenada).
+
+### Solución
+Agregar `--no-startup-id` al bindsym de `$mod+d`:
+```
+bindsym $mod+d exec --no-startup-id ~/.config/themes/bin/rofi-drun.sh
+```
+
+Esto deshabilita el tracking de startup notification. La aplicación se abre
+siempre en el workspace que tenga el foco en el momento del lanzamiento, que
+es exactamente el comportamiento esperado.
+
+### Nota
+Todos los demás binds similares en la config ya usaban `--no-startup-id`
+(mod+Return, mod+Shift+s, mod+Shift+p, mod+Shift+Escape, etc.). Solo
+`$mod+d` estaba pendiente de actualizar.
+
+### Archivos afectados
+- `config/i3/config`
