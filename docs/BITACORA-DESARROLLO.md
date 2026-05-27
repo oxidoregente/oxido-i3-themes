@@ -1017,3 +1017,70 @@ con ningún case, por lo que el script lo ignora y continúa).
 
 ### Archivos afectados
 - `config/themes/bin/polybar-modules.sh`
+
+---
+
+## 33. default-apps: saltos de línea literales en lugar de reales
+
+### Problema
+El menú de aplicaciones predeterminadas (`default-apps.sh`) mostraba los items
+con `\n` literal en vez de separarlos en líneas distintas. Ej: se veía
+"alacritty\nkitty\n..." en lugar de cada app en su propia línea.
+
+### Causa
+En la función `pick_app()`, las opciones se construían con:
+```bash
+choices+="$app\n"
+```
+Dentro de comillas dobles en bash, `\n` es literal (backslash + n), no un
+salto de línea real. Al pasar `choices` a `printf "%s"` para el menú rofi,
+se mostraba el texto literal.
+
+### Solución
+Reemplazar `choices+="$app\n"` por `choices+="$app"$'\n'` en las 5 ocurrencias
+de `pick_app()`. El `$'\n'` de bash genera un salto de línea real (LF, 0x0A).
+
+### Archivos afectados
+- `config/themes/scripts/settings/default-apps.sh`
+
+---
+
+## 34. rofi-drun: prompt "drun" no logra cambiarse (investigación)
+
+### Problema
+El lanzador `mod+d` (`rofi-drun.sh`) muestra "drun" en el prompt en vez de
+"🔍  Apps". El archivo actual tiene:
+```bash
+rofi -show drun -show-icons -p "🔍  Apps" -location 0 -monitor -1 -theme-str "$ROFI_THEME_MAIN"
+```
+
+Pero el prompt sigue mostrando "drun:" porque `$ROFI_THEME_MAIN` define
+`inputbar { children: [ prompt, entry ]; }` y el widget `prompt` de rofi
+muestra el prompt interno del modo drun ("drun:"), ignorando el flag `-p`.
+
+### Intentos fallidos
+1. **`-p "🔍  Apps"`**: ignorado — el widget `prompt` en `$ROFI_THEME_MAIN`
+   muestra el prompt interno del modo, no el del flag
+2. **`textbox-prompt-colon { text: "🔍  Apps" }`**: ignorado — drun mode
+   re-aplica su prompt después de aplicar el theme de `-theme-str`
+3. **`-modi "drun:🔗  Apps"`**: rompe — rofi interpreta el espacio como
+   comando personalizado: "Failed to execute: ' Apps'"
+4. **`-no-config` + tema standalone**: funcionaba técnicamente pero cambiaba
+   drásticamente el diseño visual (perdía el merge con `config.rasi`) y el
+   usuario reportó truncamiento "Br..." y diseño incorrecto
+
+### Estado actual
+Revertido al estado anterior (`-p "🔍  Apps"` removido, usa `$ROFI_THEME_MAIN`
+directamente). El prompt muestra "drun:" y NO se logró cambiar.
+
+### Conclusión técnica
+Rofi (v1.7.5) no permite cambiar el prompt del modo drun vía `-p` ni
+`textbox-prompt-colon` cuando el theme define `inputbar { children: [ prompt, entry ] }`. La única forma viable (`-no-config` + tema standalone) requiere
+reescribir completamente el `config.rasi` del usuario para conservar el
+diseño visual.
+
+**Pendiente:** Decidir si se reescribe `config.rasi` para integrar el tema
+standalone de drun, o se acepta que el prompt muestre "drun:".
+
+### Archivos afectados
+- `config/themes/bin/rofi-drun.sh` (sin cambios funcionales netos)

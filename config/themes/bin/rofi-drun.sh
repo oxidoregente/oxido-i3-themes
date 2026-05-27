@@ -5,4 +5,4 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 [ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
 
-rofi -show drun -show-icons -p "🔍  Apps" -location 0 -monitor -1 -theme-str "$ROFI_THEME_MAIN"
+rofi -show drun -show-icons -location 0 -monitor -1 -theme-str "$ROFI_THEME_MAIN"

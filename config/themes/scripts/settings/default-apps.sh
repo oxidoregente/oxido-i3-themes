@@ -58,25 +58,25 @@ pick_app() {
 
     # Current app first if installed
     if [ -n "$current" ] && command -v "$current" &>/dev/null; then
-        choices+="$current\n"
+        choices+="$current"$'\n'
     fi
     # Detect installed apps via PATH (multi-distro)
     for app in "${known_apps[@]}"; do
         _has_app "$app" && continue
-        command -v "$app" &>/dev/null && choices+="$app\n"
+        command -v "$app" &>/dev/null && choices+="$app"$'\n'
     done
     # Fallback: check flatpak
     if type flatpak &>/dev/null; then
         for app in "${known_apps[@]}"; do
             _has_app "$app" && continue
-            flatpak list --app 2>/dev/null | grep -qi "$app" && choices+="$app\n"
+            flatpak list --app 2>/dev/null | grep -qi "$app" && choices+="$app"$'\n'
         done
     fi
     # Fallback: check snap
     if type snap &>/dev/null; then
         for app in "${known_apps[@]}"; do
             _has_app "$app" && continue
-            snap list 2>/dev/null | grep -qi "$app" && choices+="$app\n"
+            snap list 2>/dev/null | grep -qi "$app" && choices+="$app"$'\n'
         done
     fi
     # If nothing detected, prompt directly for custom command
