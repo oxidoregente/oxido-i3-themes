@@ -19,6 +19,7 @@ ps_status() {
 while true; do
     choice=$(cat <<EOF | rofi -dmenu -p "$L_POWER" -theme-str "$ROFI_THEME_MAIN" -i
 $L_PS: $(ps_status)
+$L_POWER_PROFILE: $(powerprofilesctl get 2>/dev/null || echo "—") ▸
 💤  DPMS: 5 min ▸
 $L_AUTOLOCK: 8 min ▸
 $L_LID: ${CURRENT_LID} ▸
@@ -28,6 +29,8 @@ EOF
     case "$choice" in
         *"$L_PS"*)
             ~/.config/themes/scripts/toggle-powersaver.sh ;;
+        *"$L_POWER_PROFILE"*)
+            exec "$DIR/power-profile.sh" "$DIR/power.sh" ;;
         *"DPMS"*)
             exec "$DIR/dpms.sh" "$DIR/power.sh" ;;
         *"$L_AUTOLOCK"*)

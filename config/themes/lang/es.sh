@@ -61,6 +61,7 @@ L_NO_IMAGES="No hay imágenes en la carpeta backgrounds/"
 
 # --- Menú Energía ---
 L_PS="🌙  PowerSaver"
+L_POWER_PROFILE="  Plan de energía"
 L_LID="󰤁  Tapa al cerrar"
 L_AUTOLOCK="🔒  Bloqueo automático"
 

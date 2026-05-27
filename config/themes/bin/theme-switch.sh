@@ -18,9 +18,6 @@ if [ ! -d "$THEME_DIR" ]; then
     exit 1
 fi
 
-# Prevent powersaver indicator from blocking
-rm -f /tmp/powersaver_active
-
 # Actualizar symlink
 rm -f "$CURRENT_LINK"
 ln -s "$THEME_DIR" "$CURRENT_LINK"
