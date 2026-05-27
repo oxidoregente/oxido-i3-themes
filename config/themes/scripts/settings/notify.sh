@@ -51,7 +51,7 @@ EOF
             sed -i "s/^    timeout = .*/    timeout = $VAL/" "$DUNSTRC"
             killall -q dunst 2>/dev/null; sleep 0.3
             dunst 2>/dev/null & disown
-            dunstify -u low "⏱  $L_NOT_DURATION" "${VAL}s — aplicado" ;;
+            dunstify -u low "$L_NOT_DURATION" "${VAL}s — aplicado" ;;
         *"$L_BACK"*)
             exec ~/.config/themes/bin/rofi-settings.sh ;;
         *) exec ~/.config/themes/bin/rofi-settings.sh ;;

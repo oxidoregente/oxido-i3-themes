@@ -8,10 +8,11 @@ STATE_FILE=~/.cache/dunst-dnd
 if [ -f "$STATE_FILE" ]; then
     rm -f "$STATE_FILE"
     dunstctl set-paused false
-    dunstify -u low "  $L_DND" "$L_NOT_DND_OFF"
+    dunstify -u low -t 3000 "  $L_DND" "$L_NOT_DND_OFF"
 else
-    dunstify -u critical "  $L_DND" "$L_NOT_DND_ON"
+    dunstify -u low -t 2000 "  $L_DND" "$L_NOT_DND_ON"
     touch "$STATE_FILE"
+    sleep 2
     dunstctl set-paused true
 fi
 
