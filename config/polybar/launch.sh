@@ -54,15 +54,19 @@ if grep -q "^\[bar/left\]" "$CONFIG" 2>/dev/null; then
         CENTER_O=$(echo "$ADAPTIVE" | grep "^center=" | cut -d\| -f2)
         PLAYER_W=$(echo "$ADAPTIVE" | grep "^player=" | cut -d= -f2 | cut -d\| -f1)
         PLAYER_O=$(echo "$ADAPTIVE" | grep "^player=" | cut -d\| -f2)
+        RIGHT_W=$(echo "$ADAPTIVE" | grep "^right=" | cut -d= -f2 | cut -d\| -f1)
+        RIGHT_O=$(echo "$ADAPTIVE" | grep "^right=" | cut -d\| -f2)
         # Validate: all values must be positive numbers
-        if echo "$LEFT_W $LEFT_O $CENTER_W $CENTER_O $PLAYER_W $PLAYER_O" | \
+        if echo "$LEFT_W $LEFT_O $CENTER_W $CENTER_O $PLAYER_W $PLAYER_O $RIGHT_W $RIGHT_O" | \
              grep -qE '^[0-9]+(\.[0-9]+)?( [0-9]+(\.[0-9]+)?)*$' && \
              [ "$(echo "$LEFT_W > 0" | bc -l 2>/dev/null)" = 1 ] && \
              [ "$(echo "$CENTER_W > 0" | bc -l 2>/dev/null)" = 1 ] && \
-             [ "$(echo "$PLAYER_W > 0" | bc -l 2>/dev/null)" = 1 ]; then
+             [ "$(echo "$PLAYER_W > 0" | bc -l 2>/dev/null)" = 1 ] && \
+             [ "$(echo "$RIGHT_W > 0" | bc -l 2>/dev/null)" = 1 ]; then
             sed -i "/^\[bar\/left\]/,/^\[bar\// {s/^width =.*/width = $LEFT_W%/; s/^offset-x =.*/offset-x = $LEFT_O%/;}" "$CONFIG"
             sed -i "/^\[bar\/center\]/,/^\[bar\// {s/^width =.*/width = $CENTER_W%/; s/^offset-x =.*/offset-x = $CENTER_O%/;}" "$CONFIG"
             sed -i "/^\[bar\/player\]/,/^\[bar\// {s/^width =.*/width = $PLAYER_W%/; s/^offset-x =.*/offset-x = $PLAYER_O%/;}" "$CONFIG"
+            sed -i "/^\[bar\/right\]/,/^\[bar\// {s/^width =.*/width = $RIGHT_W%/; s/^offset-x =.*/offset-x = $RIGHT_O%/;}" "$CONFIG"
         fi
     fi
 fi

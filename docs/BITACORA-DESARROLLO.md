@@ -1481,3 +1481,44 @@ Todos los demás binds similares en la config ya usaban `--no-startup-id`
 
 ### Archivos afectados
 - `config/i3/config`
+
+---
+
+## 50. Bubble layout: fondo de bar/right hacía ver todo como una sola barra
+
+### Problema
+El layout bubble de Polybar usa 4 barras independientes que deberían verse como
+burbujas separadas flotando sobre el escritorio. Sin embargo, `[bar/right]`
+tenía `background = ${colors.bubble-sys}` y `width = 100%`, creando una franja
+de color sólido a lo ancho de toda la pantalla. Las barras left/center/player
+flotaban sobre esta franja, dando la impresión visual de una sola barra
+continua en lugar de burbujas separadas.
+
+Además, `[bar/right]` no tenía `offset-x` definido, por lo que siempre
+empezaba en x=0 sin importar los cálculos adaptativos.
+
+### Solución
+1. **Fondo transparente**: Cambiar `background = ${colors.bubble-sys}` a
+   `background = #00000000` (negro con alpha 0 = completamente transparente).
+   Combinado con `transparent = true` (inyectado por `apply-polybar.sh`),
+   la barra derecha no pinta fondo. Solo los módulos individuales mantienen
+   su `format-background = ${colors.bubble-sys}`, apareciendo como una
+   burbuja solo donde hay contenido.
+
+2. **Ancho/offset adaptativos**: Extender `calc-adaptive-widths.sh` para
+   calcular `right_w` y `right_o`: la barra derecha empieza donde termina la
+   barra player + gap, y se extiende hasta el borde derecho. `launch.sh`
+   inyecta estos valores dinámicamente en `[bar/right]`.
+
+3. **offset-x base**: Agregar `offset-x = 0%` en `[bar/right]` de `bubble.ini`
+   para que `launch.sh` pueda reemplazarlo con el valor calculado.
+
+### Resultado
+Las 4 burbujas ahora flotan independientemente con espacios transparentes
+entre ellas, mostrando el wallpaper. No hay superposición entre player y
+right porque las posiciones se calculan para no solaparse.
+
+### Archivos afectados
+- `config/polybar/layouts/bubble.ini`
+- `config/polybar/scripts/calc-adaptive-widths.sh`
+- `config/polybar/launch.sh`
