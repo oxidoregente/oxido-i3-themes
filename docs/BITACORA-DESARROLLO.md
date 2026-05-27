@@ -1211,3 +1211,187 @@ ser necesario revertir este cambio y usar `xrender` backend.
 ### Archivos afectados
 - 23 archivos `config/themes/themes/*/picom/picom.conf`
 - `config/picom/picom.conf`
+
+---
+
+## 40. Bubble radius: bordes redondeados en las 4 barras
+
+### Problema
+El layout bubble usa 4 barras independientes (left, center, player, right) sin
+struts flotando sobre el escritorio. Cada barra es visualmente una "burbuja"
+pero no tenía `radius` definido, por lo que se renderizaban como rectángulos
+con bordes rectos — perdiendo el efecto burbuja.
+
+### Solución
+Agregar `radius = 12` en las 4 barras de `bubble.ini`. También se asignó
+`background = ${colors.bubble-*}` específico para cada barra (en lugar de
+heredar el fondo genérico), permitiendo que cada burbuja tenga su propio
+color de fondo independiente.
+
+### Archivos afectados
+- `config/polybar/layouts/bubble.ini`
+
+---
+
+## 41. exec revertido a exec_always para launch.sh
+
+### Problema
+En el fix 37 se cambiaron 4 líneas de `exec_always` a `exec`. Esto causó que
+polybar no arrancara tras `mod+Shift+r` (i3 restart mata los hijos y
+`start-services.sh` no inicia polybar). Las otras 3 líneas (xrdb, killall
+plank, nitrogen) podían ser `exec`, pero launch.sh necesitaba `exec_always`.
+
+### Solución
+Revertir launch.sh a `exec_always`. Las otras 3 líneas se mantienen como `exec`.
+
+### Archivos afectados
+- `config/i3/config`
+
+---
+
+## 42. Powermenu/nowplaying: format-background eliminado en layouts problemáticos
+
+### Problema
+En los layouts hack, minimal y rounded, el módulo powermenu y nowplaying tenían
+`format-background = ${colors.background-alt}`, lo que rompía la estética visual
+— el powermenu se veía como un bloque sólido separado en lugar de integrado con
+el resto de la barra.
+
+### Solución
+Eliminar `format-background` y `label-background` de powermenu y nowplaying en
+los 3 layouts afectados (hack, minimal, rounded). El powermenu ahora hereda el
+fondo natural de la barra.
+
+### Archivos afectados
+- `config/polybar/layouts/hack.ini`
+- `config/polybar/layouts/minimal.ini`
+- `config/polybar/layouts/rounded.ini`
+
+---
+
+## 43. Power profile menu: selector de perfiles de energía (rofi)
+
+### Problema
+No existía forma de cambiar perfiles de energía (ahorro, equilibrado,
+rendimiento) sin usar la terminal. El menú de energía solo tenía PowerSaver,
+DPMS timeout, autolock y comportamiento de tapa.
+
+### Solución
+Crear `settings/power-profile.sh` — menú Rofi estilizado (inline, 480px,
+border-radius 24px, $BGA, padding 14px 16px) que usa `powerprofilesctl`
+para listar y seleccionar perfiles. Se agregó entrada `L_POWER_PROFILE` en
+`power.sh` y las variables de idioma correspondientes en `es.sh`/`en.sh`.
+
+### Archivos afectados
+- `config/themes/scripts/settings/power-profile.sh` (nuevo)
+- `config/themes/scripts/settings/power.sh`
+- `config/themes/lang/es.sh`
+- `config/themes/lang/en.sh`
+
+---
+
+## 44. Powersave mode: lockfile, CPU profile, flag race, monitor kill
+
+### Problema
+El script `toggle-powersaver.sh` tenía múltiples problemas:
+1. **Doble toggle**: Podía ejecutarse dos veces seguidas, causando conflicto
+   entre los modos activar/desactivar
+2. **Perfil CPU no se restauraba**: Al entrar a powersave se cambiaba a
+   `power-saver` pero al salir no se restauraba el perfil original
+3. **Flag race**: Al salir de powersave, el archivo flag `/tmp/powersaver_active`
+   se eliminaba DESPUÉS de `theme-switch.sh`, pero `apply-picom.sh` chequeaba
+   el flag al inicio y si existía salía sin iniciar picom. Esto impedía que
+   picom arrancara al restaurar el tema normal.
+4. **Monitores player/fullscreen**: Al hacer toggle, los monitores seguían
+   corriendo y sus IPC messages causaban interferencia durante la transición
+
+### Solución
+1. **Lockfile anti-doble-toggle**: Crear `/tmp/powersaver.lock` al inicio del
+   script; eliminarlo al final. Si el lockfile existe, salir inmediatamente.
+2. **CPU profile save/restore**: Guardar el perfil original en
+   `/tmp/powersaver_prev_cpu_profile` al activar; restaurarlo al desactivar.
+3. **Flag race fix**: Mover `rm -f /tmp/powersaver_active` a ANTES de
+   `theme-switch.sh` (en lugar de después), para que `apply-picom.sh`
+   no encuentre el flag y proceda a iniciar picom.
+4. **Monitores killed**: `pkill -f player-monitor.sh` y
+   `pkill -f fullscreen-monitor.sh` al inicio de las funciones de activar
+   y desactivar, antes de copiar configs.
+
+### Archivos afectados
+- `config/themes/scripts/toggle-powersaver.sh`
+
+---
+
+## 45. theme-switch.sh: rm -f /tmp/powersaver_active en cada cambio de tema
+
+### Problema
+Si el usuario cambiaba de tema manualmente mientras el modo powersaver estaba
+activo (o si el flag quedaba huérfano por un crash), el flag powersaver
+permanecía en disco, bloqueando la ejecución de applyers que chequean el flag
+(como `apply-picom.sh`).
+
+### Solución
+Agregar `rm -f /tmp/powersaver_active` al inicio de `theme-switch.sh`, antes
+de correr cualquier applyer. Así cada cambio manual de tema limpia el flag.
+
+### Archivos afectados
+- `config/themes/bin/theme-switch.sh`
+
+---
+
+## 46. Clock format 12h/24h toggle
+
+### Problema
+El reloj en Polybar siempre usaba formato 12h (`%I:%M %p`). No había forma
+de cambiarlo a 24h sin editar archivos manualmente.
+
+### Solución
+Sistema completo de toggle 12h/24h:
+1. **State file**: `~/.config/themes/date-format` contiene `12h` o `24h`
+2. **Rofi menu**: Nuevo `settings/clock-format.sh` con selector visual
+   (mismo estilo premium que power-profile.sh)
+3. **Entry point**: Agregado `L_CLOCK_FMT` en `power.sh` para acceder desde
+   Centro de Control → Energía
+4. **Layouts con `internal/date`**: `apply-polybar.sh` inyecta
+   `date = %I:%M %p` o `date = %H:%M` según el state file
+5. **Layouts con scripts custom (bubble)**: `date-wrapper.sh` y
+   `center-bubble.sh` leen `~/.config/themes/date-format` directamente
+   para elegir el formato
+6. **Lang vars**: `L_CLOCK_FMT` en `es.sh`/`en.sh`
+
+### Archivos afectados
+- `config/themes/scripts/settings/clock-format.sh` (nuevo)
+- `config/themes/scripts/settings/power.sh`
+- `config/themes/lang/es.sh`
+- `config/themes/lang/en.sh`
+- `config/themes/applyers/apply-polybar.sh`
+- `config/polybar/scripts/date-wrapper.sh`
+- `config/polybar/scripts/center-bubble.sh`
+
+---
+
+## 47. launch.sh: lockfile PID validation + adaptive widths validation
+
+### Problema
+El lockfile de `launch.sh` usaba `kill -0` para verificar si el proceso
+que escribió el lockfile seguía vivo. Sin embargo, los PIDs pueden ser
+reciclados por el kernel: si el proceso original murió y el PID fue
+reasignado a otro proceso, `kill -0` reportaba "vivo" incorrectamente.
+Esto era especialmente problemático tras `mod+Shift+r` (i3 restart), donde
+los PIDs hijos del i3 session podían ser reciclados rápidamente.
+
+Además, `calc-adaptive-widths.sh` podía generar valores negativos o cero
+en ciertos cálculos, que al ser inyectados en `bubble.ini` vía sed rompían
+la polybar.
+
+### Solución
+1. **PID validation**: `lockfile_clean` ahora verifica que el nombre del
+   proceso (`/proc/$pid/comm`) sea `polybar` o `launch.sh`. Si no coincide,
+   el lockfile se considera huérfano y se elimina.
+2. **Adaptive widths validation**: Se agregó un chequeo que verifica que
+   los valores calculados sean > 0 antes de aplicar sed. Si algún valor es
+   inválido, se usa un valor por defecto seguro.
+
+### Archivos afectados
+- `config/polybar/launch.sh`
+- `config/polybar/scripts/calc-adaptive-widths.sh`

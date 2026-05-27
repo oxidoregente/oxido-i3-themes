@@ -294,7 +294,7 @@ default_floating_border pixel 0
 exec_always --no-startup-id ~/.config/themes/scripts/start-services.sh
 
 # Polybar (se lanza desde apply-polybar.sh, mantener por si acaso)
-exec --no-startup-id ~/.config/polybar/launch.sh
+exec_always --no-startup-id ~/.config/polybar/launch.sh
 
 # Fullscreen monitor: manejado por launch.sh, no lanzar duplicado
 # exec_always --no-startup-id ~/.config/polybar/scripts/fullscreen-monitor.sh

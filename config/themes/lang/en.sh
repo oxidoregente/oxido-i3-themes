@@ -62,6 +62,7 @@ L_NO_IMAGES="No images in backgrounds/ folder"
 # --- Power Menu ---
 L_PS="🌙  PowerSaver"
 L_POWER_PROFILE="  Power profile"
+L_CLOCK_FMT="  Clock format"
 L_LID="󰤁  Lid behavior"
 L_AUTOLOCK="🔒  Auto-lock"
 

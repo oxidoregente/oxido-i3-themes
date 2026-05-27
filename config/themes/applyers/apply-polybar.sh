@@ -71,6 +71,17 @@ if [ -f "$LAYOUT_FILE" ] && [ -f "$LAYOUTS_DIR/$(cat "$LAYOUT_FILE").ini" ]; the
             sed -i "/^\[bar\/$bar\]/a override-redirect = false" "$CONFIG_DST"
         fi
     done
+
+    # Inject date format (12h/24h) en todos los [module/date]
+    FMT_FILE="$HOME/.config/themes/date-format"
+    if [ -f "$FMT_FILE" ]; then
+        DFMT=$(cat "$FMT_FILE")
+        if [ "$DFMT" = "24h" ]; then
+            sed -i "/^\[module\/date\]/,/^\[module\//{s/^date *=.*/date = %H:%M/}" "$CONFIG_DST"
+        else
+            sed -i "/^\[module\/date\]/,/^\[module\//{s/^date *=.*/date = %I:%M %p/}" "$CONFIG_DST"
+        fi
+    fi
 elif [ -f "$THEME_DIR/polybar/config.ini" ]; then
     cp "$THEME_DIR/polybar/config.ini" "$CONFIG_DST"
 elif [ -f "$THEME_DIR/polybar/colors.ini" ]; then

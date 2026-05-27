@@ -57,7 +57,7 @@ Panel unificado con Rofi para gestionar todo el sistema:
 | 🔔 Notificaciones | No Molestar, limpiar, historial |
 | 🎬 Animaciones | Menú jerárquico: Global / Por app / Preestablecidos |
 | 🎨 Apariencia | Selector de temas (split panel con preview), toggle Conky, gaps |
-| ⚡ Energía | PowerSaver, DPMS timeout, autolock, comportamiento de tapa |
+| ⚡ Energía | PowerSaver, Plan de energía, Formato de hora, DPMS timeout, autolock, comportamiento de tapa |
 | 🔧 Sistema | Estado/restart de servicios, información del sistema |
 | 📋 Utilidades | Capturas, WiFi, Bluetooth, color picker, clipboard |
 
@@ -79,6 +79,8 @@ Sistema de animaciones por ventana con 4 triggers configurables individualmente:
 
 ### 🔋 PowerSaver Mode (`$mod+Shift+p`)
 Toggle que desactiva picom (cambia a xrender), conky y polybar mínima para ahorrar batería.
+También establece el perfil de CPU en `power-saver`; al salir restaura el perfil original.
+Incluye lockfile anti-doble-toggle y espera a que los procesos terminen antes de copiar configs.
 
 ### 🖥️ Tema GTK / Nemo (Archivos)
 Al cambiar de tema, el Gestor de Archivos **nemo** (Archivos) y otras aplicaciones GTK actualizan sus colores de acento para coincidir con el tema activo:
@@ -152,10 +154,13 @@ El layout **bubble** divide la Polybar en 4 barras independientes (left, center,
 | `playerctl-wrapper.sh` | Wrapper con detección prioritaria de reproductor activo |
 | `nowplaying.sh` | Módulo nowplaying sourced desde el wrapper |
 
-### 🕐 Reloj en Español
-La fecha en la Polybar muestra los días y meses en español usando `LC_TIME=es_VE.utf8`:
-- **Hora**: Formato `%I:%M %p` (ej: 02:30 PM)
-- **Fecha extendida**: Al hacer clic, muestra `%A, %d %B %Y` en español (ej: sábado, 23 mayo 2026)
+### 🕐 Reloj configurable (12h / 24h)
+La fecha en la Polybar se puede alternar entre formato de 12 y 24 horas desde el Centro de Control (`$mod+Shift+s` → Energía).
+- **Formato por defecto**: `%I:%M %p` (12h, ej: 02:30 PM)
+- **Formato alternativo**: `%H:%M` (24h, ej: 14:30)
+- **Persistencia**: La selección se guarda en `~/.config/themes/date-format`
+- **Afecta todos los layouts**: Los layouts con `internal/date` se actualizan via `apply-polybar.sh`. Los layouts que usan scripts custom (`bubble` con `date-wrapper.sh` y `center-bubble.sh`) leen el archivo de estado directamente.
+- **Fecha extendida**: Al hacer clic en el reloj, muestra `%A, %d %B %Y` en el idioma activo (ej: sábado, 23 mayo 2026)
 
 ---
 

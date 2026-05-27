@@ -57,7 +57,7 @@ Unified panel with Rofi to manage the entire system:
 | 🔔 Notifications | Do Not Disturb, clear, history |
 | 🎬 Animations | Hierarchical menu: Global / Per-app / Presets |
 | 🎨 Appearance | Theme selector (split panel with preview), Conky toggle, gaps |
-| ⚡ Power | PowerSaver, DPMS timeout, autolock, lid behavior |
+| ⚡ Power | PowerSaver, Power profile, Clock format, DPMS timeout, autolock, lid behavior |
 | 🔧 System | Service status/restart, system information |
 | 📋 Utilities | Screenshots, WiFi, Bluetooth, color picker, clipboard |
 
@@ -79,6 +79,8 @@ Per-window animation system with 4 individually configurable triggers:
 
 ### 🔋 PowerSaver Mode (`$mod+Shift+p`)
 Toggle that disables picom (switches to xrender), conky, and minimal polybar to save battery.
+Also sets the CPU profile to `power-saver` on enter; restores the original profile on exit.
+Includes anti-double-toggle lockfile and waits for processes to die before copying configs.
 
 ### 🖥️ GTK Theming / Nemo (Files)
 When switching themes, **nemo** (Files) and other GTK applications update their accent colors to match the active theme:
@@ -161,10 +163,13 @@ The **bubble** layout splits Polybar into 4 independent bars (left, center, play
 | `playerctl-wrapper.sh` | Wrapper with prioritized active player detection |
 | `nowplaying.sh` | Now-playing module sourced from the wrapper |
 
-### 🕐 Date in Spanish
-The Polybar clock displays days and months in Spanish using `LC_TIME=es_VE.utf8`:
-- **Time**: `%I:%M %p` format (e.g., 02:30 PM)
-- **Extended date**: Click to show `%A, %d %B %Y` in Spanish (e.g., sábado, 23 mayo 2026)
+### 🕐 Configurable clock (12h / 24h)
+The Polybar clock can be toggled between 12 and 24-hour format from the Control Center (`$mod+Shift+s` → Power).
+- **Default format**: `%I:%M %p` (12h, e.g., 02:30 PM)
+- **Alternative**: `%H:%M` (24h, e.g., 14:30)
+- **Persistent**: Selection saved to `~/.config/themes/date-format`
+- **Affects all layouts**: Layouts using `internal/date` update via `apply-polybar.sh`. Custom-script layouts (`bubble` with `date-wrapper.sh` and `center-bubble.sh`) read the state file directly.
+- **Extended date**: Click the clock to show `%A, %d %B %Y` in the active language (e.g., Wednesday, 27 May 2026)
 
 ---
 

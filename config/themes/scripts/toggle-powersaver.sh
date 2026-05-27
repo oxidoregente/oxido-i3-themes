@@ -23,6 +23,10 @@ lockfile_create() {
 lockfile_create
 trap 'rm -rf "$LOCKFILE"' EXIT
 
+# Matar monitores antes de cualquier cambio
+pkill -f "player-monitor.sh" 2>/dev/null
+pkill -f "fullscreen-monitor.sh" 2>/dev/null
+
 if [ -f "$STATE_FILE" ]; then
     # SALIR DEL MODO AHORRO → restaurar tema original
     rm -f "$STATE_FILE"
