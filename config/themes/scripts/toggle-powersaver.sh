@@ -25,6 +25,8 @@ trap 'rm -rf "$LOCKFILE"' EXIT
 
 if [ -f "$STATE_FILE" ]; then
     # SALIR DEL MODO AHORRO → restaurar tema original
+    rm -f "$STATE_FILE"
+
     if [ -f /tmp/powersaver_prev_theme ]; then
         ORIG_THEME=$(cat /tmp/powersaver_prev_theme)
         rm -f /tmp/powersaver_prev_theme
@@ -48,7 +50,6 @@ if [ -f "$STATE_FILE" ]; then
         powerprofilesctl set "$ORIG_CPU" 2>/dev/null
     fi
 
-    rm -f "$STATE_FILE"
     notify-send "PowerSaver" "☀ Modo normal restaurado"
 else
     # ENTRAR EN MODO AHORRO

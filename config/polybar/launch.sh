@@ -7,7 +7,9 @@ lockfile_clean() {
     if [ -d "$LOCKFILE" ]; then
         LOCK_PID=$(cat "$LOCKFILE/pid" 2>/dev/null || echo 0)
         if [ "$LOCK_PID" -gt 0 ] 2>/dev/null && kill -0 "$LOCK_PID" 2>/dev/null; then
-            exit 0
+            if ps -p "$LOCK_PID" -o comm= 2>/dev/null | grep -qE "polybar|launch"; then
+                exit 0
+            fi
         fi
         rm -rf "$LOCKFILE"
     fi
@@ -52,9 +54,16 @@ if grep -q "^\[bar/left\]" "$CONFIG" 2>/dev/null; then
         CENTER_O=$(echo "$ADAPTIVE" | grep "^center=" | cut -d\| -f2)
         PLAYER_W=$(echo "$ADAPTIVE" | grep "^player=" | cut -d= -f2 | cut -d\| -f1)
         PLAYER_O=$(echo "$ADAPTIVE" | grep "^player=" | cut -d\| -f2)
-        sed -i "/^\[bar\/left\]/,/^\[bar\// {s/^width =.*/width = $LEFT_W%/; s/^offset-x =.*/offset-x = $LEFT_O%/;}" "$CONFIG"
-        sed -i "/^\[bar\/center\]/,/^\[bar\// {s/^width =.*/width = $CENTER_W%/; s/^offset-x =.*/offset-x = $CENTER_O%/;}" "$CONFIG"
-        sed -i "/^\[bar\/player\]/,/^\[bar\// {s/^width =.*/width = $PLAYER_W%/; s/^offset-x =.*/offset-x = $PLAYER_O%/;}" "$CONFIG"
+        # Validate: all values must be positive numbers
+        if echo "$LEFT_W $LEFT_O $CENTER_W $CENTER_O $PLAYER_W $PLAYER_O" | \
+             grep -qE '^[0-9]+(\.[0-9]+)?( [0-9]+(\.[0-9]+)?)*$' && \
+             [ "$(echo "$LEFT_W > 0" | bc -l 2>/dev/null)" = 1 ] && \
+             [ "$(echo "$CENTER_W > 0" | bc -l 2>/dev/null)" = 1 ] && \
+             [ "$(echo "$PLAYER_W > 0" | bc -l 2>/dev/null)" = 1 ]; then
+            sed -i "/^\[bar\/left\]/,/^\[bar\// {s/^width =.*/width = $LEFT_W%/; s/^offset-x =.*/offset-x = $LEFT_O%/;}" "$CONFIG"
+            sed -i "/^\[bar\/center\]/,/^\[bar\// {s/^width =.*/width = $CENTER_W%/; s/^offset-x =.*/offset-x = $CENTER_O%/;}" "$CONFIG"
+            sed -i "/^\[bar\/player\]/,/^\[bar\// {s/^width =.*/width = $PLAYER_W%/; s/^offset-x =.*/offset-x = $PLAYER_O%/;}" "$CONFIG"
+        fi
     fi
 fi
 

@@ -1,6 +1,7 @@
 #!/bin/bash
 # power-profile.sh — Menú para seleccionar perfil de energía (CPU)
 # oxido-i3-themes
+pidof -x rofi >/dev/null 2>&1 && exit 0
 BACK_TO="${1:-$HOME/.config/themes/bin/rofi-settings.sh}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 [ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
@@ -17,7 +18,14 @@ opt_perf="$L_BAT_PERF"
 [ "$current" = "performance" ] && opt_perf="$opt_perf  $L_BAT_ACTIVE"
 
 choices=$(printf "%s\n%s\n%s\n%s" "$opt_save" "$opt_bal" "$opt_perf" "$L_BACK" | \
-    rofi -dmenu -p "$L_POWER_PROFILE" -theme-str "$ROFI_THEME_SUB" -i)
+    rofi -dmenu -p "$L_POWER_PROFILE" -i -theme-str "
+window { width: 480px; border-radius: 24px; border-color: $SEL; background-color: $BG; }
+mainbox { children: [ listview ]; padding: 20px; }
+listview { columns: 1; lines: 4; spacing: 8px; dynamic: false; }
+element { padding: 14px 16px; border-radius: 14px; text-color: $FG; background-color: $BGA; }
+element selected { background-color: $SEL; text-color: $BG; }
+element-text { vertical-align: 0.5; font: \"JetBrainsMono Nerd Font Mono 12\"; }
+")
 
 [ -z "$choices" ] && exec "$BACK_TO"
 [[ "$choices" == *"$L_BACK"* ]] && exec "$BACK_TO"
