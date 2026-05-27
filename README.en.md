@@ -56,8 +56,8 @@ Unified panel with Rofi to manage the entire system:
 | ☀️ Display | Brightness ±5%, wallpaper grid picker, DPMS off |
 | 🔔 Notifications | Do Not Disturb, clear, history |
 | 🎬 Animations | Hierarchical menu: Global / Per-app / Presets |
-| 🎨 Appearance | Theme selector (split panel with preview), Conky toggle, gaps |
-| ⚡ Power | PowerSaver, Power profile, Clock format, DPMS timeout, autolock, lid behavior |
+| 🎨 Appearance | Theme selector (split panel with preview), Conky toggle, gaps, Clock format |
+| ⚡ Power | PowerSaver, Power profile, DPMS timeout, autolock, lid behavior |
 | 🔧 System | Service status/restart, system information |
 | 📋 Utilities | Screenshots, WiFi, Bluetooth, color picker, clipboard |
 
@@ -164,7 +164,7 @@ The **bubble** layout splits Polybar into 4 independent bars (left, center, play
 | `nowplaying.sh` | Now-playing module sourced from the wrapper |
 
 ### 🕐 Configurable clock (12h / 24h)
-The Polybar clock can be toggled between 12 and 24-hour format from the Control Center (`$mod+Shift+s` → Power).
+The Polybar clock can be toggled between 12 and 24-hour format from the Control Center (`$mod+Shift+s` → Appearance).
 - **Default format**: `%I:%M %p` (12h, e.g., 02:30 PM)
 - **Alternative**: `%H:%M` (24h, e.g., 14:30)
 - **Persistent**: Selection saved to `~/.config/themes/date-format`

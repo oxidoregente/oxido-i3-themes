@@ -1350,8 +1350,9 @@ Sistema completo de toggle 12h/24h:
 1. **State file**: `~/.config/themes/date-format` contiene `12h` o `24h`
 2. **Rofi menu**: Nuevo `settings/clock-format.sh` con selector visual
    (mismo estilo premium que power-profile.sh)
-3. **Entry point**: Agregado `L_CLOCK_FMT` en `power.sh` para acceder desde
-   Centro de Control → Energía
+3. **Entry point**: Agregado `L_CLOCK_FMT` en `appearance.sh` para acceder desde
+   Centro de Control → Apariencia. Originalmente en `power.sh` (Energía), pero se
+   movió a Apariencia por ser un ajuste visual de la barra, no de energía.
 4. **Layouts con `internal/date`**: `apply-polybar.sh` inyecta
    `date = %I:%M %p` o `date = %H:%M` según el state file
 5. **Layouts con scripts custom (bubble)**: `date-wrapper.sh` y
@@ -1362,6 +1363,7 @@ Sistema completo de toggle 12h/24h:
 ### Archivos afectados
 - `config/themes/scripts/settings/clock-format.sh` (nuevo)
 - `config/themes/scripts/settings/power.sh`
+- `config/themes/scripts/settings/appearance.sh`
 - `config/themes/lang/es.sh`
 - `config/themes/lang/en.sh`
 - `config/themes/applyers/apply-polybar.sh`

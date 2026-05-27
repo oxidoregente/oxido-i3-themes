@@ -27,6 +27,7 @@ $L_CUR_THEME: ${CURRENT_THEME:-ninguno}  ▶
 $L_WALLPAPER  ▸
 $L_LOCKSCREEN  ▸
 $L_POLY_LAYOUT: $(current_layout)  ▸
+$L_CLOCK_FMT: $(cat ~/.config/themes/date-format 2>/dev/null || echo "12h")  ▸
 $L_CONKY_TOG: $(conky_status)
 $L_GAPS_IN: ${GAPS_INNER}px  ▸
 $L_GAPS_OUT: ${GAPS_OUTER}px  ▸
@@ -42,6 +43,8 @@ EOF
             exec "$DIR/lockscreen.sh" ;;
         *"$L_POLY_LAYOUT"*)
             ~/.config/themes/bin/rofi-layout-selector.sh ;;
+        *"$L_CLOCK_FMT"*)
+            exec "$DIR/clock-format.sh" "$DIR/appearance.sh" ;;
         *"$L_CONKY_TOG"*)
             ~/.config/themes/bin/toggle-conky.sh ;;
         *"$L_GAPS_IN"*)
