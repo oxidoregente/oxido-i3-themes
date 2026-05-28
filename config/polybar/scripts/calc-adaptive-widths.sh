@@ -17,7 +17,7 @@ get_monitor_width() {
 WIDTH=$(get_monitor_width)
 [ -z "$WIDTH" ] && WIDTH=1920
 
-# Proporciones base con gaps entre barras flotantes
+# Proporciones base con gaps de 2% entre barras flotantes
 GAP=2
 # Los módulos de la derecha (sys-start .. sys-end + tray) ocupan ~42% estimado
 # La barra player termina 10px ANTES de que empiecen los módulos derechos
@@ -40,13 +40,8 @@ player_o = round(center_o + center + gap + 7, 1)
 right_pct = $RIGHT_PCT
 gap_pct = round($GAP_PX / w * 100, 1)
 player_end = round(100 - right_pct - gap_pct, 1)
-# Player width con mínimo en pixeles
-player_min = round($MIN_PLAYER / w * 100, 1)
-player = max(round(player_end - player_o, 1), player_min)
-# Right bar: empieza donde termina player + gap, llega hasta el borde
-right_o = round(player_o + player + gap_pct, 1)
-right_w = round(100 - right_o, 1)
-print(f'{left}|{center}|{center_o}|{player}|{player_o}|{right_w}|{right_o}')
+player = max(round(player_end - player_o, 1), round($MIN_PLAYER / w * 100, 1))
+print(f'{left}|{center}|{center_o}|{player}|{player_o}')
 ")
 
 LEFT_PCT=$(echo "$VALUES" | cut -d'|' -f1)
@@ -54,10 +49,7 @@ CENTER_PCT=$(echo "$VALUES" | cut -d'|' -f2)
 CENTER_O=$(echo "$VALUES" | cut -d'|' -f3)
 PLAYER_PCT=$(echo "$VALUES" | cut -d'|' -f4)
 PLAYER_O=$(echo "$VALUES" | cut -d'|' -f5)
-RIGHT_PCT=$(echo "$VALUES" | cut -d'|' -f6)
-RIGHT_O=$(echo "$VALUES" | cut -d'|' -f7)
 
 echo "left=$LEFT_PCT|0"
 echo "center=$CENTER_PCT|$CENTER_O"
 echo "player=$PLAYER_PCT|$PLAYER_O"
-echo "right=$RIGHT_PCT|$RIGHT_O"
