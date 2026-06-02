@@ -12,7 +12,7 @@ mkdir -p "$CACHE_DIR"
 
 current_wall() { grep "file=" ~/.config/nitrogen/bg-saved.cfg 2>/dev/null | head -1 | sed 's/.*file=//'; }
 
-PINNED_FILE="$HOME/.config/themes/current-wallpaper"
+PINNED_FILE="$THEME_DIR/last-wallpaper"
 
 shopt -s nullglob
 entries="$L_BACK\0icon\x1fgo-previous\n"

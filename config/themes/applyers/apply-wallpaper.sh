@@ -1,6 +1,6 @@
 #!/bin/bash
 THEME_DIR="$1"
-PINNED_FILE="$HOME/.config/themes/current-wallpaper"
+PINNED_FILE="$THEME_DIR/last-wallpaper"
 
 # Check if user has pinned a custom wallpaper
 if [ -f "$PINNED_FILE" ]; then
