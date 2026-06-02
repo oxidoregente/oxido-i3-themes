@@ -57,22 +57,22 @@ for_window [title="terminal_alacritty"] border pixel 2
 bindsym $mod+Return exec --no-startup-id ~/.config/themes/scripts/launch-terminal.sh
 
 # start the browser
-bindsym $mod+Shift+f exec ~/.config/themes/scripts/launch-browser.sh
+bindsym $mod+Shift+f exec --no-startup-id ~/.config/themes/scripts/launch-browser.sh
 
 # Theme Switcher (Selector visual Rofi)
-bindsym $mod+Shift+t exec ~/.config/themes/bin/rofi-theme-selector.sh
+bindsym $mod+Shift+t exec --no-startup-id ~/.config/themes/bin/rofi-theme-selector.sh
 
 # Centro de Control (configuración visual)
 bindsym $mod+Shift+s exec --no-startup-id ~/.config/themes/bin/rofi-settings.sh
 
 # Visor de atajos de teclado
-bindsym $mod+Shift+slash exec ~/.config/themes/scripts/settings/keybindings.sh
+bindsym $mod+Shift+slash exec --no-startup-id ~/.config/themes/scripts/settings/keybindings.sh
 
 # Toggle Conky (modo modular: on/off)
-bindsym $mod+Shift+n exec ~/.config/themes/bin/toggle-conky.sh
+bindsym $mod+Shift+n exec --no-startup-id ~/.config/themes/bin/toggle-conky.sh
 
 # PowerSaver Mode (toggle: sin picom, sin conky, polybar mínima)
-bindsym $mod+Shift+p exec ~/.config/themes/scripts/toggle-powersaver.sh
+bindsym $mod+Shift+p exec --no-startup-id ~/.config/themes/scripts/toggle-powersaver.sh
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -179,7 +179,7 @@ bindsym $mod+Shift+o reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $mod+Shift+r exec --no-startup-id "killall -q conky nm-applet 2>/dev/null; i3-msg restart"
 # exit i3 (logs you out of your X session)
-bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
+bindsym $mod+Shift+e exec --no-startup-id "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
@@ -233,7 +233,7 @@ bindsym $mod+r mode "resize"
 # }
 
 # Captura de pantalla con la tecla Print Screen
-bindsym Print exec flameshot gui
+bindsym Print exec --no-startup-id flameshot gui
 
 # Zoom de Pantalla 
 exec --no-startup-id xrdb -merge ~/.Xresources
@@ -273,7 +273,7 @@ exec --no-startup-id nitrogen --restore
 gaps inner 6
 gaps outer 2
 # Gestionado dinámicamente por apply-polybar.sh
-gaps top 34
+gaps top 0
 
 # Barra invisible: la barra derecha de polybar (dock managed) provee el strut
 # bar {
@@ -382,5 +382,5 @@ bindsym $mod+Shift+m exec --no-startup-id ~/.config/themes/bin/polybar-modules.s
 
 # Terminal Flotante
 for_window [title="terminal_flotante"] floating enable, border pixel 2, resize set 900 px 570 px, move position center
-bindsym $mod+Shift+Return exec alacritty -T "terminal_flotante"
+bindsym $mod+Shift+Return exec --no-startup-id alacritty -T "terminal_flotante"
 
