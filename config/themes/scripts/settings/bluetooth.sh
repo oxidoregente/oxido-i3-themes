@@ -13,12 +13,20 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BT_ON=$(bluetoothctl show 2>/dev/null | grep "Powered" | awk '{print $2}')
 
 if [ "$BT_ON" = "yes" ]; then
-    choice=$(printf "📴  Apagar Bluetooth\n🔍  Escanear dispositivos\n📋  Dispositivos emparejados\n$L_BACK" | rofi -dmenu -p "  🔵  $L_BT: ON" -theme-str "$ROFI_THEME_SUB" -i)
+    BT_MENU="📴  Apagar Bluetooth\n🔍  Escanear dispositivos\n📋  Dispositivos emparejados"
+    if command -v blueman-sendto &>/dev/null; then
+        BT_MENU="$BT_MENU\n📁  Enviar archivo"
+    fi
+    BT_MENU="$BT_MENU\n$L_BACK"
+
+    choice=$(printf "%b" "$BT_MENU" | rofi -dmenu -p "  🔵  $L_BT: ON" -theme-str "$ROFI_THEME_SUB" -i)
     [ -z "$choice" ] && exec "$BACK_TO"
     [[ "$choice" == *"$L_BACK"* ]] && exec "$BACK_TO"
 
     case "$choice" in
         *Apagar*) bluetoothctl power off && dunstify -u low "🔵  $L_BT" "Apagado" ;;
+        *Enviar*) blueman-sendto 2>/dev/null &
+            dunstify -u low "🔵  $L_BT" "Selecciona dispositivo y archivo" ;;
         *Escanear*)
             dunstify -u low "🔵  $L_BT" "Escaneando..." &
             devices=$(bluetoothctl --timeout 10 scan on 2>/dev/null | grep "Device" | head -20)

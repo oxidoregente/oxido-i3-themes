@@ -12,8 +12,11 @@ mkdir -p "$CACHE_DIR"
 
 current_wall() { grep "file=" ~/.config/nitrogen/bg-saved.cfg 2>/dev/null | head -1 | sed 's/.*file=//'; }
 
+PINNED_FILE="$HOME/.config/themes/current-wallpaper"
+
 shopt -s nullglob
 entries="$L_BACK\0icon\x1fgo-previous\n"
+[ -f "$PINNED_FILE" ] && entries="♻️  Restaurar wallpaper del tema\0icon\x1fweather-clear\n$entries"
 files=()
 for img in "$WALL_DIR"/*.{jpg,png,jpeg,webp,bmp}; do
     [ ! -f "$img" ] && continue
@@ -48,8 +51,22 @@ choice=$(printf "%b" "$entries" | rofi -dmenu -p "  🖼️  $L_WALLPAPER" -show
 [ -z "$choice" ] && exec "$SCRIPT_DIR/appearance.sh"
 [[ "$choice" == *"$L_BACK"* ]] && exec "$SCRIPT_DIR/appearance.sh"
 
+# Handle restore theme wallpaper
+if [[ "$choice" == *"Restaurar"* ]]; then
+    rm -f "$PINNED_FILE"
+    THEME_DIR=$(readlink -f ~/.config/themes/current/theme 2>/dev/null)
+    bash "$HOME/.config/themes/applyers/apply-wallpaper.sh" "$THEME_DIR"
+    dunstify -u low "🖼️  $L_WALLPAPER" "Wallpaper del tema restaurado"
+    exec "$SCRIPT_DIR/appearance.sh"
+fi
+
 selected=$(echo "$choice" | sed 's/^▶ //')
 wall_path="$WALL_DIR/$selected"
-[ -f "$wall_path" ] && nitrogen --set-zoom-fill "$wall_path" 2>/dev/null
-dunstify -u low "🖼️  $L_WALLPAPER" "$L_SET_AS_WALL: $chosen"
+if [ -f "$wall_path" ]; then
+    echo "$wall_path" > "$PINNED_FILE"
+    # Kill desktop managers that might interfere with wallpaper
+    killall -9 plank 2>/dev/null
+    nitrogen --set-zoom-fill "$wall_path" --save 2>/dev/null
+fi
+dunstify -u low "🖼️  $L_WALLPAPER" "$L_SET_AS_WALL: $selected"
 exec "$SCRIPT_DIR/appearance.sh"
