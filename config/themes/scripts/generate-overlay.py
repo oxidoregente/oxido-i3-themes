@@ -26,8 +26,8 @@ H = 130
 img = Image.new('RGBA', (W, H), f"#{colors['bg']}")
 draw = ImageDraw.Draw(img)
 
-FONT_BOLD = "/home/oxido/.local/share/fonts/IosevkaTermNerdFontMono-Bold.ttf"
-FONT_REG = "/home/oxido/.local/share/fonts/IosevkaTermNerdFontMono-Regular.ttf"
+FONT_BOLD = "${HOME}/.local/share/fonts/IosevkaTermNerdFontMono-Bold.ttf"
+FONT_REG = "${HOME}/.local/share/fonts/IosevkaTermNerdFontMono-Regular.ttf"
 font_name = ImageFont.truetype(FONT_BOLD, 40)
 font_hex = ImageFont.truetype(FONT_REG, 12)
 

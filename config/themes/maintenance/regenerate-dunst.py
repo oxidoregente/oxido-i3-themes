@@ -2,7 +2,7 @@
 import os, re, sys
 
 # Detectar si estamos en el repo o en .config
-REPO_DIR = "/home/oxido/Documentos/oxido-i3-themes"
+REPO_DIR = "${HOME}/Documentos/oxido-i3-themes"
 if os.path.isdir(REPO_DIR):
     THEMES_DIR = os.path.join(REPO_DIR, "config/themes/themes")
     TEMPLATE = os.path.join(THEMES_DIR, "tokyo-night", "dunst", "dunstrc")

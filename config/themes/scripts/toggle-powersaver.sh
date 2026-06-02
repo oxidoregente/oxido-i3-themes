@@ -69,13 +69,15 @@ else
     powerprofilesctl get > /tmp/powersaver_prev_cpu_profile 2>/dev/null
     powerprofilesctl set power-saver 2>/dev/null
 
-    # Matar picom y conky con wait+force
+    # Matar picom y conky de forma elegante
     killall -q picom conky 2>/dev/null
-    timeout=20
-    while [ "$timeout" -gt 0 ] && (pgrep -x picom >/dev/null || pgrep -x conky >/dev/null); do
+    TIMEOUT=20
+    while [ "$TIMEOUT" -gt 0 ] && (pgrep -x picom >/dev/null || pgrep -x conky >/dev/null); do
         sleep 0.1
-        timeout=$((timeout - 1))
+        TIMEOUT=$((TIMEOUT - 1))
     done
+    
+    # Solo usar force kill si no han muerto tras 2 segundos
     pgrep -x picom >/dev/null && pkill -9 -x picom 2>/dev/null
     pgrep -x conky >/dev/null && pkill -9 -x conky 2>/dev/null
 
