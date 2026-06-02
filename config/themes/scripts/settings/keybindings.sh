@@ -56,43 +56,35 @@ translate_keys() {
     fi
 }
 
-# Parsear bindings y limpiar nombres
-entries=$(grep "^\s*bindsym\|^\s*bindcode" "$CONFIG" 2>/dev/null | grep -v "^\s*#" | \
+# Parsear bindings
+entries=$(grep -E "^\s*bindsym|^\s*bindcode" "$CONFIG" | grep -v "^\s*#" | \
     while read -r line; do
-        # Extraer teclas y comando
-        keys=$(echo "$line" | sed 's/bindsym //;s/bindcode //;s/--no-startup-id //;s/--release //;s/exec //g' | awk '{print $1}')
-        cmd=$(echo "$line" | sed 's/bindsym //;s/bindcode //;s/--no-startup-id //;s/--release //;s/exec //g' | cut -d' ' -f2-)
+        # Limpiar la línea para extraer solo teclas y comando
+        clean=$(echo "$line" | sed 's/bindsym //;s/bindcode //;s/--no-startup-id //;s/--release //;s/exec //g')
+        keys=$(echo "$clean" | awk '{print $1}')
+        cmd=$(echo "$clean" | cut -d' ' -f2-)
         
         [ -z "$cmd" ] && continue
 
-        # Limpiar y traducir modificadores
         keys_clean=$(translate_keys "$keys")
-        
-        # Traducir comando
         desc=$(translate_cmd "$cmd")
         
-        # Formatear línea: "TECLAS  ➜  DESCRIPCIÓN"
         printf "%-25s  ➜  %s\n" "$keys_clean" "$desc"
-    done | sort)
+    done | sort -u)
 
-[ -z "$entries" ] && {
-    dunstify -u critical "⌨️  $L_UTILS" "No shortcuts found"
+if [ -z "$entries" ]; then
+    notify-send "Atajos" "No se encontraron atajos"
     exit 1
-}
+fi
 
-# Usar el builder de rofi para colores consistentes
+# Rofi con tema simplificado para evitar errores de parseo
 sel=$(echo "$entries" | rofi -dmenu -p "  ⌨️  ${L_KB_HELP:-Atajos}" -i \
-    -theme-str "window { width: 850px; border-radius: ${ROFI_RADIUS:-16}px; border: ${ROFI_BORDER:-2}px solid; border-color: $SEL; background-color: $BG; }
-    mainbox { children: [inputbar, listview]; spacing: 10px; padding: 15px; }
-    inputbar { background-color: $BGA; border-radius: 12px; padding: 10px 15px; text-color: $FG; children: [prompt, entry]; }
-    prompt { text-color: $SEL; }
-    listview { columns: 1; lines: 15; spacing: 4px; dynamic: true; fixed-height: false; }
-    element { border-radius: 8px; padding: 8px 12px; background-color: transparent; text-color: $FG; }
-    element selected { background-color: $SEL; text-color: $BG; }
-    element-text { font: \"JetBrainsMono Nerd Font Mono ${ROFI_FONT_SIZE_SUB:-10}\"; }")
+    -theme-str "window { width: 850px; border-radius: 12px; }
+    listview { lines: 15; }
+    element-text { font: \"JetBrainsMono Nerd Font Mono 11\"; }")
 
 [ -n "$sel" ] && {
-    key=$(echo "$sel" | cut -d'➜' -f1 | xargs)
     desc=$(echo "$sel" | cut -d'➜' -f2 | xargs)
-    dunstify -u low "⌨️  $desc" "$key"
+    key=$(echo "$sel" | cut -d'➜' -f1 | xargs)
+    notify-send "⌨️  $desc" "$key"
 }

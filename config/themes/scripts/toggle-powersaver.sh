@@ -1,5 +1,6 @@
 #!/bin/bash
 # Toggle PowerSaver Mode — Desactiva picom, conky, pone fondo sólido y polybar mínima
+# oxido-i3-themes
 LOCKFILE="/tmp/powersaver-toggle.lock"
 STATE_FILE="/tmp/powersaver_active"
 CURRENT_LINK="$HOME/.config/themes/current/theme"
@@ -22,6 +23,11 @@ lockfile_create() {
 
 lockfile_create
 trap 'rm -rf "$LOCKFILE"' EXIT
+
+# Source language
+[ -f "$HOME/.config/themes/lang/active_lang.env" ] && source "$HOME/.config/themes/lang/active_lang.env"
+[ -z "$LANG" ] && LANG="es"
+[ -f "$HOME/.config/themes/lang/${LANG}.sh" ] && source "$HOME/.config/themes/lang/${LANG}.sh"
 
 # Matar monitores antes de cualquier cambio
 pkill -f "player-monitor.sh" 2>/dev/null
@@ -54,7 +60,7 @@ if [ -f "$STATE_FILE" ]; then
         powerprofilesctl set "$ORIG_CPU" 2>/dev/null
     fi
 
-    notify-send "PowerSaver" "☀ Modo normal restaurado"
+    notify-send "PowerSaver" "☀ ${L_PS:-Modo ahorro} desactivado"
 else
     # ENTRAR EN MODO AHORRO
     touch "$STATE_FILE"
@@ -93,10 +99,10 @@ else
         cp "$THEME_DIR/rofi/config.rasi" "$HOME/.config/rofi/config.rasi"
 
         killall -q dunst 2>/dev/null
-        timeout=20
-        while [ "$timeout" -gt 0 ] && pgrep -x dunst >/dev/null; do
+        TIMEOUT=20
+        while [ "$TIMEOUT" -gt 0 ] && pgrep -x dunst >/dev/null; do
             sleep 0.1
-            timeout=$((timeout - 1))
+            TIMEOUT=$((TIMEOUT - 1))
         done
         dunst 2>/dev/null &
 
@@ -114,5 +120,5 @@ else
     # Polybar minimalista
     ~/.config/polybar/launch.sh 2>/dev/null || polybar-msg cmd restart
 
-    notify-send "PowerSaver" "🌙 Modo ahorro activado (sin picom, sin conky)"
+    notify-send "PowerSaver" "🌙 ${L_PS:-Modo ahorro} activado"
 fi
