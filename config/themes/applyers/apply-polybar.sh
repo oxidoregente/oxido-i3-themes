@@ -15,7 +15,7 @@ LAYOUTS_DIR="$HOME/.config/polybar/layouts"
 REPO_LAYOUTS="$REPO_ROOT/config/polybar/layouts"
 if [ -d "$REPO_LAYOUTS" ]; then
     mkdir -p "$LAYOUTS_DIR"
-    cp --update "$REPO_LAYOUTS"/*.ini "$LAYOUTS_DIR/"
+    cp --no-clobber "$REPO_LAYOUTS"/*.ini "$LAYOUTS_DIR/"
 fi
 
 # Sync polybar scripts from repo
@@ -23,7 +23,7 @@ REPO_SCRIPTS="$REPO_ROOT/config/polybar/scripts"
 SCRIPTS_DST="$HOME/.config/polybar/scripts"
 if [ -d "$REPO_SCRIPTS" ]; then
     mkdir -p "$SCRIPTS_DST"
-    cp --update "$REPO_SCRIPTS"/*.sh "$SCRIPTS_DST/"
+    cp --no-clobber "$REPO_SCRIPTS"/*.sh "$SCRIPTS_DST/"
 fi
 
 # Read position (default: top)
@@ -82,6 +82,10 @@ if [ -f "$LAYOUT_FILE" ] && [ -f "$LAYOUTS_DIR/$(cat "$LAYOUT_FILE").ini" ]; the
             sed -i "/^\[module\/date\]/,/^\[module\//{s/^date *=.*/date = %I:%M %p/}" "$CONFIG_DST"
         fi
     fi
+
+    # Resetear Gaps de i3 (ya no son necesarios con override-redirect = false)
+    i3-msg "gaps top all set 0" >/dev/null 2>&1
+    sed -i 's/^gaps top .*/gaps top 0/' "$HOME/.config/i3/config"
 elif [ -f "$THEME_DIR/polybar/config.ini" ]; then
     cp "$THEME_DIR/polybar/config.ini" "$CONFIG_DST"
 elif [ -f "$THEME_DIR/polybar/colors.ini" ]; then

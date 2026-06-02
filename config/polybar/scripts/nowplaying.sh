@@ -1,9 +1,6 @@
 #!/bin/bash
 # nowplaying.sh — Módulo Now Playing para Polybar (modo tail)
-# oxido-i3-themes
-#
-# Adaptado de arkzuse/polybar-theme
-# https://github.com/arkzuse/polybar-theme — MIT License
+# oxido-i3-themes — Versión Orgánica (Auto-caps + Auto-BG)
 
 # Reutiliza la detección inteligente de reproductor
 source "$HOME/.config/polybar/scripts/playerctl-wrapper.sh"
@@ -55,24 +52,35 @@ scroll_text() {
         return
     fi
 
+    # Formateo dinámico con caps y fondo de burbuja
+    local fmt_start="  %{F$BUBBLE}%{B-}%{B$BUBBLE} %{F$PRIMARY}${symbol} "
+    local fmt_end=" %{B-}%{F$BUBBLE}%{F-}"
+
     if ((text_length <= window_len)); then
-        echo "${symbol} ${padded_text}"
+        echo "${fmt_start}${padded_text}${fmt_end}"
         sleep 3
         return
     fi
 
     for ((i = 0; i < total_len; i++)); do
         symbol=$(get_symbol)
+        fmt_start="  %{F$BUBBLE}%{B-}%{B$BUBBLE} %{F$PRIMARY}${symbol} "
         if ((i + window_len >= total_len)); then
-            echo "${symbol} ${padded_text:i}${padded_text:0:window_len - (total_len - i)}"
+            echo "${fmt_start}${padded_text:i}${padded_text:0:window_len - (total_len - i)}${fmt_end}"
         else
-            echo "${symbol} ${padded_text:i:window_len}"
+            echo "${fmt_start}${padded_text:i:window_len}${fmt_end}"
         fi
         sleep "$delay"
     done
 }
 
 main() {
+    # Leer colores una sola vez al inicio (Polybar reinicia el script al cambiar de tema)
+    BUBBLE=$(sed -n 's/^bubble-player *= *//p' "$HOME/.config/polybar/config.ini" | head -1)
+    PRIMARY=$(sed -n 's/^primary *= *//p' "$HOME/.config/polybar/config.ini" | head -1)
+    [ -z "$BUBBLE" ] && BUBBLE="#222122"
+    [ -z "$PRIMARY" ] && PRIMARY="#b59790"
+
     while true; do
         scroll_text
     done

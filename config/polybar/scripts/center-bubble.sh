@@ -15,12 +15,10 @@ else
 fi
 
 # Leer colores activos del config (pueden cambiar con el tema)
-BG=$(sed -n 's/^background *= *//p' "$HOME/.config/polybar/config.ini" | head -1)
 BUBBLE=$(sed -n 's/^bubble-center *= *//p' "$HOME/.config/polybar/config.ini" | head -1)
 PRIMARY=$(sed -n 's/^primary *= *//p' "$HOME/.config/polybar/config.ini" | head -1)
 [ -z "$BUBBLE" ] && BUBBLE="#222122"
 [ -z "$PRIMARY" ] && PRIMARY="#b59790"
-[ -z "$BG" ] && BG="#0c0b0c33"
 
-# Wedge en color bubble (se funde con format-background) + fecha en primary
-echo "%{F$BUBBLE}%{F-} %{F$PRIMARY}$date_str%{F-} %{F$BUBBLE}%{F-}"
+# Wedge en color bubble (sobre fondo transparente de la barra) + fecha con fondo bubble
+echo "%{F$BUBBLE}%{B-}%{B$BUBBLE} %{F$PRIMARY}$date_str %{B-}%{F$BUBBLE}%{F-}"

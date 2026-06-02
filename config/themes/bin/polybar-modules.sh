@@ -24,34 +24,39 @@ LAYOUT_PATH="$LAYOUTS_DIR/$LAYOUT_NAME.ini"
 [ ! -f "$LAYOUT_PATH" ] && LAYOUT_PATH="$HOME/Documentos/oxido-i3-themes/config/polybar/layouts/$LAYOUT_NAME.ini"
 [ ! -f "$LAYOUT_PATH" ] && { echo "Layout no encontrado"; exit 1; }
 
-# Detectar tipo de layout: split (bubble) o single-bar
+# Detectar tipo de layout: split (bubble viejo) o single-bar
 HAS_SPLIT=$(grep -c "^\[bar/left\]" "$LAYOUT_PATH" 2>/dev/null)
 
 if [ "$HAS_SPLIT" -gt 0 ]; then
-    # Split-bar layout (bubble)
+    # Split-bar layout (antiguo bubble)
     SEC_BAR() {
         case "$1" in L|left) echo "left" ;; C|center) echo "center" ;; R|right) echo "right" ;; esac
     }
-    FIJOS="ws-start ws-end center-start center-end sys-start sys-end"
-else
-    # Single-bar layout
-    SEC_BAR() {
-        echo "top"
-    }
-    FIJOS=""
-fi
-
-_mods_of() {
-    case "$1" in L) echo "$MODS_LEFT" ;; C) echo "$MODS_CENTER" ;; R) echo "$MODS_RIGHT" ;; esac
-}
-if [ "$HAS_SPLIT" -gt 0 ]; then
+    FIJOS="ws-start ws-end center-start center-end sys-start sys-end player-start player-end nowplaying"
     DECO_LEFT="ws-start ws-end"
     DECO_CENTER="center-start center-end"
     DECO_RIGHT="sys-start sys-end"
 else
-    DECO_LEFT=""
-    DECO_CENTER=""
-    DECO_RIGHT=""
+    # Single-bar layout (nuevo bubble, floating, etc.)
+    SEC_BAR() {
+        echo "top"
+    }
+    if [ "$LAYOUT_NAME" = "bubble" ]; then
+        FIJOS="ws-start ws-end center-bubble nowplaying sys-start sys-end"
+        DECO_LEFT="ws-start ws-end"
+        DECO_CENTER="center-bubble nowplaying"
+        DECO_RIGHT="sys-start sys-end"
+    elif [ "$LAYOUT_NAME" = "floating" ] || [ "$LAYOUT_NAME" = "cynthia" ] || [ "$LAYOUT_NAME" = "material" ]; then
+        FIJOS="float-start float-end center-start center-end sys-start sys-end mat-ws-start mat-ws-end mat-center-start mat-center-end mat-sys-start mat-sys-end cynthia-ws-start cynthia-ws-end cynthia-center-start cynthia-center-end nowplaying"
+        DECO_LEFT=""
+        DECO_CENTER=""
+        DECO_RIGHT=""
+    else
+        FIJOS=""
+        DECO_LEFT=""
+        DECO_CENTER=""
+        DECO_RIGHT=""
+    fi
 fi
 
 # Leer módulos de la sección correcta de la barra correspondiente

@@ -35,8 +35,8 @@ CONFIG="$HOME/.config/polybar/config.ini"
 # Solo ejecutar si existe [bar/player] en la config
 grep -q "^\[bar/player\]" "$CONFIG" 2>/dev/null || exit 0
 
-EXPANDED_W="39%"  # center expandido cuando player está oculto
-CENTER_O_PLAYER="29%"
+EXPANDED_W="8.0%"   # center mucho más compacto cuando player está oculto
+CENTERED_O="46.0%" # posición centrada perfecta para un ancho de 8%
 
 is_fullscreen() {
     i3-msg -t get_tree 2>/dev/null | python3 -c "
@@ -76,8 +76,13 @@ set_center_offset() {
 }
 
 restart_center() {
-    pkill -f "^polybar --reload center" 2>/dev/null
-    sleep 0.2
+    killall -q polybar-center 2>/dev/null || pkill -f "polybar.*--reload.*center" 2>/dev/null
+    TIMEOUT=5
+    while [ "$TIMEOUT" -gt 0 ] && pgrep -f "polybar.*--reload.*center" >/dev/null; do
+        sleep 0.1
+        TIMEOUT=$((TIMEOUT - 1))
+    done
+    
     local mon
     mon=$(detect_monitor)
     [ -n "$mon" ] && MONITOR="$mon" polybar --reload center 2>/dev/null &
@@ -85,12 +90,12 @@ restart_center() {
 }
 
 hide_player() {
-    echo "[$(date +%H:%M:%S)] hide_player: killing player bar" >> "$LOG"
-    pkill -f "^polybar --reload player" 2>/dev/null
+    echo "[$(date +%H:%M:%S)] hide_player: closing player bar" >> "$LOG"
+    pkill -f "polybar.*--reload.*player" 2>/dev/null
 }
 
 show_player() {
-    pgrep -f "^polybar --reload player" >/dev/null 2>&1 && {
+    pgrep -f "polybar.*--reload.*player" >/dev/null 2>&1 && {
         echo "[$(date +%H:%M:%S)] show_player: already running, skipping" >> "$LOG"
         return 0
     }
@@ -103,13 +108,21 @@ show_player() {
 
 echo "[$(date +%H:%M:%S)] player-monitor iniciado" >> "$LOG"
 
-# Initial hide: expand center bar to fill the gap
+# Initial state: check if a player is already active
 save_center_orig
-hide_player
-set_center_offset "$center_offset_orig"
-set_center_width "$EXPANDED_W"
-restart_center
-prev_alive=0
+if [ -n "$(get_active_player)" ]; then
+    set_center_offset "$center_offset_orig"
+    set_center_width "$center_width_orig"
+    restart_center
+    show_player
+    prev_alive=1
+else
+    hide_player
+    set_center_offset "$CENTERED_O"
+    set_center_width "$EXPANDED_W"
+    restart_center
+    prev_alive=0
+fi
 while true; do
     alive=$(get_active_player)
     fs=$(is_fullscreen)
@@ -128,7 +141,7 @@ while true; do
     if [ "$should_show" = "1" ] && ! $bar_running; then
         echo "[$(date +%H:%M:%S)] SHOW: barra caida, levantando ($alive)" >> "$LOG"
         save_center_orig
-        set_center_offset "$CENTER_O_PLAYER"
+        set_center_offset "$center_offset_orig"
         set_center_width "$center_width_orig"
         restart_center
         show_player
@@ -137,7 +150,7 @@ while true; do
         echo "[$(date +%H:%M:%S)] HIDE: sin player, matando barra" >> "$LOG"
         save_center_orig
         hide_player
-        set_center_offset "$center_offset_orig"
+        set_center_offset "$CENTERED_O"
         set_center_width "$EXPANDED_W"
         restart_center
         prev_alive=0
