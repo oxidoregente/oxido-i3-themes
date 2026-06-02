@@ -1,13 +1,13 @@
 animations = ({
     triggers = ["open"];
     preset = "appear";
-    scale = 0.90;
-    duration = 0.3;
+    scale = 0.92;
+    duration = 0.22;
 }, {
     triggers = ["close"];
-    preset = "fly-out";
-    direction = "left";
-    duration = 0.25;
+    preset = "disappear";
+    scale = 1.05;
+    duration = 0.2;
 }, {
     # Show — cascading fly-in, cada ventana desde su propia altura sin superposicion
     triggers = ["show"];
@@ -112,6 +112,18 @@ animations = ({
     preset = "geometry-change";
     duration = 0.35;
 });
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

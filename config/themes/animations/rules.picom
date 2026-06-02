@@ -25,13 +25,13 @@ rules: ({
     animations = ({
         triggers = ["open"];
         preset = "appear";
-        scale = 0.90;
-        duration = 0.3;
+        scale = 0.92;
+        duration = 0.22;
     }, {
         triggers = ["close"];
-        preset = "fly-out";
-        direction = "left";
-        duration = 0.25;
+        preset = "disappear";
+        scale = 1.05;
+        duration = 0.2;
     });
 }, {
     # Polybar: opaco, sin sombra, sin animaciones open/close
@@ -65,15 +65,53 @@ rules: ({
     animations = ({
         triggers = ["open"];
         preset = "appear";
-        scale = 0.90;
-        duration = 0.3;
+        scale = 0.92;
+        duration = 0.22;
     }, {
         triggers = ["close"];
-        preset = "fly-out";
-        direction = "left";
-        duration = 0.25;
+        preset = "disappear";
+        scale = 1.05;
+        duration = 0.2;
     });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

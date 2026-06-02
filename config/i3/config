@@ -272,6 +272,8 @@ exec --no-startup-id nitrogen --restore
 # Espaciado entre ventanas
 gaps inner 6
 gaps outer 2
+# Gestionado dinámicamente por apply-polybar.sh
+gaps top 34
 
 # Barra invisible: la barra derecha de polybar (dock managed) provee el strut
 # bar {
