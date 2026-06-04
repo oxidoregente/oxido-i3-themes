@@ -34,20 +34,20 @@ case "$cmd" in
             powerprofilesctl set "$profile" 2>/dev/null && exit 0
         fi
 
-        # Method 2: TLP
+        # Method 2: TLP (requiere sudoers NOPASSWD como se documenta)
         if command -v tlp &>/dev/null; then
             case "$profile" in
                 power-saver) tlp_cmd="bat" ;;
                 *)           tlp_cmd="ac" ;;
             esac
-            pkexec /usr/sbin/tlp "$tlp_cmd" 2>/dev/null && exit 0
+            sudo -n /usr/sbin/tlp "$tlp_cmd" 2>/dev/null && exit 0
         fi
 
         # Method 3: cpupower
         if command -v cpupower &>/dev/null; then
             gov="powersave"
             [ "$profile" = "performance" ] && gov="performance"
-            pkexec cpupower frequency-set -g "$gov" 2>/dev/null && exit 0
+            sudo -n cpupower frequency-set -g "$gov" 2>/dev/null && exit 0
         fi
 
         exit 0
