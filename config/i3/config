@@ -295,15 +295,15 @@ default_floating_border pixel 0
 # Servicios gráficos (picom, polybar, conky) - manejados por script unificado
 exec_always --no-startup-id ~/.config/themes/scripts/start-services.sh
 
-# Polybar (se lanza desde apply-polybar.sh, mantener por si acaso)
+# Polybar (también lanzado desde apply-polybar.sh / toggle-powersaver.sh)
 exec_always --no-startup-id ~/.config/polybar/launch.sh
 
 # Fullscreen monitor: manejado por launch.sh, no lanzar duplicado
 # exec_always --no-startup-id ~/.config/polybar/scripts/fullscreen-monitor.sh
 
-# Forzar esquema oscuro en aplicaciones compatibles
-exec_always --no-startup-id gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
-exec_always --no-startup-id gsettings set org.gnome.desktop.interface gtk-theme 'Mint-Y-Dark'
+# Forzar esquema oscuro en aplicaciones compatibles (exec, no exec_always: solo una vez)
+exec --no-startup-id gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+exec --no-startup-id gsettings set org.gnome.desktop.interface gtk-theme 'Mint-Y-Dark'
 
 # Stalonetray: desactivado, polybar tray module asume la bandeja
 # for_window [instance="stalonetray"] floating enable
@@ -340,31 +340,65 @@ exec --no-startup-id /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agen
 
 # --- REGLAS DE VENTANAS (ORDENADAS) ---
 
-# 1. Apps que SIEMPRE deben ser flotantes
-for_window [title="Update Manager"] floating enable, resize set 800 600, move position center
-for_window [class="Mintupdate.py"] floating enable, resize set 800 600, move position center
-for_window [class="Mintupdate"] floating enable, resize set 800 600, move position center
-for_window [class="mintUpdate"] floating enable, resize set 800 600, move position center
-for_window [class="MintUpdate"] floating enable, resize set 800 600, move position center
-for_window [class="Gnome-calculator"] floating enable, resize set 400 500, move position center
-for_window [class="Blueman-manager"] floating enable, resize set 800 500, move position center
-for_window [class="org.blueman.Manager"] floating enable, resize set 800 500, move position center
-for_window [class="Pavucontrol"] floating enable, resize set 600 400, move position center
-for_window [class="Gnome-calendar"] floating enable, resize set 900 700, move position center
-for_window [class="org.gnome.Calendar"] floating enable, resize set 900 700, move position center
-for_window [class="Polkit-gnome-authentication-agent-1"] floating enable
-for_window [class="Mintreport"] floating enable, resize set 800 500, move position center
-for_window [class="mintreport"] floating enable, resize set 800 500, move position center
-for_window [class="Nm-connection-editor"] floating enable, resize set 700 500, move position center
-for_window [class="nm-connection-editor"] floating enable, resize set 700 500, move position center
-for_window [class="com-abdownloadmanager-desktop-AppKt"] floating enable, resize set 800 600, move position center
+# 1. Ventanas por tipo que siempre deben flotar
 for_window [window_type="dialog"] floating enable
 for_window [window_type="menu"] floating enable
+for_window [window_type="utility"] floating enable
+for_window [window_type="toolbar"] floating enable
+for_window [window_type="splash"] floating enable
+for_window [window_type="dropdown_menu"] floating enable
+for_window [window_type="popup_menu"] floating enable
 
-# 2. Excepciones de Brave (Gemini) para que NO flote
-for_window [class="Brave-browser"] floating disable
-for_window [class="Brave-browser" window_role="pop-up"] floating disable
+# 2. Diálogos de sistema comunes que deben flotar
+for_window [class="Gcr-prompter"] floating enable, resize set 500 400, move position center
+for_window [class="Gcr-prompter" window_role="dialog"] floating enable, resize set 500 400, move position center
+for_window [class="Gpk-"] floating enable, resize set 700 500, move position center
+for_window [class="Gpk-error"] floating enable, resize set 600 400, move position center
+for_window [class="MintUpdate"] floating enable, resize set 800 600, move position center
+for_window [class="Mintupdate"] floating enable, resize set 800 600, move position center
+for_window [class="Mintreport"] floating enable, resize set 800 500, move position center
+for_window [class="Mintstick"] floating enable, resize set 600 400, move position center
+for_window [class="mintstick"] floating enable, resize set 600 400, move position center
+for_window [class="Nm-connection-editor"] floating enable, resize set 700 500, move position center
+for_window [class="nm-connection-editor"] floating enable, resize set 700 500, move position center
+for_window [class="Blueman-manager"] floating enable, resize set 800 500, move position center
+for_window [class="org.blueman.Manager"] floating enable, resize set 800 500, move position center
+for_window [class="Polkit-gnome-authentication-agent-1"] floating enable
+for_window [class="Gufw"] floating enable, resize set 700 500, move position center
+for_window [window_role="GtkFileChooserDialog"] floating enable, resize set 900 600, move position center
+for_window [window_role="GtkFontChooserDialog"] floating enable, resize set 700 500, move position center
+for_window [window_role="GtkColorChooserDialog"] floating enable, resize set 500 550, move position center
+for_window [title="Preferences"] floating enable, resize set 800 600, move position center
+for_window [title="About"] floating enable, resize set 500 400, move position center
+for_window [title="Open File"] floating enable, resize set 900 600, move position center
+for_window [title="Save As"] floating enable, resize set 900 600, move position center
+for_window [title="File Upload"] floating enable, resize set 900 600, move position center
+
+# 3. Apps de escritorio que deben flotar
+for_window [class="Gnome-calculator"] floating enable, resize set 400 500, move position center
+for_window [class="Gnome-calendar"] floating enable, resize set 900 700, move position center
+for_window [class="org.gnome.Calendar"] floating enable, resize set 900 700, move position center
+for_window [class="Pavucontrol"] floating enable, resize set 600 400, move position center
+for_window [class="Gnome-screenshot"] floating enable, resize set 700 600, move position center
+for_window [class="Xviewer"] floating enable, resize set 900 600, move position center
+for_window [class="FileRoller"] floating enable, resize set 800 600, move position center
+for_window [class="file-roller"] floating enable, resize set 800 600, move position center
+for_window [class="Engrampa"] floating enable, resize set 800 600, move position center
+for_window [class="com-abdownloadmanager-desktop-AppKt"] floating enable, resize set 800 600, move position center
+
+# 4. Terminal flotante personalizada
+for_window [title="terminal_flotante"] floating enable, border pixel 2, resize set 900 px 570 px, move position center
+bindsym $mod+Shift+Return exec --no-startup-id alacritty -T "terminal_flotante"
+
+# 5. Selector de Temas de oxido
 for_window [class="ThemeSelector"] floating enable, resize set 960 580, move position center
+
+# 6. PWAs de Brave/Chromium que deben funcionar como apps nativas (NO flotantes)
+for_window [class="Brave-browser" instance="crx_pmkjpbkdpoakgmgmpmcdhjbbognnjboh"] floating disable
+for_window [class="Brave-browser" instance="crx_hnpfjngllnobngcgfapefoaidbinmjnm"] floating disable
+for_window [class="crx_hnpfjngllnobngcgfapefoaidbinmjnm"] floating disable
+for_window [class="crx_pmkjpbkdpoakgmgmpmcdhjbbognnjboh"] floating disable
+for_window [class="crx_"] floating disable
 
 # --- GESTIÓN DE ENERGÍA Y BLOQUEO AUTOMÁTICO ---
 
@@ -372,19 +406,11 @@ for_window [class="ThemeSelector"] floating enable, resize set 960 580, move pos
 exec --no-startup-id xset dpms 300 360 420
 
 # xautolock: bloquear tras 8 min de inactividad (antes de DPMS off)
-exec --no-startup-id xautolock -time 8 -locker "~/.config/themes/bin/lock.sh" -detectsleep
+exec --no-startup-id xautolock -time 8 -locker "$HOME/.config/themes/bin/lock.sh" -detectsleep
 
-# --- GESTIÓN DE BLOQUEO POR TAPA Y SUSPENSIÓN ---
-# xss-lock ya está ejecutándose desde la sección de inicio (línea 35)
-
-# ABDownloadManager (desactivado: polybar internal/tray maneja SNI)
-# exec_always --no-startup-id /usr/bin/xembedsniproxy
+# xss-lock ya está ejecutándose desde la sección de inicio (ver arriba)
 
 # Atajo para abrir Pavucontrol
 bindsym $mod+Control+m exec --no-startup-id pavucontrol 
 bindsym $mod+Shift+m exec --no-startup-id ~/.config/themes/bin/polybar-modules.sh
-
-# Terminal Flotante
-for_window [title="terminal_flotante"] floating enable, border pixel 2, resize set 900 px 570 px, move position center
-bindsym $mod+Shift+Return exec --no-startup-id alacritty -T "terminal_flotante"
 
