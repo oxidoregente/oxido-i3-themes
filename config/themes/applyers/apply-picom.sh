@@ -1,6 +1,6 @@
 #!/bin/bash
 THEME_DIR="$1"
-POWERSAVER_FLAG="/tmp/powersaver_active"
+POWERSAVER_FLAG="$HOME/.config/themes/state/powersaver_active"
 
 # Transform @include paths relativas a absolutas al copiar
 # En runtime: @include "../../../animations/" -> @include "$HOME/.config/themes/animations/"

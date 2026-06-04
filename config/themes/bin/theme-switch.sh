@@ -19,7 +19,7 @@ if [ ! -d "$THEME_DIR" ]; then
 fi
 
 # Prevent powersaver indicator from blocking applyers
-rm -f /tmp/powersaver_active
+rm -f "$HOME/.config/themes/state/powersaver_active"
 
 # Actualizar symlink
 rm -f "$CURRENT_LINK"

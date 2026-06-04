@@ -1,6 +1,6 @@
 #!/bin/bash
 CONKY_FLAG=~/.config/themes/conky-enabled
-POWERSAVER_FLAG="/tmp/powersaver_active"
+POWERSAVER_FLAG="$HOME/.config/themes/state/powersaver_active"
 THEME_DIR=$(readlink -f ~/.config/themes/current/theme 2>/dev/null)
 
 [ -f "$POWERSAVER_FLAG" ] && notify-send "Conky" "En modo powersaver" && exit 0

@@ -1,7 +1,7 @@
 #!/bin/bash
 THEME_DIR="$1"
 CONKY_FLAG=~/.config/themes/conky-enabled
-POWERSAVER_FLAG="/tmp/powersaver_active"
+POWERSAVER_FLAG="$HOME/.config/themes/state/powersaver_active"
 
 killall -q conky 2>/dev/null
 
