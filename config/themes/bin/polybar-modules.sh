@@ -183,7 +183,7 @@ mostrar_ocultos() {
 }
 
 seccion_menu() {
-    local sec="$1" label=$(SEC_LABEL $sec)
+    local sec="$1"
 
     while true; do
         items=""
@@ -211,7 +211,7 @@ seccion_menu() {
 }
 
 reordenar_seccion() {
-    local sec="$1" label=$(SEC_LABEL $sec)
+    local sec="$1"
 
     while true; do
         items=""
@@ -428,12 +428,6 @@ while true; do
     pick=$(echo -e "$items" | rofi -dmenu -p "${L_MOD_TITLE:-📦  GESTOR DE MÓDULOS}" -i -theme-str "$THEME")
     [ -z "$pick" ] && exit 0
     echo "$pick" | grep -qE "Cerrar|Close" && exit 0
-
-    if echo "$pick" | grep -qv "("; then
-        for label in "$s_left" "$s_center" "$s_right" "$s_hidden"; do
-            echo "$pick" | grep -qF "$label" && picked_label="$label"
-        done
-    fi
 
     if echo "$pick" | grep -qE "Restaurar|Restore"; then
         restaurar_default
