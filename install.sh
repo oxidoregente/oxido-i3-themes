@@ -85,6 +85,10 @@ copy_configs() {
             info "  ~/.config/$dir/ ← config/$dir/"
         fi
     done
+    # Crear directorios necesarios para applyers opcionales
+    mkdir -p "$HOME/.config/alacritty" "$HOME/.config/conky" \
+             "$HOME/.config/opencode" "$HOME/.config/cava" \
+             "$HOME/.config/btop"
 }
 
 # ─── 5. Aplicar tema default ───

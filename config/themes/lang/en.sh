@@ -121,7 +121,6 @@ L_KB_FULLSCREEN="Fullscreen"
 L_KB_KEYS="Keys"
 L_KB_DESC="Description"
 L_UPTIME="Uptime"
-L_UPTIME="Uptime"
 
 # --- Polybar Module Manager ---
 L_MOD_TITLE="📦  MODULE MANAGER"

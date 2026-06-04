@@ -34,39 +34,39 @@ done
 [ "${#files[@]}" -eq 0 ] && {
     dunstify -u critical "$L_WALLPAPER" "$L_NO_IMAGES"
     exec "$SCRIPT_DIR/appearance.sh"
-    }
+}
 
-    ROFI_THEME_WALL="window { width: ${W_WIDE:-750}px; border-radius: ${ROFI_RADIUS:-16}px; border: ${ROFI_BORDER:-2}px solid; border-color: $SEL; background-color: $BG; }
-    mainbox { children: [inputbar, listview]; spacing: 12px; padding: 15px; }
-    inputbar { background-color: $BGA; border-radius: 12px; padding: 10px 15px; text-color: $FG; margin: 0px 0px 5px 0px; children: [prompt]; }
-    prompt { text-color: $SEL; }
-    listview { columns: 3; lines: 4; spacing: 10px; dynamic: false; }
-    element { orientation: vertical; border-radius: 14px; padding: 10px; background-color: $BGA; text-color: $FG; }
-    element selected { background-color: $SEL; text-color: $BG; }
-    element-icon { size: 5em; border-radius: 8px; }
-    element-text { horizontal-align: 0.5; vertical-align: 0.5; font: \"JetBrainsMono Nerd Font Mono ${ROFI_FONT_SIZE_SUB:-10}\"; }"
+ROFI_THEME_WALL="window { width: ${W_WIDE:-750}px; border-radius: ${ROFI_RADIUS:-16}px; border: ${ROFI_BORDER:-2}px solid; border-color: $SEL; background-color: $BG; }
+mainbox { children: [inputbar, listview]; spacing: 12px; padding: 15px; }
+inputbar { background-color: $BGA; border-radius: 12px; padding: 10px 15px; text-color: $FG; margin: 0px 0px 5px 0px; children: [prompt]; }
+prompt { text-color: $SEL; }
+listview { columns: 3; lines: 4; spacing: 10px; dynamic: false; }
+element { orientation: vertical; border-radius: 14px; padding: 10px; background-color: $BGA; text-color: $FG; }
+element selected { background-color: $SEL; text-color: $BG; }
+element-icon { size: 5em; border-radius: 8px; }
+element-text { horizontal-align: 0.5; vertical-align: 0.5; font: \"JetBrainsMono Nerd Font Mono ${ROFI_FONT_SIZE_SUB:-10}\"; }"
 
-    choice=$(printf "%b" "$entries" | rofi -dmenu -p "  $L_WALLPAPER" -show-icons -i -no-custom -theme-str "$ROFI_THEME_WALL" -format s)
+choice=$(printf "%b" "$entries" | rofi -dmenu -p "  $L_WALLPAPER" -show-icons -i -no-custom -theme-str "$ROFI_THEME_WALL" -format s)
 
-    [ -z "$choice" ] && exec "$SCRIPT_DIR/appearance.sh"
-    [[ "$choice" == *"$L_BACK"* ]] && exec "$SCRIPT_DIR/appearance.sh"
+[ -z "$choice" ] && exec "$SCRIPT_DIR/appearance.sh"
+[[ "$choice" == *"$L_BACK"* ]] && exec "$SCRIPT_DIR/appearance.sh"
 
-    # Handle restore theme wallpaper
-    if [[ "$choice" == *"Restaurar"* ]]; then
+# Handle restore theme wallpaper
+if [[ "$choice" == *"Restaurar"* ]]; then
     rm -f "$PINNED_FILE"
     THEME_DIR=$(readlink -f ~/.config/themes/current/theme 2>/dev/null)
-    bash "${HOME}/.config/themes/applyers/apply-wallpaper.sh" "$THEME_DIR"
+    bash "$HOME/.config/themes/applyers/apply-wallpaper.sh" "$THEME_DIR"
     dunstify -u low "$L_WALLPAPER" "Wallpaper del tema restaurado"
     exec "$SCRIPT_DIR/appearance.sh"
-    fi
+fi
 
-    selected=$(echo "$choice" | sed 's/^▶ //')
-    wall_path="$WALL_DIR/$selected"
-    if [ -f "$wall_path" ]; then
+selected=$(echo "$choice" | sed 's/^▶ //')
+wall_path="$WALL_DIR/$selected"
+if [ -f "$wall_path" ]; then
     echo "$wall_path" > "$PINNED_FILE"
     # Kill desktop managers that might interfere with wallpaper
     killall -9 plank 2>/dev/null
     nitrogen --set-zoom-fill "$wall_path" --save 2>/dev/null
-    fi
-    dunstify -u low "$L_WALLPAPER" "$L_SET_AS_WALL: $selected"
+fi
+dunstify -u low "$L_WALLPAPER" "$L_SET_AS_WALL: $selected"
 exec "$SCRIPT_DIR/appearance.sh"

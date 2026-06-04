@@ -3,7 +3,7 @@
 
 Usage: generate-overlay.py WIDTH THEME_NAME BG BG_ALT FG PRIMARY SECONDARY ALERT DISABLED GREEN YELLOW PINK OUTPUT.png
 """
-import sys
+import sys, os
 from PIL import Image, ImageDraw, ImageFont
 
 W = int(sys.argv[1])
@@ -26,8 +26,8 @@ H = 130
 img = Image.new('RGBA', (W, H), f"#{colors['bg']}")
 draw = ImageDraw.Draw(img)
 
-FONT_BOLD = "${HOME}/.local/share/fonts/IosevkaTermNerdFontMono-Bold.ttf"
-FONT_REG = "${HOME}/.local/share/fonts/IosevkaTermNerdFontMono-Regular.ttf"
+FONT_BOLD = os.path.expanduser("~/.local/share/fonts/IosevkaTermNerdFontMono-Bold.ttf")
+FONT_REG = os.path.expanduser("~/.local/share/fonts/IosevkaTermNerdFontMono-Regular.ttf")
 font_name = ImageFont.truetype(FONT_BOLD, 40)
 font_hex = ImageFont.truetype(FONT_REG, 12)
 

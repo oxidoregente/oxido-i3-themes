@@ -5,6 +5,8 @@
 THEME_NAME=$(basename "$1")
 TUI_CONFIG="$HOME/.config/opencode/tui.json"
 
+mkdir -p "$(dirname "$TUI_CONFIG")"
+
 cat > "$TUI_CONFIG" << EOF
 {
   "\$schema": "https://opencode.ai/tui.json",

@@ -18,7 +18,7 @@ SCALE_ENV="$THEMES_ROOT/rofi/scale.env"
 source "$THEMES_ROOT/scripts/lang-builder.sh"
 
 # Normalizar locale para rofi (después de lang-builder, que sobreescribe LANG)
-if ! echo "$(locale -a 2>/dev/null)" | grep -qx "$LANG" >/dev/null 2>&1; then
+if ! locale -a 2>/dev/null | grep -Fxq "$LANG" 2>/dev/null; then
     MATCH=$(locale -a 2>/dev/null | grep -im1 "^${LANG%%.*}\." 2>/dev/null)
     [ -n "$MATCH" ] && export LANG="$MATCH" || export LANG=C.utf8
 fi
