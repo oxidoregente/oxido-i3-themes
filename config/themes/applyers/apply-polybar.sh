@@ -59,16 +59,17 @@ if [ -f "$LAYOUT_FILE" ] && [ -f "$LAYOUTS_DIR/$(cat "$LAYOUT_FILE").ini" ]; the
     # Remove tray-position = none (conflicts with internal/tray module)
     sed -i '/^tray-position *= *none/d' "$CONFIG_DST"
 
-    # Inject bottom, transparent, and override-redirect in all bar sections
-    # override-redirect se omite si el layout ya lo define (split bars: left/center/player=true, right=false)
-    # Para layouts single-bar ([bar/top]), override-redirect=false es default y el tray module funciona
+    # Inject bottom, transparent, and override-redirect in all bar sections (idempotent)
     for bar in $(grep "^\[bar/" "$CONFIG_DST" | sed 's/\[bar\/\(.*\)\]/\1/'); do
-        sed -i "/^\[bar\/$bar\]/a bottom = $BOTTOM" "$CONFIG_DST"
-        if ! sed -n "/^\[bar\/$bar\]/,/^\[bar\//p" "$CONFIG_DST" | grep -q "transparent"; then
-            sed -i "/^\[bar\/$bar\]/a transparent = true" "$CONFIG_DST"
+        bar_block="/^\[bar\/$bar\]/,/^\[bar\//"
+        if ! sed -n "$bar_block" "$CONFIG_DST" | grep -q "^bottom "; then
+            sed -i "$bar_block a bottom = $BOTTOM" "$CONFIG_DST"
         fi
-        if ! sed -n "/^\[bar\/$bar\]/,/^\[bar\//p" "$CONFIG_DST" | grep -q "override-redirect"; then
-            sed -i "/^\[bar\/$bar\]/a override-redirect = false" "$CONFIG_DST"
+        if ! sed -n "$bar_block" "$CONFIG_DST" | grep -q "^transparent "; then
+            sed -i "$bar_block a transparent = true" "$CONFIG_DST"
+        fi
+        if ! sed -n "$bar_block" "$CONFIG_DST" | grep -q "^override-redirect "; then
+            sed -i "$bar_block a override-redirect = false" "$CONFIG_DST"
         fi
     done
 
