@@ -1,5 +1,5 @@
 #!/bin/bash
-# 📬  Wrapper avanzado para notificaciones — oxido-i3-themes
+# Wrapper avanzado para notificaciones — oxido-i3-themes
 # Soporta i18n, iconos Nerd Font y etiquetas de apilamiento (stack-tag)
 # Uso: notify-send.sh "<icon>" "<summary>" "<body>" [urgency] [stack-tag]
 
@@ -13,17 +13,13 @@ STACK_TAG="${5:-}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 [ -f "$SCRIPT_DIR/lang-builder.sh" ] && source "$SCRIPT_DIR/lang-builder.sh"
 
-# Construir comando dunstify
-CMD="dunstify -a 'oxido_system' -u '$URGENCY'"
-
-# Si hay stack-tag, añadirlo para que las notis se reemplacen entre sí
-[ -n "$STACK_TAG" ] && CMD="$CMD -h string:x-dunst-stack-tag:$STACK_TAG"
-
-# Título con icono
 TITLE="$ICON  $SUMMARY"
 
+ARGS=(-a "oxido_system" -u "$URGENCY")
+[ -n "$STACK_TAG" ] && ARGS+=(-h "string:x-dunst-stack-tag:$STACK_TAG")
+
 if [ -n "$BODY" ]; then
-    eval "$CMD '$TITLE' '$BODY'"
+    dunstify "${ARGS[@]}" "$TITLE" "$BODY"
 else
-    eval "$CMD '$TITLE'"
+    dunstify "${ARGS[@]}" "$TITLE"
 fi

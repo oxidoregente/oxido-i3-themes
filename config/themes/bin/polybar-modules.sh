@@ -122,6 +122,15 @@ element { padding: 12px 14px; border-radius: 12px; text-color: $FG; background-c
 element selected { background-color: $SEL; text-color: $BG; }
 element-text { vertical-align: 0.5; font: \"JetBrainsMono Nerd Font Mono 11\"; }"
 
+_mods_of() {
+    case "$1" in
+        L) echo "$MODS_LEFT" ;;
+        C) echo "$MODS_CENTER" ;;
+        R) echo "$MODS_RIGHT" ;;
+        H) echo "" ;;
+    esac
+}
+
 count_sec() {
     local sec="$1" count=0
     for m in $(_mods_of "$sec"); do echo "$FIJOS" | grep -qw "$m" || ((count++)); done
