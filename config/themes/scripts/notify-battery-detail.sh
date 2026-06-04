@@ -11,7 +11,7 @@ if [ ! -f "$BAT/status" ]; then
 fi
 STATUS=$(< "$BAT/status")
 CAP=$(< "$BAT/capacity")
-PROFILE=$(powerprofilesctl get 2>/dev/null)
+PROFILE=$(bash "$HOME/.config/themes/scripts/set-power-profile.sh" get 2>/dev/null)
 case "$PROFILE" in
     "performance") PROFILE_TXT="${L_BAT_PERF#*  }" ;;
     "balanced")    PROFILE_TXT="${L_BAT_BAL#*  }" ;;

@@ -9,7 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 [ -f "$SCRIPT_DIR/rofi-builder.sh" ] && source "$SCRIPT_DIR/rofi-builder.sh"
 [ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
 
-current=$(powerprofilesctl get 2>/dev/null || echo "balanced")
+current=$(bash "$HOME/.config/themes/scripts/set-power-profile.sh" get 2>/dev/null || echo "balanced")
 
 option_save="$L_BAT_SAVE"
 option_bal="$L_BAT_BAL"
@@ -31,9 +31,9 @@ element-text { vertical-align: 0.5; font: \"JetBrainsMono Nerd Font Mono 12\"; }
 ")
 
 case "$chosen" in
-    *Power*|*Ahorro*) powerprofilesctl set power-saver 2>/dev/null ;;
-    *Balanced*|*Equilibrado*) powerprofilesctl set balanced 2>/dev/null ;;
-    *Performance*|*Rendimiento*) powerprofilesctl set performance 2>/dev/null ;;
+    *Power*|*Ahorro*) bash "$HOME/.config/themes/scripts/set-power-profile.sh" set power-saver ;;
+    *Balanced*|*Equilibrado*) bash "$HOME/.config/themes/scripts/set-power-profile.sh" set balanced ;;
+    *Performance*|*Rendimiento*) bash "$HOME/.config/themes/scripts/set-power-profile.sh" set performance ;;
 esac
 
 polybar-msg action "#battery.module_exec" 2>/dev/null

@@ -7,7 +7,7 @@ DIR="$SCRIPT_DIR"
 
 THEMES_BIN="$(cd "$DIR/../bin" 2>/dev/null && pwd || echo "$HOME/.config/themes/bin")"
 
-PW_SAVER=/tmp/powersaver_active
+PW_SAVER="$HOME/.config/themes/state/powersaver_active"
 CURRENT_LID=$(grep "^HandleLidSwitch" /etc/systemd/logind.conf.d/lid-override.conf 2>/dev/null | cut -d= -f2)
 [ -z "$CURRENT_LID" ] && CURRENT_LID=$(grep "^HandleLidSwitch=" /etc/systemd/logind.conf 2>/dev/null | cut -d= -f2)
 [ -z "$CURRENT_LID" ] && CURRENT_LID="suspend"
@@ -19,7 +19,7 @@ ps_status() {
 while true; do
     choice=$(cat <<EOF | rofi -dmenu -p "$L_POWER" -theme-str "$ROFI_THEME_MAIN" -i
 $L_PS: $(ps_status)
-$L_POWER_PROFILE: $(powerprofilesctl get 2>/dev/null || echo "—") ▸
+$L_POWER_PROFILE: $(bash "$HOME/.config/themes/scripts/set-power-profile.sh" get 2>/dev/null || echo "—") ▸
 💤  DPMS: 5 min ▸
 $L_AUTOLOCK: 8 min ▸
 $L_LID: ${CURRENT_LID} ▸

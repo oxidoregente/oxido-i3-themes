@@ -6,7 +6,7 @@ STATUS=$(< /sys/class/power_supply/BAT0/status)
 CAP=$(< /sys/class/power_supply/BAT0/capacity)
 
 # Solo ejecutamos comandos externos si son estrictamente necesarios
-RAW_PROFILE=$(powerprofilesctl get)
+RAW_PROFILE=$(bash "$HOME/.config/themes/scripts/set-power-profile.sh" get)
 
 case $RAW_PROFILE in
     "performance")  PROFILE="Rendimiento" ;;

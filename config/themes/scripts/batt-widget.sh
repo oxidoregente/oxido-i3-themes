@@ -39,7 +39,7 @@ fi
 if [ -f "$FLAG" ]; then
     # VISTA EXTENDIDA
     
-    PROF_RAW=$(powerprofilesctl get 2>/dev/null)
+    PROF_RAW=$(bash "$HOME/.config/themes/scripts/set-power-profile.sh" get 2>/dev/null)
     case "$PROF_RAW" in
         "performance") PROF="🚀 ${L_BAT_PERF#*  }" ;;
         "balanced")    PROF="⚖️ ${L_BAT_BAL#*  }" ;;
