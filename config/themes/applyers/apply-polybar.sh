@@ -62,13 +62,13 @@ if [ -f "$LAYOUT_FILE" ] && [ -f "$LAYOUTS_DIR/$(cat "$LAYOUT_FILE").ini" ]; the
     # Inject bottom, transparent, and override-redirect in all bar sections (idempotent)
     for bar in $(grep "^\[bar/" "$CONFIG_DST" | sed 's/\[bar\/\(.*\)\]/\1/'); do
         bar_block="/^\[bar\/$bar\]/,/^\[bar\//"
-        if ! sed -n "$bar_block" "$CONFIG_DST" | grep -q "^bottom "; then
+        if ! sed -n "${bar_block}p" "$CONFIG_DST" | grep -q "^bottom "; then
             sed -i "/^\[bar\/$bar\]/a bottom = $BOTTOM" "$CONFIG_DST"
         fi
-        if ! sed -n "$bar_block" "$CONFIG_DST" | grep -q "^transparent "; then
+        if ! sed -n "${bar_block}p" "$CONFIG_DST" | grep -q "^transparent "; then
             sed -i "/^\[bar\/$bar\]/a transparent = true" "$CONFIG_DST"
         fi
-        if ! sed -n "$bar_block" "$CONFIG_DST" | grep -q "^override-redirect "; then
+        if ! sed -n "${bar_block}p" "$CONFIG_DST" | grep -q "^override-redirect "; then
             sed -i "/^\[bar\/$bar\]/a override-redirect = false" "$CONFIG_DST"
         fi
     done
