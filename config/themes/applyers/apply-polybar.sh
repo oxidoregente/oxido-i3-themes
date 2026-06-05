@@ -63,13 +63,13 @@ if [ -f "$LAYOUT_FILE" ] && [ -f "$LAYOUTS_DIR/$(cat "$LAYOUT_FILE").ini" ]; the
     for bar in $(grep "^\[bar/" "$CONFIG_DST" | sed 's/\[bar\/\(.*\)\]/\1/'); do
         bar_block="/^\[bar\/$bar\]/,/^\[bar\//"
         if ! sed -n "$bar_block" "$CONFIG_DST" | grep -q "^bottom "; then
-            sed -i "$bar_block a bottom = $BOTTOM" "$CONFIG_DST"
+            sed -i "/^\[bar\/$bar\]/a bottom = $BOTTOM" "$CONFIG_DST"
         fi
         if ! sed -n "$bar_block" "$CONFIG_DST" | grep -q "^transparent "; then
-            sed -i "$bar_block a transparent = true" "$CONFIG_DST"
+            sed -i "/^\[bar\/$bar\]/a transparent = true" "$CONFIG_DST"
         fi
         if ! sed -n "$bar_block" "$CONFIG_DST" | grep -q "^override-redirect "; then
-            sed -i "$bar_block a override-redirect = false" "$CONFIG_DST"
+            sed -i "/^\[bar\/$bar\]/a override-redirect = false" "$CONFIG_DST"
         fi
     done
 
