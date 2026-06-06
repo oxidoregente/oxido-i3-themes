@@ -108,7 +108,7 @@ if [ -f "$STATE_FILE" ]; then
 
     dunstify -a "oxido_system" -u low \
         -h string:x-dunst-stack-tag:powersaver \
-        -i "" "PowerSaver" "☀ ${L_PS:-Modo ahorro} desactivado"
+        -i "" "PowerSaver" "${L_PS_OFF:-☀ PowerSaver desactivado}"
 else
     # ENTRAR EN MODO AHORRO
     touch "$STATE_FILE"
@@ -171,5 +171,5 @@ else
 
     dunstify -a "oxido_system" -u low \
         -h string:x-dunst-stack-tag:powersaver \
-        -i "" "PowerSaver" "🌙 ${L_PS:-Modo ahorro} activado"
+        -i "" "PowerSaver" "${L_PS_ON:-🌙 PowerSaver activado}"
 fi

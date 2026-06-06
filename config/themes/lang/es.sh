@@ -61,6 +61,8 @@ L_NO_IMAGES="No hay imágenes en la carpeta backgrounds/"
 
 # --- Menú Energía ---
 L_PS="🌙  PowerSaver"
+L_PS_ON="🌙  PowerSaver activado"
+L_PS_OFF="☀  PowerSaver desactivado"
 L_POWER_PROFILE="  Plan de energía"
 L_CLOCK_FMT="  Formato de hora"
 L_LID="󰤁  Tapa al cerrar"
