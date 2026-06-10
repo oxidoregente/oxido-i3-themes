@@ -57,9 +57,12 @@ Panel unificado con Rofi para gestionar todo el sistema:
 | 🔔 Notificaciones | No Molestar, limpiar, historial |
 | 🎬 Animaciones | Menú jerárquico: Global / Por app / Preestablecidos |
 | 🎨 Apariencia | Selector de temas (split panel con preview), toggle Conky, gaps, Formato de hora |
+| 🖼️ Wallpaper | **Acceso directo** desde el menú principal — sin pasar por Apariencia |
 | ⚡ Energía | PowerSaver, Plan de energía, DPMS timeout, autolock, comportamiento de tapa |
 | 🔧 Sistema | Estado/restart de servicios, información del sistema |
 | 📋 Utilidades | Capturas, WiFi, Bluetooth, color picker, clipboard |
+
+> **💡 Tip**: Al abrir el Centro de Control (`$mod+Shift+s`), escribí "wallpaper" o "fondo" para filtrar y acceder directamente al selector de wallpapers sin entrar en Apariencia.
 
 ### 🎬 Animaciones con picom v13
 Sistema de animaciones por ventana con 4 triggers configurables individualmente:
@@ -259,8 +262,18 @@ La base de los **temas visuales**, generadores de paletas y scripts de conversi�
 ### Wallpapers
 Los fondos de pantalla provienen de:
 - **Unsplash** — Fotos bajo licencia Unsplash (libres para uso comercial sin atribución)
-- **Pexels** — Fotos bajo licencia Pexels/CC0
+- **Pexels** — Fotos bajo licencia Pexels/CC0 — Se usa la **API de Pexels** para descarga automática
 - **Pixabay** — Imágenes bajo licencia Pixabay
+
+Cada tema incluye al menos **5 wallpapers** de alta resolución. Puedes descargar más o actualizar los existentes usando el script integrado:
+
+```bash
+# Configurar tu API key (gratis en https://www.pexels.com/api/)
+echo 'PEXELS_API_KEY="tu_key_aqui"' > ~/.config/themes/wallpaper-api.env
+
+# Ejecutar el descargador
+bash ~/.config/themes/scripts/download-wallpapers.sh
+```
 
 Créditos específicos de fotógrafos disponibles en los metadatos de cada imagen.
 

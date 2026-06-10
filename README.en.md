@@ -57,9 +57,12 @@ Unified panel with Rofi to manage the entire system:
 | 🔔 Notifications | Do Not Disturb, clear, history |
 | 🎬 Animations | Hierarchical menu: Global / Per-app / Presets |
 | 🎨 Appearance | Theme selector (split panel with preview), Conky toggle, gaps, Clock format |
+| 🖼️ Wallpaper | **Direct access** from the main menu — no need to go through Appearance |
 | ⚡ Power | PowerSaver, Power profile, DPMS timeout, autolock, lid behavior |
 | 🔧 System | Service status/restart, system information |
 | 📋 Utilities | Screenshots, WiFi, Bluetooth, color picker, clipboard |
+
+> **💡 Tip**: Open the Control Center (`$mod+Shift+s`) and type "wallpaper" to filter and jump directly to the wallpaper picker.
 
 ### 🎬 picom v13 Animations
 Per-window animation system with 4 individually configurable triggers:
@@ -275,8 +278,18 @@ The **visual themes** foundation, palette generators, and conversion scripts wer
 ### Wallpapers
 Wallpapers come from:
 - **Unsplash** — Photos under the Unsplash license (free for commercial use, no attribution required)
-- **Pexels** — Photos under the Pexels/CC0 license
+- **Pexels** — Photos under the Pexels/CC0 license — **Pexels API** used for automatic downloads
 - **Pixabay** — Images under the Pixabay license
+
+Each theme includes at least **5 high-resolution wallpapers**. You can download more or refresh existing ones with the built-in script:
+
+```bash
+# Configure your free API key (get one at https://www.pexels.com/api/)
+echo 'PEXELS_API_KEY="your_key_here"' > ~/.config/themes/wallpaper-api.env
+
+# Run the downloader
+bash ~/.config/themes/scripts/download-wallpapers.sh
+```
 
 Specific photographer credits are available in each image's metadata.
 
