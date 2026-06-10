@@ -4,6 +4,19 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 [ -f "$SCRIPT_DIR/../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../scripts/rofi-builder.sh"
 [ -f "$SCRIPT_DIR/../../scripts/rofi-builder.sh" ] && source "$SCRIPT_DIR/../../scripts/rofi-builder.sh"
 
+BACK_TO="appearance"
+case "${1:-}" in
+    --back-to=*) BACK_TO="${1#--back-to=}" ;;
+    --back-to)   BACK_TO="${2:-appearance}" ;;
+    appearance|main|display) BACK_TO="$1" ;;
+esac
+case "$BACK_TO" in
+    appearance) BACK_TO_SCRIPT="$SCRIPT_DIR/appearance.sh" ;;
+    main)       BACK_TO_SCRIPT="$HOME/.config/themes/bin/rofi-settings.sh" ;;
+    display)    BACK_TO_SCRIPT="$SCRIPT_DIR/display.sh" ;;
+    *)          BACK_TO_SCRIPT="$SCRIPT_DIR/appearance.sh" ;;
+esac
+
 THEME_DIR=$(readlink -f ~/.config/themes/current/theme 2>/dev/null)
 [ -z "$THEME_DIR" ] && THEME_DIR=~/.config/themes/themes/dracula
 WALL_DIR="$THEME_DIR/backgrounds"
@@ -33,7 +46,7 @@ done
 
 [ "${#files[@]}" -eq 0 ] && {
     dunstify -u critical "$L_WALLPAPER" "$L_NO_IMAGES"
-    exec "$SCRIPT_DIR/appearance.sh"
+    exec "$BACK_TO_SCRIPT"
 }
 
 ROFI_THEME_WALL="window { width: ${W_WIDE:-750}px; border-radius: ${ROFI_RADIUS:-16}px; border: ${ROFI_BORDER:-2}px solid; border-color: $SEL; background-color: $BG; }
@@ -48,8 +61,8 @@ element-text { horizontal-align: 0.5; vertical-align: 0.5; font: \"JetBrainsMono
 
 choice=$(printf "%b" "$entries" | rofi -dmenu -p "  $L_WALLPAPER" -show-icons -i -no-custom -theme-str "$ROFI_THEME_WALL" -format s)
 
-[ -z "$choice" ] && exec "$SCRIPT_DIR/appearance.sh"
-[[ "$choice" == *"$L_BACK"* ]] && exec "$SCRIPT_DIR/appearance.sh"
+[ -z "$choice" ] && exec "$BACK_TO_SCRIPT"
+[[ "$choice" == *"$L_BACK"* ]] && exec "$BACK_TO_SCRIPT"
 
 # Handle restore theme wallpaper
 if [[ "$choice" == *"Restaurar"* ]]; then
@@ -57,7 +70,7 @@ if [[ "$choice" == *"Restaurar"* ]]; then
     THEME_DIR=$(readlink -f ~/.config/themes/current/theme 2>/dev/null)
     bash "$HOME/.config/themes/applyers/apply-wallpaper.sh" "$THEME_DIR"
     dunstify -u low "$L_WALLPAPER" "Wallpaper del tema restaurado"
-    exec "$SCRIPT_DIR/appearance.sh"
+    exec "$BACK_TO_SCRIPT"
 fi
 
 selected=$(echo "$choice" | sed 's/^▶ //')
@@ -69,4 +82,4 @@ if [ -f "$wall_path" ]; then
     nitrogen --set-zoom-fill "$wall_path" --save 2>/dev/null
 fi
 dunstify -u low "$L_WALLPAPER" "$L_SET_AS_WALL: $selected"
-exec "$SCRIPT_DIR/appearance.sh"
+exec "$BACK_TO_SCRIPT"

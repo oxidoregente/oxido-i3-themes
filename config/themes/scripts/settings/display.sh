@@ -25,7 +25,7 @@ EOF
         *"$L_BRIGHT_DOWN"*)
             ~/.config/i3/brightness.sh "5%-" ;;
         *"$L_WALL"*)
-            exec "$DIR/wallpaper.sh" ;;
+            exec "$DIR/wallpaper.sh" --back-to display ;;
         *"$L_DPMS"*)
             xset dpms force off
             dunstify -u low "$L_DISPLAY" "$L_NOT_DND_ON"
