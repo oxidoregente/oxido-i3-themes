@@ -395,6 +395,10 @@ for_window [class="ThemeSelector"] floating enable, resize set 960 580, move pos
 
 for_window [class="App.py"] floating enable, resize set 800 600, move position center
 
+# 5b. Brave: forzar al workspace activo (evita que sesión restaurada
+#     ponga ventanas en workspaces anteriores)
+for_window [class="Brave-browser"] move to workspace current
+
 # 6. PWAs de Brave/Chromium (app mode) que deben ser ventanas nativas
 # El WM_CLASS de una PWA es: instance="crx_<id>", class="Brave-browser"
 # Matchear por instance cubre todas las PWAs sin depender de la clase exacta
