@@ -5,9 +5,9 @@ animations = ({
     duration = 0.22;
 }, {
     triggers = ["close"];
-    preset = "disappear";
-    scale = 1.05;
-    duration = 0.2;
+    preset = "fly-out";
+    direction = "left";
+    duration = 0.20;
 }, {
     # Show — cascading fly-in
     triggers = ["show"];
@@ -17,7 +17,11 @@ animations = ({
 }, {
     # Hide — cascading fly-out
     triggers = ["hide"];
-    preset = "fly-out";
-    direction = "down";
-    duration = 0.15;
+    preset = "disappear";
+    scale = 1.05;
+    duration = 0.10;
 });
+
+
+
+
