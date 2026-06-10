@@ -259,6 +259,26 @@ for theme in "${EXPECTED_THEMES[@]}"; do
 done
 echo ""
 
+# Check nvim integration
+echo -e "${cyan}--- Neovim Integration ---${nc}"
+NVIM_THEME_FILE="$HOME/.config/nvim/theme.lua"
+if [ -f "$NVIM_THEME_FILE" ]; then
+  ok "theme.lua exists in ~/.config/nvim/"
+else
+  warn "theme.lua NOT found (run a theme switch first)"
+fi
+NVIM_INIT="$HOME/.config/nvim/init.lua"
+if [ -f "$NVIM_INIT" ]; then
+  if grep -q "theme.lua" "$NVIM_INIT" 2>/dev/null; then
+    ok "init.lua references theme.lua"
+  else
+    warn "init.lua does NOT reference theme.lua"
+  fi
+else
+  warn "init.lua NOT found in ~/.config/nvim/"
+fi
+echo ""
+
 # Check: no duplicate foreground/background-alt in i3 (like white theme had)
 echo -e "${cyan}--- i3 Foreground/Background Sanity ---${nc}"
 for theme in "${EXPECTED_THEMES[@]}"; do
@@ -284,7 +304,7 @@ APPLYERS_DIR="$SCRIPT_DIR/../applyers"
 [ ! -d "$APPLYERS_DIR" ] && APPLYERS_DIR="$HOME/.config/themes/applyers"
 for app in apply-polybar.sh apply-rofi.sh apply-dunst.sh apply-i3.sh \
            apply-alacritty.sh apply-conky.sh apply-wallpaper.sh \
-           apply-btop.sh apply-cava.sh apply-gtk.sh; do
+           apply-btop.sh apply-cava.sh apply-gtk.sh apply-nvim.sh; do
   if [[ -x "$APPLYERS_DIR/$app" ]]; then
     ok "$app is executable"
   elif [[ -f "$APPLYERS_DIR/$app" ]]; then

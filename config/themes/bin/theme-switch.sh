@@ -48,5 +48,6 @@ bash "$THEMES_DIR/applyers/apply-alacritty.sh" "$THEME_DIR" 2>/dev/null
 bash "$THEMES_DIR/applyers/apply-btop.sh" "$THEME_DIR" 2>/dev/null
 bash "$THEMES_DIR/applyers/apply-cava.sh" "$THEME_DIR" 2>/dev/null
 bash "$THEMES_DIR/applyers/apply-opencode.sh" "$THEME_DIR" 2>/dev/null
+bash "$THEMES_DIR/applyers/apply-nvim.sh" "$THEME_DIR" 2>/dev/null
 
 notify-send -i preferences-desktop-theme "Theme Switcher" "Tema cambiado a: ${THEME_NAME^}"

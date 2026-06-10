@@ -88,9 +88,25 @@ if [ -f "$LAYOUT_FILE" ] && [ -f "$LAYOUTS_DIR/$(cat "$LAYOUT_FILE").ini" ]; the
     i3-msg "gaps top all set 0" >/dev/null 2>&1
     sed -i 's/^gaps top .*/gaps top 0/' "$HOME/.config/i3/config"
 elif [ -f "$THEME_DIR/polybar/config.ini" ]; then
+    cp "$THEME_DIR/polybar/colors.ini" /tmp/polybar-colors-fallback.ini 2>/dev/null
     cp "$THEME_DIR/polybar/config.ini" "$CONFIG_DST"
+    # Si hay colors.ini, inyecta variables faltantes al [colors] del legacy config
+    if [ -f /tmp/polybar-colors-fallback.ini ]; then
+        while IFS='=' read -r key val; do
+            key=$(echo "$key" | tr -d '[:space:]')
+            val=$(echo "$val" | tr -d '[:space:]')
+            [ -z "$key" ] || [ "$key" = "[colors]" ] && continue
+            if ! grep -q "^$key " "$CONFIG_DST" 2>/dev/null; then
+                sed -i "/^\[colors\]/a $key = $val" "$CONFIG_DST"
+            fi
+        done < /tmp/polybar-colors-fallback.ini
+        rm -f /tmp/polybar-colors-fallback.ini
+    fi
 elif [ -f "$THEME_DIR/polybar/colors.ini" ]; then
-    cp "$THEME_DIR/polybar/colors.ini" "$CONFIG_DST"
+    cat > "$CONFIG_DST" << 'MINIMALHEADER'
+[colors]
+MINIMALHEADER
+    cat "$THEME_DIR/polybar/colors.ini" | tail -n +2 >> "$CONFIG_DST"
 fi
 
 # Ensure config has at least one bar section, otherwise create a minimal default
