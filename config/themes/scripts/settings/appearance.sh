@@ -13,7 +13,7 @@ GAPS_OUTER=$(grep "^gaps outer" ~/.config/i3/config 2>/dev/null | awk '{print $3
 [ -z "$GAPS_OUTER" ] && GAPS_OUTER=2
 
 conky_status() {
-    if [ -f "$CONKY_FILE" ]; then echo "󰄧  ON"; else echo "󰄧  OFF"; fi
+    if [ -f "$CONKY_FILE" ]; then echo "ON"; else echo "OFF"; fi
 }
 
 current_layout() {

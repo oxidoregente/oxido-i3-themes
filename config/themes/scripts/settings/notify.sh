@@ -37,7 +37,7 @@ EOF
             dunstctl history-pop ;;
         *"$L_NOT_DURATION"*)
             dur=$(printf "3 segundos\n5 segundos\n8 segundos\n15 segundos\n30 segundos\n∞  (fijo)" | \
-                rofi -dmenu -p "  ⏱  $L_NOT_DURATION" -theme-str "$ROFI_THEME_SUB" -i)
+                rofi -dmenu -p "  $L_NOT_DURATION" -theme-str "$ROFI_THEME_SUB" -i)
             [ -z "$dur" ] && continue
             case "$dur" in
                 *3*) VAL=3 ;;
