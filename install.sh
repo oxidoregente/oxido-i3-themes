@@ -59,14 +59,14 @@ install_packages() {
 # ─── 3. Backup de configs existentes ───
 backup_configs() {
     local has_backup=false
-    for dir in themes i3 picom polybar dunst rofi nitrogen; do
+    for dir in themes i3 picom polybar dunst rofi nitrogen nvim; do
         if [ -d "$HOME/.config/$dir" ]; then
             has_backup=true
         fi
     done
     if $has_backup; then
         mkdir -p "$BACKUP_DIR"
-        for dir in themes i3 picom polybar dunst rofi nitrogen; do
+        for dir in themes i3 picom polybar dunst rofi nitrogen nvim; do
             [ -d "$HOME/.config/$dir" ] && \
                 cp -r "$HOME/.config/$dir" "$BACKUP_DIR/" 2>/dev/null && \
                 info "Backup de ~/.config/$dir → $BACKUP_DIR/"
@@ -78,7 +78,7 @@ backup_configs() {
 # ─── 4. Copiar configs ───
 copy_configs() {
     info "Copiando configuraciones..."
-    for dir in themes i3 picom polybar dunst rofi nitrogen; do
+    for dir in themes i3 picom polybar dunst rofi nitrogen nvim; do
         if [ -d "$CONFIG_SRC/$dir" ]; then
             rm -rf "$HOME/.config/$dir"
             cp -r "$CONFIG_SRC/$dir" "$HOME/.config/$dir"
