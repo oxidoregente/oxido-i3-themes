@@ -393,6 +393,8 @@ bindsym $mod+Shift+Return exec --no-startup-id alacritty -T "terminal_flotante"
 # 5. Selector de Temas de oxido
 for_window [class="ThemeSelector"] floating enable, resize set 960 580, move position center
 
+for_window [class="App.py"] floating enable, resize set 800 600, move position center
+
 # 6. PWAs de Brave/Chromium (app mode) que deben ser ventanas nativas
 # El WM_CLASS de una PWA es: instance="crx_<id>", class="Brave-browser"
 # Matchear por instance cubre todas las PWAs sin depender de la clase exacta
