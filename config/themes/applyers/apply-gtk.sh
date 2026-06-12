@@ -20,6 +20,10 @@ gsettings set org.gnome.desktop.interface icon-theme "$ICON_THEME" 2>/dev/null
 gsettings set org.cinnamon.desktop.interface gtk-theme "$GTK_THEME" 2>/dev/null
 gsettings set org.cinnamon.desktop.interface icon-theme "$ICON_THEME" 2>/dev/null
 
+# Set dark color scheme (all themes are dark)
+gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null
+gsettings set org.cinnamon.desktop.interface color-scheme 'prefer-dark' 2>/dev/null
+
 mkdir -p ~/.config/gtk-3.0
 
 cat > ~/.config/gtk-3.0/settings.ini << CFGEOF

@@ -21,3 +21,11 @@ blue    = "#81a1c1"
 magenta = "#b48ead"
 cyan    = "#8fbcbb"
 white   = "#eceff4"
+
+[colors.cursor]
+cursor = "#81a1c1"
+text = "#2e3440"
+
+[colors.selection]
+background = "#81a1c1"
+text = "#d8dee9"
